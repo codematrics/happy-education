@@ -1,6 +1,3 @@
-import { uploadToCloudinary } from "./cloudinary";
-import { z } from "zod";
-
 export interface ParsedFormData {
   [key: string]: any;
 }
@@ -10,223 +7,96 @@ export interface ValidationResult {
   data?: any;
   errors?: any;
 }
+export const jsonToFormData = (data: Record<string, any>): FormData => {
+  const formData = new FormData();
 
-// Helper function to validate non-file fields first
-const validateNonFileFields = (
-  formData: FormData,
-  schema: z.ZodSchema
-): ValidationResult => {
-  const nonFileData: ParsedFormData = {};
-  const fileFields: { [key: string]: File } = {};
+  const isFile = (value: unknown): value is File | Blob =>
+    value instanceof File || value instanceof Blob;
 
-  // Separate file and non-file fields
-  for (const [key, value] of formData.entries()) {
-    if (value instanceof File) {
-      fileFields[key] = value;
-    } else {
-      if (key === "price") {
-        const parsed = parseFloat(value as string);
-        if (isNaN(parsed)) {
-          return {
-            success: false,
-            errors: { [key]: ["Invalid price format"] },
-          };
+  const entries = Object.entries(data);
+
+  for (let i = 0; i < entries.length; i++) {
+    const arKey = entries[i][0];
+    let arVal = entries[i][1];
+
+    if (typeof arVal === "boolean") {
+      arVal = arVal ? 1 : 0;
+    }
+
+    if (Array.isArray(arVal)) {
+      // ✅ Skip empty arrays
+      if (arVal.length === 0) {
+        continue;
+      }
+
+      if (isFile(arVal[0])) {
+        for (let z = 0; z < arVal.length; z++) {
+          formData.append(`${arKey}[]`, arVal[z]);
         }
-        nonFileData[key] = parsed;
+        continue;
+      } else if (typeof arVal[0] === "object" && arVal[0] !== null) {
+        for (let j = 0; j < arVal.length; j++) {
+          if (typeof arVal[j] === "object" && arVal[j] !== null) {
+            for (const prop in arVal[j]) {
+              if (Object.prototype.hasOwnProperty.call(arVal[j], prop)) {
+                const value = arVal[j][prop];
+                if (!isNaN(Date.parse(value))) {
+                  formData.append(
+                    `${arKey}[${j}][${prop}]`,
+                    new Date(value).toISOString()
+                  );
+                } else {
+                  formData.append(`${arKey}[${j}][${prop}]`, value);
+                }
+              }
+            }
+          }
+        }
+        continue;
       } else {
-        nonFileData[key] = value;
+        arVal = JSON.stringify(arVal);
       }
     }
+
+    if (arVal === null || arVal === undefined) {
+      continue;
+    }
+
+    formData.append(arKey, arVal);
   }
 
-  // Create a temporary schema for validation that makes file fields optional
-  const tempSchema = schema.partial();
-  
-  // For each file field, add a placeholder to pass basic validation
-  Object.keys(fileFields).forEach(key => {
-    nonFileData[key] = fileFields[key]; // Keep file for file-specific validation
+  return formData;
+};
+
+export const formDataToJson = (formData: FormData): Record<string, any> => {
+  const obj: Record<string, any> = {};
+
+  formData.forEach((value, key) => {
+    // Check if key ends with [] (array)
+    if (key.endsWith("[]")) {
+      const cleanKey = key.slice(0, -2);
+      if (!obj[cleanKey]) {
+        obj[cleanKey] = [];
+      }
+      obj[cleanKey].push(value instanceof File ? value : String(value));
+    }
+    // Handle nested keys like arr[0][prop]
+    else if (/\[\d+\]/.test(key)) {
+      const match = key.match(/^([^\[]+)\[(\d+)\]\[([^\]]+)\]$/);
+      if (match) {
+        const [, arrKey, indexStr, prop] = match;
+        const index = parseInt(indexStr, 10);
+        if (!obj[arrKey]) obj[arrKey] = [];
+        if (!obj[arrKey][index]) obj[arrKey][index] = {};
+        obj[arrKey][index][prop] =
+          value instanceof File ? value : String(value);
+      }
+    }
+    // Handle normal keys
+    else {
+      obj[key] = value instanceof File ? value : String(value);
+    }
   });
 
-  const validation = tempSchema.safeParse(nonFileData);
-  
-  if (!validation.success) {
-    return {
-      success: false,
-      errors: validation.error.flatten().fieldErrors,
-    };
-  }
-
-  return {
-    success: true,
-    data: { nonFileData, fileFields },
-  };
-};
-
-export const parseFormDataToJson = async (
-  formData: FormData,
-  schema: z.ZodSchema
-): Promise<ParsedFormData> => {
-  // Step 1: Validate non-file fields first
-  const preValidation = validateNonFileFields(formData, schema);
-  
-  if (!preValidation.success) {
-    throw new Error(
-      `Validation failed: ${JSON.stringify(preValidation.errors)}`
-    );
-  }
-
-  const { nonFileData, fileFields } = preValidation.data;
-  const result: ParsedFormData = { ...nonFileData };
-
-  // Step 2: Validate and upload files only after other validations pass
-  for (const [key, file] of Object.entries(fileFields)) {
-    // Skip empty files
-    if (file.size === 0) {
-      throw new Error(`File ${key} is empty`);
-    }
-
-    // Validate file type based on field name
-    const allowedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    const allowedVideoTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/mkv', 'video/webm'];
-
-    let isValidType = false;
-    let folder = "uploads";
-    let resourceType: "image" | "video" = "image";
-
-    if (key.toLowerCase().includes("video") || key.toLowerCase().includes("preview")) {
-      isValidType = allowedVideoTypes.includes(file.type);
-      folder = "courses/videos";
-      resourceType = "video";
-    } else if (
-      key.toLowerCase().includes("thumbnail") ||
-      key.toLowerCase().includes("image")
-    ) {
-      isValidType = allowedImageTypes.includes(file.type);
-      folder = "courses/thumbnails";
-      resourceType = "image";
-    }
-
-    if (!isValidType) {
-      throw new Error(
-        `Invalid file type for ${key}. Expected ${
-          resourceType === "video" ? "video" : "image"
-        } file.`
-      );
-    }
-
-    // Validate file size (5MB for images, 50MB for videos)
-    const maxSize = resourceType === "video" ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      throw new Error(
-        `File ${key} is too large. Maximum size is ${
-          resourceType === "video" ? "50MB" : "5MB"
-        }`
-      );
-    }
-
-    try {
-      const uploadResult = await uploadToCloudinary(
-        file,
-        folder,
-        resourceType
-      );
-      result[key] = uploadResult.secure_url;
-    } catch (error) {
-      throw new Error(`Failed to upload ${key}: ${error}`);
-    }
-  }
-
-  return result;
-};
-
-export const parseFormDataForUpdate = async (
-  formData: FormData,
-  schema: z.ZodSchema
-): Promise<ParsedFormData> => {
-  const nonFileData: ParsedFormData = {};
-  const fileFields: { [key: string]: File } = {};
-
-  // Step 1: Separate and validate non-file fields
-  for (const [key, value] of formData.entries()) {
-    if (value instanceof File && value.size > 0) {
-      fileFields[key] = value;
-    } else if (value !== "" && value !== "undefined" && value !== "null") {
-      if (key === "price") {
-        const parsed = parseFloat(value as string);
-        if (isNaN(parsed)) {
-          throw new Error(`Invalid price format: ${value}`);
-        }
-        nonFileData[key] = parsed;
-      } else {
-        nonFileData[key] = value;
-      }
-    }
-  }
-
-  // Step 2: Validate non-file data with partial schema (for updates)
-  const partialSchema = schema.partial();
-  const validation = partialSchema.safeParse(nonFileData);
-  
-  if (!validation.success) {
-    throw new Error(
-      `Validation failed: ${JSON.stringify(validation.error.flatten().fieldErrors)}`
-    );
-  }
-
-  const result: ParsedFormData = { ...nonFileData };
-
-  // Step 3: Process file uploads only after validation passes
-  for (const [key, file] of Object.entries(fileFields)) {
-    // Validate file type
-    const allowedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    const allowedVideoTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/mkv', 'video/webm'];
-
-    let isValidType = false;
-    let folder = "uploads";
-    let resourceType: "image" | "video" = "image";
-
-    if (key.toLowerCase().includes("video") || key.toLowerCase().includes("preview")) {
-      isValidType = allowedVideoTypes.includes(file.type);
-      folder = "courses/videos";
-      resourceType = "video";
-    } else if (
-      key.toLowerCase().includes("thumbnail") ||
-      key.toLowerCase().includes("image")
-    ) {
-      isValidType = allowedImageTypes.includes(file.type);
-      folder = "courses/thumbnails";
-      resourceType = "image";
-    }
-
-    if (!isValidType) {
-      throw new Error(
-        `Invalid file type for ${key}. Expected ${
-          resourceType === "video" ? "video" : "image"
-        } file.`
-      );
-    }
-
-    // Validate file size
-    const maxSize = resourceType === "video" ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      throw new Error(
-        `File ${key} is too large. Maximum size is ${
-          resourceType === "video" ? "50MB" : "5MB"
-        }`
-      );
-    }
-
-    try {
-      const uploadResult = await uploadToCloudinary(
-        file,
-        folder,
-        resourceType
-      );
-      result[key] = uploadResult.secure_url;
-    } catch (error) {
-      throw new Error(`Failed to upload ${key}: ${error}`);
-    }
-  }
-
-  return result;
+  return obj;
 };

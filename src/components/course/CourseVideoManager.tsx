@@ -1,25 +1,33 @@
+"use client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Toast } from "@/lib/toast";
-import { CourseFormData, CourseVideoFormData } from "@/types/schema";
+import {
+  CourseFormData,
+  CourseUpdateData,
+  CourseVideoFormData,
+  courseVideoValidation,
+} from "@/types/schema";
 import { GripVertical, Plus, Trash2, Video } from "lucide-react";
 import { useState } from "react";
 import { useFieldArray, UseFormReturn } from "react-hook-form";
+import CustomImage from "../common/CustomImage";
+import CustomVideo from "../common/CustomVideo";
 import FileUpload from "../common/FileUpload";
+import { Textarea } from "../ui/textarea";
 
 interface CourseVideoManagerProps {
-  form: UseFormReturn<CourseFormData>;
+  form: UseFormReturn<CourseFormData | CourseUpdateData>;
 }
 
 const CourseVideoManager = ({ form }: CourseVideoManagerProps) => {
   const { control } = form;
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "videos",
+    name: "courseVideos",
   });
 
   const [newVideo, setNewVideo] = useState<CourseVideoFormData>({
@@ -31,8 +39,13 @@ const CourseVideoManager = ({ form }: CourseVideoManagerProps) => {
   const [isAdding, setIsAdding] = useState(false);
 
   const handleAddVideo = () => {
-    if (!newVideo.name || !newVideo.video) {
-      Toast.error("Please provide video name and URL");
+    const parsed = courseVideoValidation.safeParse(newVideo);
+
+    if (!parsed.success) {
+      const firstError = parsed.error.issues[0]?.message;
+      if (firstError) {
+        Toast.error(firstError);
+      }
       return;
     }
 
@@ -47,8 +60,8 @@ const CourseVideoManager = ({ form }: CourseVideoManagerProps) => {
     index: number,
     updatedVideo: Partial<CourseVideoFormData>
   ) => {
-    form.setValue(`videos.${index}`, {
-      ...form.getValues(`videos.${index}`),
+    form.setValue(`courseVideos.${index}`, {
+      ...form.getValues(`courseVideos.${index}`),
       ...updatedVideo,
     });
     Toast.success("Video has been updated successfully.");
@@ -127,7 +140,7 @@ const CourseVideoManager = ({ form }: CourseVideoManagerProps) => {
                 <CardContent className="pt-0">
                   <div className="flex items-center space-x-3">
                     <div className="relative">
-                      <img
+                      <CustomImage
                         src={field.thumbnail}
                         alt={field.name}
                         className="w-16 h-10 object-cover rounded border"
@@ -136,8 +149,14 @@ const CourseVideoManager = ({ form }: CourseVideoManagerProps) => {
                         <Video className="h-4 w-4 text-white" />
                       </div>
                     </div>
-                    <div className="text-xs text-muted-foreground truncate flex-1">
-                      {field.video}
+                    <div className="relative">
+                      <CustomVideo
+                        src={field.video}
+                        className="w-16 h-10 object-cover rounded border"
+                      />
+                      <div className="absolute inset-0 bg-black/20 rounded flex items-center justify-center">
+                        <Video className="h-4 w-4 text-white" />
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -168,17 +187,26 @@ const CourseVideoManager = ({ form }: CourseVideoManagerProps) => {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label className="text-sm">Video File *</Label>
+            <div className="space-y-2 grid grid-cols-1 md:grid-cols-2 gap-6">
               <FileUpload
-                label=""
+                label="Video File *"
                 accept=".mp4,.avi,.mov,.wmv,.flv,.webm"
                 type="video"
                 placeholder="https://example.com/video.mp4"
                 onChange={(file, url) =>
-                  setNewVideo((prev) => ({ ...prev, video: url || "" }))
+                  setNewVideo((prev) => ({ ...prev, video: file || "" }))
                 }
                 value={newVideo.video}
+              />
+              <FileUpload
+                label="Video Thumbnail"
+                accept=".jpg,.jpeg,.png,.gif,.webp"
+                type="image"
+                placeholder="https://example.com/thumbnail.jpg"
+                onChange={(file, url) =>
+                  setNewVideo((prev) => ({ ...prev, thumbnail: file || "" }))
+                }
+                value={newVideo.thumbnail}
               />
             </div>
 
@@ -200,17 +228,6 @@ const CourseVideoManager = ({ form }: CourseVideoManagerProps) => {
                 rows={2}
               />
             </div>
-
-            <FileUpload
-              label="Video Thumbnail"
-              accept=".jpg,.jpeg,.png,.gif,.webp"
-              type="image"
-              placeholder="https://example.com/thumbnail.jpg"
-              onChange={(file, url) =>
-                setNewVideo((prev) => ({ ...prev, thumbnail: url || "" }))
-              }
-              value={newVideo.thumbnail}
-            />
 
             <div className="flex justify-end space-x-2 pt-2">
               <Button
@@ -242,7 +259,7 @@ const CourseVideoManager = ({ form }: CourseVideoManagerProps) => {
         </Card>
       )}
 
-      {videos && videos.length === 0 && !isAdding && (
+      {fields && fields.length === 0 && !isAdding && (
         <div className="text-center py-8 border-2 border-dashed border-border rounded-lg">
           <Video className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
           <p className="text-sm text-muted-foreground">No videos added yet</p>

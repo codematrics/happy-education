@@ -1,21 +1,7 @@
-"use client";
-
 import CoursePage from "@/components/course/CoursePage";
 import { getCourses } from "@/lib/api";
 import { getQueryClient } from "@/lib/query";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-
-interface Course {
-  _id: string;
-  title: string;
-  description: string;
-  price: number;
-  duration: number;
-  thumbnail?: string;
-  published: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
 
 export default async function Courses({
   searchParams,

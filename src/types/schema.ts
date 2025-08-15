@@ -18,45 +18,70 @@ export const paginationValidations = z.object({
   page: z.number().min(1, "Page number is invalid"),
   limit: z.number().min(1, "limit number is invalid"),
 });
-
-const fileValidation = (allowedExtensions: string[]) =>
+const requiredFileOrUrlValidation = (allowedExtensions: string[]) =>
   z
     .any()
-    .refine((file) => file instanceof File, {
-      message: "File is required",
+    .refine((value) => value instanceof File || typeof value === "string", {
+      message: "File or URL is required",
     })
     .refine(
-      (file) =>
-        allowedExtensions.some((ext) => file.name.toLowerCase().endsWith(ext)),
+      (value) =>
+        typeof value === "string" ||
+        allowedExtensions.some((ext) =>
+          value.name?.toLowerCase().endsWith(ext)
+        ),
       {
         message: `Only ${allowedExtensions.join(", ")} files are allowed`,
       }
     );
 
-const courseVideoValidation = z.object({
+const optionalFileOrUrlValidation = (allowedExtensions: string[]) =>
+  z
+    .any()
+    .optional()
+    .nullable()
+    .refine(
+      (value) => !value || value instanceof File || typeof value === "string",
+      { message: "Invalid file or URL" }
+    )
+    .refine(
+      (value) =>
+        !value ||
+        typeof value === "string" ||
+        allowedExtensions.some((ext) =>
+          value.name?.toLowerCase().endsWith(ext)
+        ),
+      {
+        message: `Only ${allowedExtensions.join(", ")} files are allowed`,
+      }
+    );
+
+export const courseVideoValidation = z.object({
+  _id: z.string().optional(), // For updates - existing video ID
   name: z.string().min(1, "Video name is required"),
   description: z.string().min(1, "Video description is required"),
-  thumbnail: fileValidation([".jpg", ".jpeg", ".png", ".webp"]),
-  video: fileValidation([".mp4", ".avi", ".mov", ".mkv"]),
+  thumbnail: requiredFileOrUrlValidation([".jpg", ".jpeg", ".png", ".webp"]),
+  video: requiredFileOrUrlValidation([".mp4", ".avi", ".mov", ".mkv"]),
 });
 
 export const courseValidations = z.object({
   name: z.string().min(1, "Course name is required"),
   description: z.string().min(1, "Course description is required"),
-  thumbnail: fileValidation([".jpg", ".jpeg", ".png", ".webp"]),
-  previewVideo: fileValidation([".mp4", ".avi", ".mov", ".mkv"]),
+  thumbnail: requiredFileOrUrlValidation([".jpg", ".jpeg", ".png", ".webp"]),
+  previewVideo: optionalFileOrUrlValidation([".mp4", ".avi", ".mov", ".mkv"]),
   price: z.number().positive("Price must be a positive number"),
   currency: z.nativeEnum(CourseCurrency),
-  videos: z.array(courseVideoValidation).optional(),
+  courseVideos: z.array(courseVideoValidation).optional(),
 });
 
 export const courseUpdateValidations = z.object({
   name: z.string().min(1).optional(),
   description: z.string().min(1).optional(),
-  thumbnail: fileValidation([".jpg", ".jpeg", ".png", ".webp"]).optional(),
-  previewVideo: fileValidation([".mp4", ".avi", ".mov", ".mkv"]).optional(),
+  thumbnail: requiredFileOrUrlValidation([".jpg", ".jpeg", ".png", ".webp"]),
+  previewVideo: optionalFileOrUrlValidation([".mp4", ".avi", ".mov", ".mkv"]),
   price: z.number().positive().optional(),
   currency: z.nativeEnum(CourseCurrency).optional(),
+  courseVideos: z.array(courseVideoValidation).optional(),
 });
 
 export type LoginFormData = z.infer<typeof loginValidations>;

@@ -19,40 +19,71 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  useCourse,
+  useCreateCourse,
+  useUpdateCourse,
+} from "@/hooks/useCourses";
 import { CourseCurrency } from "@/types/constants";
-import { CourseFormData, courseValidations } from "@/types/schema";
+import {
+  CourseFormData,
+  CourseUpdateData,
+  courseUpdateValidations,
+  courseValidations,
+} from "@/types/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import FileUpload from "../common/FileUpload";
+import FormSpinner from "../common/FormSpinner";
 import CourseVideoManager from "./CourseVideoManager";
 
 interface CourseFormProps {
-  course?: Partial<CourseFormData>;
+  courseId?: string;
 }
 
-const CourseForm = ({ course }: CourseFormProps) => {
-  const form = useForm<CourseFormData>({
-    resolver: zodResolver(courseValidations),
-    defaultValues: {
-      name: "",
-      description: "",
-      thumbnail: "",
-      previewVideo: "",
-      price: 0,
-      currency: CourseCurrency.dollar,
-      videos: [],
-    },
+const defaultValues: CourseFormData = {
+  name: "",
+  description: "",
+  thumbnail: null,
+  previewVideo: null,
+  price: 0,
+  currency: CourseCurrency.dollar,
+  courseVideos: [],
+};
+
+const CourseForm = ({ courseId }: CourseFormProps) => {
+  const { mutateAsync: createCourse, isPending: isCreating } =
+    useCreateCourse();
+  const { mutateAsync: updateCourse, isPending: isUpdating } =
+    useUpdateCourse();
+  const { data: course, isLoading } = useCourse(courseId);
+
+  const form = useForm<CourseFormData | CourseUpdateData>({
+    resolver: zodResolver(
+      course?.data ? courseUpdateValidations : courseValidations
+    ),
+    defaultValues: (course?.data as CourseUpdateData) ?? defaultValues,
   });
 
-  const handleSubmit = (values: CourseFormData) => {
-    toast.success(
-      `Course "${values.name}" has been ${
-        course ? "updated" : "created"
-      } successfully.`
-    );
+  const handleSubmit = async (values: CourseFormData | CourseUpdateData) => {
+    if (courseId) {
+      await updateCourse({ courseId, data: values as CourseUpdateData });
+    } else {
+      await createCourse(values as CourseFormData);
+    }
   };
+
+  useEffect(() => {
+    if (course?.data) {
+      form.reset(course.data as CourseUpdateData);
+    }
+  }, [course]);
+
+  if (isLoading) {
+    return <FormSpinner />;
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -64,7 +95,7 @@ const CourseForm = ({ course }: CourseFormProps) => {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-foreground">
-                {course ? "Edit Course" : "Create New Course"}
+                {courseId ? "Edit Course" : "Create New Course"}
               </h1>
             </div>
             <Button
@@ -182,7 +213,7 @@ const CourseForm = ({ course }: CourseFormProps) => {
                         label="Course Thumbnail *"
                         accept="image/*"
                         value={field.value}
-                        onChange={(file, url) => field.onChange(url)}
+                        onChange={(file, url) => field.onChange(file)}
                         placeholder="https://example.com/thumbnail.jpg"
                         type="image"
                       />
@@ -201,7 +232,7 @@ const CourseForm = ({ course }: CourseFormProps) => {
                         label="Preview Video *"
                         accept="video/*"
                         value={field.value}
-                        onChange={(file, url) => field.onChange(url)}
+                        onChange={(file, url) => field.onChange(file)}
                         placeholder="https://example.com/video.mp4"
                         type="video"
                       />
@@ -223,11 +254,25 @@ const CourseForm = ({ course }: CourseFormProps) => {
           </div>
           <div className="py-6 border-t mt-auto flex justify-end">
             <Button
+              disabled={
+                !form.formState.isDirty ||
+                !form.formState.isValid ||
+                isCreating ||
+                isUpdating
+              }
               type="submit"
               className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
-              <Plus className="h-4 w-4 mr-2" />
-              Create Course
+              {isCreating ? (
+                "Creating..."
+              ) : isUpdating ? (
+                "Updating..."
+              ) : (
+                <>
+                  <Plus className="h-4 w-4 mr-2" />
+                  {courseId ? "Update" : "Create"} Course
+                </>
+              )}
             </Button>
           </div>
         </form>

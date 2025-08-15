@@ -1,12 +1,13 @@
 "use client";
 
-import { useCourses } from "@/hooks/useCourses";
+import { useCourses, useDeleteCourse } from "@/hooks/useCourses";
 import { coursesSortOptions } from "@/types/constants";
-import { CourseFormData, CourseVideoFormData } from "@/types/schema";
 import { Grid3X3, List, Plus, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import DeleteConfirmDialog from "../common/DeleteConfirmation";
+import LoadingError from "../common/LoadingError";
+import CourseCardSkeleton from "../skeleton/CourseCard";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import {
@@ -25,33 +26,59 @@ interface Props {
 
 const CoursePage: React.FC<Props> = ({ initialSearch, initialPage }) => {
   const [search, setSearch] = useState(initialSearch);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [page, setPage] = useState(initialPage);
   const [sort, setSort] = useState("newest");
-  const [editingCourse, setEditingCourse] = useState<
-    CourseFormData | undefined
-  >();
-  const [isFormOpen, setIsFormOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{
     isOpen: boolean;
     courseId: string;
     courseName: string;
+    onDelete: () => void | Promise<void>;
   }>({
     isOpen: false,
     courseId: "",
     courseName: "",
+    onDelete: () => {},
   });
   const limit = 10;
 
-  const { data, isLoading } = useCourses({ page, limit, search });
+  // Map sort values to API parameters
+  const getSortParams = (sortValue: string) => {
+    switch (sortValue) {
+      case "newest":
+        return { sortBy: "createdAt", sortOrder: "desc" as const };
+      case "oldest":
+        return { sortBy: "createdAt", sortOrder: "asc" as const };
+      case "name":
+        return { sortBy: "name", sortOrder: "asc" as const };
+      case "price-low":
+        return { sortBy: "price", sortOrder: "asc" as const };
+      case "price-high":
+        return { sortBy: "price", sortOrder: "desc" as const };
+      default:
+        return { sortBy: "createdAt", sortOrder: "desc" as const };
+    }
+  };
+
+  const sortParams = getSortParams(sort);
+  const { mutateAsync: deleteCourse } = useDeleteCourse();
+  const { data, isLoading, refetch } = useCourses({ 
+    page, 
+    limit, 
+    search, 
+    sortBy: sortParams.sortBy,
+    sortOrder: sortParams.sortOrder
+  });
   const router = useRouter();
+
   const handleSearch = (value: string) => {
     setSearch(value);
-    // applyFilters(value, sortBy, courses);
+    setPage(1); // Reset to first page when searching
   };
 
   const handleSort = (value: string) => {
     setSort(value);
-    // applyFilters(searchTerm, value, courses);
+    setPage(1); // Reset to first page when sorting
   };
 
   const handleCreateCourse = () => {
@@ -60,20 +87,24 @@ const CoursePage: React.FC<Props> = ({ initialSearch, initialPage }) => {
     router.push("/admin/course/new");
   };
 
-  const handleEditCourse = (course: CourseFormData) => {
-    setEditingCourse(course);
-    // setIsFormOpen(true);
-  };
+  const handleEditCourse = (courseId: string) =>
+    router.push(`/admin/course/${courseId}`);
 
   const handleDeleteCourse = (courseId: string) => {
-    // const course = courses.find((c) => c.id === courseId);
-    // if (course) {
-    //   setDeleteConfirm({
-    //     isOpen: true,
-    //     courseId,
-    //     courseName: course.name,
-    //   });
-    // }
+    setDeleteConfirm({
+      isOpen: true,
+      courseId,
+      courseName: data?.data?.items.find((c) => c._id === courseId)?.name || "",
+      onDelete: async () => {
+        await deleteCourse(courseId);
+        setDeleteConfirm({
+          isOpen: false,
+          courseId: "",
+          courseName: "",
+          onDelete: () => {},
+        });
+      },
+    });
   };
 
   const confirmDelete = () => {
@@ -88,31 +119,12 @@ const CoursePage: React.FC<Props> = ({ initialSearch, initialPage }) => {
     //   description: `Course "${deleteConfirm.courseName}" has been deleted successfully.`,
     // });
 
-    setDeleteConfirm({ isOpen: false, courseId: "", courseName: "" });
-  };
-
-  const handleFormSubmit = (
-    data: CourseFormData & { courseVideos?: CourseVideoFormData[] }
-  ) => {
-    if (editingCourse) {
-      // Update existing course
-      // const updatedCourses = courses.map((course) =>
-      //   course.id === editingCourse.id ? { ...course, ...data } : course
-      // );
-      // setCourses(updatedCourses);
-      // applyFilters(searchTerm, sortBy, updatedCourses);
-    } else {
-      // Create new course
-      // const newCourse: ICourse = {
-      //   id: Date.now().toString(),
-      //   ...data,
-      //   createdAt: new Date(),
-      //   courseVideos: data.courseVideos || [],
-      // };
-      // const updatedCourses = [newCourse, ...courses];
-      // setCourses(updatedCourses);
-      // applyFilters(searchTerm, sortBy, updatedCourses);
-    }
+    setDeleteConfirm({
+      isOpen: false,
+      courseId: "",
+      courseName: "",
+      onDelete: () => {},
+    });
   };
 
   const handleViewVideos = (courseId: string) => {
@@ -154,24 +166,26 @@ const CoursePage: React.FC<Props> = ({ initialSearch, initialPage }) => {
             </SelectTrigger>
             <SelectContent>
               {coursesSortOptions.map((options) => (
-                <SelectItem value="newest">Newest First</SelectItem>
+                <SelectItem key={options.value} value={options.value}>
+                  {options.label}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
 
           <div className="flex items-center border rounded-lg p-1">
             <Button
-              // variant={viewMode === "grid" ? "default" : "ghost"}
+              variant={viewMode === "grid" ? "default" : "ghost"}
               size="sm"
-              // onClick={() => setViewMode("grid")}
+              onClick={() => setViewMode("grid")}
               className="h-8 w-8 p-0"
             >
               <Grid3X3 className="h-4 w-4" />
             </Button>
             <Button
-              // variant={viewMode === "list" ? "default" : "ghost"}
+              variant={viewMode === "list" ? "default" : "ghost"}
               size="sm"
-              // onClick={() => setViewMode("list")}
+              onClick={() => setViewMode("list")}
               className="h-8 w-8 p-0"
             >
               <List className="h-4 w-4" />
@@ -179,45 +193,63 @@ const CoursePage: React.FC<Props> = ({ initialSearch, initialPage }) => {
           </div>
         </div>
       </div>
-      {data?.data?.items?.length > 0 ? (
-        <div
-          className={
-            // viewMode === "grid"
-            // ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-            // : "space-y-4"
-            "space-y-4"
-          }
-        >
-          {data?.data?.items.map((course) => (
-            <CourseCard
-              key={course.name}
-              course={course}
-              onEdit={handleEditCourse}
-              onDelete={handleDeleteCourse}
-              onViewVideos={handleViewVideos}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-12">
-          <div className="text-muted-foreground">
-            {search
-              ? "No courses found matching your search."
-              : "No courses available."}
+
+      <LoadingError
+        skeletonClassName={
+          viewMode === "grid"
+            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            : "space-y-4"
+        }
+        isLoading={isLoading}
+        errorTitle="Error loading courses"
+        onRetry={refetch}
+        skeleton={<CourseCardSkeleton />}
+      >
+        {(data?.data?.items?.length ?? 0) > 0 ? (
+          <div
+            className={
+              viewMode === "grid"
+                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                : "space-y-4"
+            }
+          >
+            {data?.data?.items?.map((course) => (
+              <CourseCard
+                key={course.name}
+                course={course}
+                onEdit={handleEditCourse}
+                onDelete={handleDeleteCourse}
+                onViewVideos={handleViewVideos}
+              />
+            ))}
           </div>
-          {!search && (
-            <Button className="mt-4">Create Your First Course</Button>
-          )}
-        </div>
-      )}
+        ) : (
+          <div className="text-center py-12">
+            <div className="text-muted-foreground">
+              {search
+                ? "No courses found matching your search."
+                : "No courses available."}
+            </div>
+            {!search && (
+              <Button className="mt-4">Create Your First Course</Button>
+            )}
+          </div>
+        )}
+      </LoadingError>
 
       <DeleteConfirmDialog
         isOpen={deleteConfirm.isOpen}
         onClose={() =>
-          setDeleteConfirm({ isOpen: false, courseId: "", courseName: "" })
+          setDeleteConfirm({
+            isOpen: false,
+            courseId: "",
+            courseName: "",
+            onDelete: () => {},
+          })
         }
-        onConfirm={confirmDelete}
+        onConfirm={deleteConfirm.onDelete}
         itemName={deleteConfirm.courseName}
+        itemType="course"
       />
     </>
   );

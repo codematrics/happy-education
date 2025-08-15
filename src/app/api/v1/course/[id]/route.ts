@@ -1,15 +1,18 @@
+import { processFilesAndReturnUpdatedResults } from "@/lib/cloudinary";
 import connect from "@/lib/db";
-import { parseFormDataForUpdate } from "@/lib/formDataParser";
+import { formDataToJson } from "@/lib/formDataParser";
+import { validateSchema } from "@/lib/schemaValidator";
 import { Course } from "@/models/Course";
-import { courseUpdateValidations } from "@/types/schema";
+import "@/models/CourseVideo";
+import { CourseUpdateData, courseUpdateValidations } from "@/types/schema";
 import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json(
@@ -25,6 +28,8 @@ export const GET = async (
     await connect();
 
     const course = await Course.findById(id).populate("courseVideos").lean();
+
+    console.log("Fetched course:", course);
 
     if (!course) {
       return NextResponse.json(
@@ -60,10 +65,10 @@ export const GET = async (
 
 export const PUT = async (
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json(
@@ -75,35 +80,36 @@ export const PUT = async (
         { status: 400 }
       );
     }
-
     const formData = await req.formData();
-    
-    // Parse and validate data (validation happens before file upload)
-    const parsedData = await parseFormDataForUpdate(
-      formData,
-      courseUpdateValidations
+    const json = formDataToJson(formData);
+
+    validateSchema(courseUpdateValidations, json);
+
+    const fileUploadResults = await processFilesAndReturnUpdatedResults(
+      ["thumbnail", "previewVideo"],
+      json,
+      "courses"
     );
 
-    // Final validation with Zod schema
-    const validation = courseUpdateValidations.safeParse(parsedData);
-    if (!validation.success) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Invalid input",
-          status: false,
-          errors: validation.error.flatten().fieldErrors,
-        },
-        { status: 400 }
-      );
-    }
+    const finalResults = {
+      ...fileUploadResults,
+      courseVideos: json.courseVideos
+        ? await Promise.all(
+            json.courseVideos.map(async (video: CourseUpdateData) => {
+              const uploadResult = await processFilesAndReturnUpdatedResults(
+                ["thumbnail", "video"],
+                video,
+                "course_videos"
+              );
+              return uploadResult;
+            })
+          )
+        : [],
+    };
 
     await connect();
 
-    const updatedCourse = await Course.findByIdAndUpdate(id, validation.data, {
-      new: true,
-      runValidators: true,
-    }).lean();
+    const updatedCourse = await Course.updateWithVideos(id, finalResults);
 
     if (!updatedCourse) {
       return NextResponse.json(
@@ -126,7 +132,7 @@ export const PUT = async (
     );
   } catch (error) {
     console.error("Error updating course:", error);
-    
+
     // Check if it's a validation error from formDataParser
     if (error instanceof Error && error.message.includes("Validation failed")) {
       return NextResponse.json(
@@ -141,11 +147,12 @@ export const PUT = async (
     }
 
     // Check if it's a file upload error
-    if (error instanceof Error && (
-      error.message.includes("Invalid file type") ||
-      error.message.includes("too large") ||
-      error.message.includes("Failed to upload")
-    )) {
+    if (
+      error instanceof Error &&
+      (error.message.includes("Invalid file type") ||
+        error.message.includes("too large") ||
+        error.message.includes("Failed to upload"))
+    ) {
       return NextResponse.json(
         {
           data: null,
@@ -169,10 +176,10 @@ export const PUT = async (
 
 export const DELETE = async (
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json(
@@ -187,7 +194,7 @@ export const DELETE = async (
 
     await connect();
 
-    const deletedCourse = await Course.findByIdAndDelete(id).lean();
+    const deletedCourse = await Course.deleteWithVideos(id);
 
     if (!deletedCourse) {
       return NextResponse.json(

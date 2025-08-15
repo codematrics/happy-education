@@ -1,12 +1,14 @@
+import { processFilesAndReturnUpdatedResults } from "@/lib/cloudinary";
 import connect from "@/lib/db";
-import { parseFormDataToJson } from "@/lib/formDataParser";
+import { formDataToJson } from "@/lib/formDataParser";
 import {
   createPaginationResponse,
   getPaginationOptions,
   paginate,
 } from "@/lib/pagination";
+import { validateSchema } from "@/lib/schemaValidator";
 import { Course } from "@/models/Course";
-import { courseValidations } from "@/types/schema";
+import { courseValidations, CourseVideoFormData } from "@/types/schema";
 import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (req: NextRequest) => {
@@ -15,8 +17,32 @@ export const GET = async (req: NextRequest) => {
 
     const searchParams = req.nextUrl.searchParams;
     const options = getPaginationOptions(searchParams);
+    
+    // Get search and sort parameters
+    const search = searchParams.get('search') || '';
+    const sortBy = searchParams.get('sortBy') || 'createdAt';
+    const sortOrder = searchParams.get('sortOrder') || 'desc';
 
-    const result = await paginate(Course, {}, options);
+    // Build search filter
+    let filter = {};
+    if (search) {
+      filter = {
+        $or: [
+          { name: { $regex: search, $options: 'i' } },
+          { description: { $regex: search, $options: 'i' } }
+        ]
+      };
+    }
+
+    // Build sort object
+    const sortObj: Record<string, 1 | -1> = {};
+    sortObj[sortBy] = sortOrder === 'asc' ? 1 : -1;
+
+    const result = await paginate(Course, filter, {
+      ...options,
+      sort: sortObj,
+      populate: 'courseVideos'
+    });
 
     const data = createPaginationResponse(
       result.data,
@@ -41,27 +67,35 @@ export const GET = async (req: NextRequest) => {
 export const POST = async (req: NextRequest) => {
   try {
     const formData = await req.formData();
-    
-    // Parse and validate data (validation happens before file upload)
-    const parsedData = await parseFormDataToJson(formData, courseValidations);
+    const json = formDataToJson(formData);
 
-    // Final validation with Zod schema
-    const validation = courseValidations.safeParse(parsedData);
-    if (!validation.success) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Invalid input",
-          status: false,
-          errors: validation.error.flatten().fieldErrors,
-        },
-        { status: 400 }
-      );
-    }
+    validateSchema(courseValidations, json);
+
+    const fileUploadResults = await processFilesAndReturnUpdatedResults(
+      ["thumbnail", "previewVideo"],
+      json,
+      "courses"
+    );
+
+    const finalResults = {
+      ...fileUploadResults,
+      courseVideos: json.courseVideos
+        ? await Promise.all(
+            json.courseVideos.map(async (video: CourseVideoFormData) => {
+              const uploadResult = await processFilesAndReturnUpdatedResults(
+                ["thumbnail", "video"],
+                video,
+                "course_videos"
+              );
+              return uploadResult;
+            })
+          )
+        : [],
+    };
 
     await connect();
 
-    const newCourse = await Course.create(validation.data);
+    const newCourse = await Course.createWithVideos(finalResults);
 
     return NextResponse.json(
       {
@@ -73,8 +107,7 @@ export const POST = async (req: NextRequest) => {
     );
   } catch (error) {
     console.error("Error creating course:", error);
-    
-    // Check if it's a validation error from formDataParser
+
     if (error instanceof Error && error.message.includes("Validation failed")) {
       return NextResponse.json(
         {
@@ -87,12 +120,12 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    // Check if it's a file upload error
-    if (error instanceof Error && (
-      error.message.includes("Invalid file type") ||
-      error.message.includes("too large") ||
-      error.message.includes("Failed to upload")
-    )) {
+    if (
+      error instanceof Error &&
+      (error.message.includes("Invalid file type") ||
+        error.message.includes("too large") ||
+        error.message.includes("Failed to upload"))
+    ) {
       return NextResponse.json(
         {
           data: null,

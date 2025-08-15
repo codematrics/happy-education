@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { File, Image, Upload, Video, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { FormItem, FormLabel } from "../ui/form";
+import CustomImage from "./CustomImage";
+import CustomVideo from "./CustomVideo";
 
 interface FileUploadProps {
   label: string;
@@ -156,15 +156,14 @@ const FileUpload = ({
         {previewUrl && (
           <div className="relative">
             {type === "image" ? (
-              <img
+              <CustomImage
                 src={previewUrl}
                 alt="Preview"
                 className="w-full h-32 object-cover rounded-lg border"
               />
             ) : type === "video" ? (
-              <video
+              <CustomVideo
                 src={previewUrl}
-                controls
                 className="w-full h-32 object-cover rounded-lg border"
               />
             ) : null}
@@ -181,7 +180,7 @@ const FileUpload = ({
           </div>
         )}
 
-        <div className="space-y-2">
+        {/* <div className="space-y-2">
           <Label className="text-sm text-muted-foreground">Or enter URL:</Label>
           <Input
             value={previewUrl}
@@ -189,7 +188,7 @@ const FileUpload = ({
             placeholder={placeholder}
             className="h-10"
           />
-        </div>
+        </div> */}
       </div>
     </FormItem>
   );

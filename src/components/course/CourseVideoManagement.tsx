@@ -8,13 +8,14 @@ import { Toast } from "@/lib/toast";
 import { ICourseVideo } from "@/models/CourseVideo";
 import { GripVertical, Plus, Trash2, Video } from "lucide-react";
 import { useState } from "react";
+import CustomImage from "../common/CustomImage";
 import FileUpload from "../common/FileUpload";
 
 interface CourseVideoFormData {
   name: string;
   description: string;
   thumbnail: string;
-  videoUrl: string;
+  video: string;
 }
 
 interface CourseVideoManagerProps {
@@ -27,25 +28,25 @@ const CourseVideoManager = ({ videos, onChange }: CourseVideoManagerProps) => {
     name: "",
     description: "",
     thumbnail: "",
-    videoUrl: "",
+    video: "",
   });
   const [isAdding, setIsAdding] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   const handleAddVideo = () => {
-    if (!newVideo.name || !newVideo.videoUrl) {
-      Toast.error("Please provide video name and URL");
+    if (!newVideo.name || !newVideo.video) {
+      Toast.error("Please provide video name and video file");
       return;
     }
 
-    const video: CourseVi = {
-      id: Date.now().toString(),
+    const video: ICourseVideo = {
+      _id: Date.now().toString(),
       ...newVideo,
       createdAt: new Date(),
-    };
+    } as ICourseVideo;
 
     onChange([...videos, video]);
-    setNewVideo({ name: "", description: "", thumbnail: "", videoUrl: "" });
+    setNewVideo({ name: "", description: "", thumbnail: "", video: "" });
     setIsAdding(false);
 
     Toast.success(`"${newVideo.name}" has been added to the course.`);
@@ -56,7 +57,7 @@ const CourseVideoManager = ({ videos, onChange }: CourseVideoManagerProps) => {
     updatedVideo: Partial<ICourseVideo>
   ) => {
     const updatedVideos = videos.map((video, i) =>
-      i === index ? { ...video, ...updatedVideo } : video
+      i === index ? { ...video, ...updatedVideo } as ICourseVideo : video
     );
     onChange(updatedVideos);
     setEditingIndex(null);
@@ -108,7 +109,7 @@ const CourseVideoManager = ({ videos, onChange }: CourseVideoManagerProps) => {
       {videos.length > 0 && (
         <div className="space-y-3">
           {videos.map((video, index) => (
-            <Card key={video.id} className="relative">
+            <Card key={video._id?.toString() || index} className="relative">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-3">
@@ -148,7 +149,7 @@ const CourseVideoManager = ({ videos, onChange }: CourseVideoManagerProps) => {
                 <CardContent className="pt-0">
                   <div className="flex items-center space-x-3">
                     <div className="relative">
-                      <img
+                      <CustomImage
                         src={video.thumbnail}
                         alt={video.name}
                         className="w-16 h-10 object-cover rounded border"
@@ -158,7 +159,7 @@ const CourseVideoManager = ({ videos, onChange }: CourseVideoManagerProps) => {
                       </div>
                     </div>
                     <div className="text-xs text-muted-foreground truncate flex-1">
-                      {video.videoUrl}
+                      {video.video}
                     </div>
                   </div>
                 </CardContent>
@@ -198,8 +199,8 @@ const CourseVideoManager = ({ videos, onChange }: CourseVideoManagerProps) => {
                   accept=".mp4,.avi,.mov,.wmv,.flv,.webm"
                   type="video"
                   placeholder="https://example.com/video.mp4"
-                  onChange={handleFileUpload("videoUrl")}
-                  value={newVideo.videoUrl}
+                  onChange={handleFileUpload("video")}
+                  value={newVideo.video}
                 />
               </div>
             </div>
@@ -243,7 +244,7 @@ const CourseVideoManager = ({ videos, onChange }: CourseVideoManagerProps) => {
                     name: "",
                     description: "",
                     thumbnail: "",
-                    videoUrl: "",
+                    video: "",
                   });
                 }}
               >

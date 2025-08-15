@@ -67,8 +67,46 @@ export const deleteFromCloudinary = async (
       resource_type: resourceType,
     });
   } catch (error) {
-    throw new Error(`Failed to delete from Cloudinary: ${error}`);
+    console.error(`Failed to delete from Cloudinary: ${error}`);
+    // Don't throw error to prevent blocking database operations
   }
+};
+
+export const extractPublicIdFromUrl = (url: string): string | null => {
+  if (!url || typeof url !== 'string') return null;
+  
+  try {
+    // Extract public ID from Cloudinary URL
+    // Format: https://res.cloudinary.com/[cloud]/[resource_type]/[type]/[version]/[folder]/[public_id].[format]
+    const urlParts = url.split('/');
+    const cloudinaryIndex = urlParts.findIndex(part => part === 'res.cloudinary.com');
+    
+    if (cloudinaryIndex === -1) return null;
+    
+    // Get everything after the version/transformation part
+    const relevantParts = urlParts.slice(cloudinaryIndex + 4); // Skip cloud name and resource info
+    const lastPart = relevantParts[relevantParts.length - 1];
+    
+    // Remove file extension and extract public ID with folder path
+    const publicIdWithExtension = relevantParts.join('/');
+    const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, ''); // Remove extension
+    
+    return publicId;
+  } catch (error) {
+    console.error('Failed to extract public ID from URL:', error);
+    return null;
+  }
+};
+
+export const deleteFileFromUrl = async (url: string): Promise<void> => {
+  const publicId = extractPublicIdFromUrl(url);
+  if (!publicId) return;
+  
+  // Determine resource type from URL or file extension
+  const isVideo = url.includes('/video/') || /\.(mp4|avi|mov|mkv|webm)$/i.test(url);
+  const resourceType = isVideo ? 'video' : 'image';
+  
+  await deleteFromCloudinary(publicId, resourceType);
 };
 
 export const updateCloudinaryFile = async (
@@ -82,4 +120,42 @@ export const updateCloudinaryFile = async (
 
   // Upload new file
   return uploadToCloudinary(newFile, folder, resourceType);
+};
+
+export const processFilesAndReturnUpdatedResults = async (
+  keys: string[],
+  json: Record<string, any>,
+  folderPrefix: string
+) => {
+  const results: Record<string, string | null> = {};
+
+  for (const key of keys) {
+    const file = json[key];
+    if (!file) {
+      results[key] = null;
+      continue;
+    }
+
+    if (!(file instanceof File)) {
+      results[key] = file;
+      continue;
+    }
+
+    const isImage = file && file.type.startsWith("image/");
+    const isVideo = file && file.type.startsWith("video/");
+
+    if (file) {
+      results[key] = (
+        await uploadToCloudinary(
+          file,
+          `${folderPrefix}/${
+            isImage ? "images" : isVideo ? "videos" : "files"
+          }`,
+          isImage ? "image" : isVideo ? "video" : "raw"
+        )
+      ).secure_url;
+    }
+  }
+
+  return { ...json, ...results };
 };

@@ -1,10 +1,15 @@
-import { BookCopy, BookOpen, Calendar, Home } from "lucide-react";
+import { BookCopy, BookOpen, Calendar, Home, User } from "lucide-react";
 
 export const sidebarItems = [
   {
     title: "Dashboard",
     url: "#",
     icon: Home,
+  },
+  {
+    title: "Users",
+    url: "#",
+    icon: User,
   },
   {
     title: "Courses",

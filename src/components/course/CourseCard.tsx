@@ -1,3 +1,4 @@
+"use client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -6,18 +7,14 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { CourseFormData } from "@/types/schema";
+import { Course, DropdownProps } from "@/types/types";
 import { Edit, Eye, MoreHorizontal, Trash2, Video } from "lucide-react";
+import CustomDropdown from "../common/CustomDropdown";
+import CustomImage from "../common/CustomImage";
 
 interface CourseCardProps {
-  course: CourseFormData;
-  onEdit: (course: CourseFormData) => void;
+  course: Course;
+  onEdit: (courseId: string) => void;
   onDelete: (courseId: string) => void;
   onViewVideos: (courseId: string) => void;
 }
@@ -28,6 +25,29 @@ const CourseCard = ({
   onDelete,
   onViewVideos,
 }: CourseCardProps) => {
+  const courseDropdownData: DropdownProps = {
+    label: <MoreHorizontal className="h-4 w-4" />,
+    options: [
+      {
+        label: "Edit",
+        action: () => onEdit(course._id),
+        icon: Edit,
+      },
+      {
+        label: "View Videos",
+        action: () => onViewVideos(course._id),
+        icon: Eye,
+      },
+      {
+        label: "Delete",
+        action: () => onDelete(course._id),
+        icon: Trash2,
+        itemClassName: "text-destructive hover:text-destructive",
+        iconClassName: "text-destructive",
+      },
+    ],
+  };
+
   const formatPrice = (price: number, currency: "dollar" | "rupee") => {
     const symbol = currency === "dollar" ? "$" : "₹";
     return `${symbol}${price.toFixed(2)}`;
@@ -47,11 +67,11 @@ const CourseCard = ({
   };
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-200 border-border bg-card">
+    <Card className="group py-0 hover:shadow-lg transition-all duration-200 border-border bg-card gap-4">
       <CardHeader className="p-0">
         <div className="relative overflow-hidden rounded-t-lg">
           {course.thumbnail ? (
-            <img
+            <CustomImage
               src={course.thumbnail}
               alt={course.name}
               className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-200"
@@ -62,39 +82,12 @@ const CourseCard = ({
             </div>
           )}
           <div className="absolute top-3 right-3">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="h-8 w-8 p-0 bg-white/90 backdrop-blur-sm hover:bg-white"
-                >
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-40">
-                <DropdownMenuItem onClick={() => onEdit(course)}>
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onViewVideos(course.id)}>
-                  <Eye className="h-4 w-4 mr-2" />
-                  View Videos
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => onDelete(course.id)}
-                  className="text-destructive hover:text-destructive"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <CustomDropdown {...courseDropdownData} />
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="p-4">
+      <CardContent className="px-4">
         <div className="space-y-3">
           <div>
             <h3 className="font-semibold text-lg text-card-foreground line-clamp-1">
@@ -124,7 +117,7 @@ const CourseCard = ({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => onEdit(course)}
+            onClick={() => onEdit(course._id)}
             className="hover:bg-primary hover:text-primary-foreground transition-colors"
           >
             Edit Course

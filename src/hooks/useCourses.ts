@@ -1,33 +1,18 @@
-import { getCourses } from "@/lib/api";
+import { getCourseById } from "@/lib/api";
+import { fetcher } from "@/lib/fetch";
+import { jsonToFormData } from "@/lib/formDataParser";
 import { PaginationResult } from "@/lib/pagination";
-import { CourseFormData } from "@/types/schema";
-import { ResponseInterface } from "@/types/types";
+import { Toast } from "@/lib/toast";
+import { CourseFormData, CourseUpdateData } from "@/types/schema";
+import { Course, ResponseInterface } from "@/types/types";
 import {
   useMutation,
   useQuery,
   useQueryClient,
   UseQueryResult,
 } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-
-interface Course {
-  _id: string;
-  title: string;
-  description: string;
-  price: number;
-  duration: number;
-  thumbnail?: string;
-  published: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface CoursesResponse {
-  courses: Course[];
-  total: number;
-  page: number;
-  limit: number;
-}
 
 interface FetchCoursesParams {
   page?: number;
@@ -37,22 +22,87 @@ interface FetchCoursesParams {
   sortOrder?: "asc" | "desc";
 }
 
+// Custom hook for debouncing
+const useDebounce = <T>(value: T, delay: number): T => {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
+
 export const useCourses = (
   params: FetchCoursesParams = {}
 ): UseQueryResult<
   ResponseInterface<{
-    items: CourseFormData[];
+    items: Course[];
     pagination: PaginationResult<CourseFormData>["pagination"];
   }>
 > => {
+  // Debounce search term with 500ms delay
+  const debouncedSearch = useDebounce(params.search || "", 500);
+
+  // Create stable query key
+  const queryKey = useMemo(
+    () => [
+      "courses",
+      params.page || 1,
+      params.limit || 10,
+      debouncedSearch,
+      params.sortBy || "createdAt",
+      params.sortOrder || "desc",
+    ],
+    [
+      params.page,
+      params.limit,
+      debouncedSearch,
+      params.sortBy,
+      params.sortOrder,
+    ]
+  );
+
   return useQuery<
     ResponseInterface<{
-      items: CourseFormData[];
+      items: Course[];
       pagination: PaginationResult<CourseFormData>["pagination"];
     }>
   >({
-    queryKey: ["courses", params.page, params.limit, params.search],
-    queryFn: () => getCourses(params.page, params.limit, params.search),
+    queryKey,
+    queryFn: () => {
+      const searchParams = new URLSearchParams();
+      if (params.page) searchParams.set("page", params.page.toString());
+      if (params.limit) searchParams.set("limit", params.limit.toString());
+      if (debouncedSearch) searchParams.set("search", debouncedSearch);
+      if (params.sortBy) searchParams.set("sortBy", params.sortBy);
+      if (params.sortOrder) searchParams.set("sortOrder", params.sortOrder);
+
+      return fetcher<
+        ResponseInterface<{
+          items: Course[];
+          pagination: PaginationResult<CourseFormData>["pagination"];
+        }>
+      >(`/api/v1/course?${searchParams.toString()}`);
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+};
+
+export const useCourse = (
+  courseId?: string
+): UseQueryResult<ResponseInterface<Course>> => {
+  return useQuery<ResponseInterface<Course>>({
+    queryKey: [courseId, courseId],
+    queryFn: () => getCourseById(courseId),
+    staleTime: 1000 * 60 * 5,
+    enabled: !!courseId,
   });
 };
 
@@ -61,79 +111,68 @@ export const useCreateCourse = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: Partial<Course>) => {
-      const response = await fetch("/api/v1/course", {
+    mutationFn: async (data: CourseFormData) => {
+      const formData = jsonToFormData(data);
+
+      const response = await fetcher("/api/v1/course", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
+        body: formData,
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to create course");
-      }
-
-      return response.json();
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["courses"] });
-      toast.success("Course created successfully");
+      Toast.success("Course created successfully");
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to create course");
+      Toast.error(error.message || "Failed to create course");
     },
   });
 };
 
-// Update course mutation
 export const useUpdateCourse = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<Course> }) => {
-      const response = await fetch(`/api/v1/course/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to update course");
-      }
-
-      return response.json();
+  return useMutation<
+    ResponseInterface<CourseUpdateData>,
+    Error,
+    { courseId: string; data: CourseUpdateData }
+  >({
+    mutationFn: async ({ courseId, data }) => {
+      const formData = jsonToFormData(data);
+      const response = await fetcher<ResponseInterface<CourseUpdateData>>(
+        `/api/v1/course/${courseId}`,
+        {
+          method: "PUT",
+          body: formData,
+        }
+      );
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["courses"] });
-      toast.success("Course updated successfully");
+      Toast.success("Course updated successfully");
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to update course");
+      Toast.error(error.message || "Failed to update course");
     },
   });
 };
 
-// Delete course mutation
 export const useDeleteCourse = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (id: string) => {
-      const response = await fetch(`/api/v1/course/${id}`, {
-        method: "DELETE",
-      });
+  return useMutation<ResponseInterface<null>, Error, string>({
+    mutationFn: async (id: string): Promise<ResponseInterface<null>> => {
+      const response = await fetcher<ResponseInterface<null>>(
+        `/api/v1/course/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to delete course");
-      }
-
-      return response.json();
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["courses"] });

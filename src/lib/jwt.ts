@@ -5,9 +5,9 @@ import jwt from "jsonwebtoken";
 const SECRET = process.env.ADMIN_JWT_SECRET!;
 const EXPIRES_IN = "7d";
 
-export const verifyJWT = (token: string): boolean => {
+export const verifyJWT = async (token: string): Promise<boolean> => {
   try {
-    jwt.verify(token, SECRET);
+    await jwt.verify(token, SECRET);
     return true;
   } catch (err) {
     return false;

@@ -8,11 +8,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useState } from "react";
 
 interface DeleteConfirmDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   itemName: string;
   itemType?: string;
 }
@@ -24,6 +25,13 @@ const DeleteConfirmDialog = ({
   itemName,
   itemType = "course",
 }: DeleteConfirmDialogProps) => {
+  const [deleting, setDeleting] = useState<boolean>(false);
+  const handleConfirm = async () => {
+    setDeleting(true);
+    await onConfirm();
+    setDeleting(false);
+  };
+
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent>
@@ -36,12 +44,13 @@ const DeleteConfirmDialog = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            onClick={onConfirm}
+            disabled={deleting}
+            onClick={handleConfirm}
             className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
           >
-            Delete {itemType}
+            {deleting ? "Deleting..." : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

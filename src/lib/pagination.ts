@@ -19,10 +19,11 @@ export interface PaginationResult<T> {
 }
 
 export interface PaginationQueryOptions extends PaginationOptions {
-  sort?: string;
+  sort?: string | Record<string, 1 | -1>;
   order?: "asc" | "desc";
   search?: string;
   searchFields?: string[];
+  populate?: string | string[];
 }
 
 /**
@@ -44,6 +45,7 @@ export async function paginate<T>(
     order = "desc",
     search,
     searchFields = [],
+    populate,
   } = options;
 
   // Ensure positive values
@@ -62,20 +64,36 @@ export async function paginate<T>(
 
   // Calculate pagination values
   const skip = (currentPage - 1) * perPage;
-  const sortObj: { [key: string]: SortOrder } = {
-    [sort]: order === "asc" ? 1 : -1,
-  };
+  
+  // Handle sort object
+  let sortObj: { [key: string]: SortOrder };
+  if (typeof sort === 'string') {
+    sortObj = { [sort]: order === "asc" ? 1 : -1 };
+  } else {
+    sortObj = sort as { [key: string]: SortOrder };
+  }
+
+  // Build query with population
+  let queryBuilder = model
+    .find(finalQuery)
+    .sort(sortObj)
+    .skip(skip)
+    .limit(perPage);
+
+  if (populate) {
+    if (Array.isArray(populate)) {
+      populate.forEach(field => {
+        queryBuilder = queryBuilder.populate(field);
+      });
+    } else {
+      queryBuilder = queryBuilder.populate(populate);
+    }
+  }
 
   // Execute queries in parallel for better performance
   const [total, data] = await Promise.all([
     model.countDocuments(finalQuery),
-    model
-      .find(finalQuery)
-      .sort(sortObj)
-      .skip(skip)
-      .limit(perPage)
-      .lean()
-      .exec(),
+    queryBuilder.lean().exec(),
   ]);
 
   const totalPages = Math.ceil(total / perPage);
