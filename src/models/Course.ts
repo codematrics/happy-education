@@ -21,7 +21,7 @@ export interface ICourse extends Document {
     height?: number;
   };
   price: number;
-  currency: "dollar" | "rupee";
+  currency: CourseCurrency;
   createdAt: Date;
   courseVideos?: Types.ObjectId[] | ICourseVideo[];
 }

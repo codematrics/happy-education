@@ -5,6 +5,17 @@ export enum CourseCurrency {
   rupee = "rupee",
 }
 
+export enum TransactionStatus {
+  pending = "pending",
+  completed = "completed",
+  failed = "failed",
+}
+
+export enum AuthIdentifiers {
+  email = "email",
+  phone = "phone",
+}
+
 export const coursesSortOptions = [
   { label: "Newest First", value: "newest" },
   { label: "Oldest First", value: "oldest" },
@@ -12,3 +23,5 @@ export const coursesSortOptions = [
   { label: "Price Low-High", value: "price-low" },
   { label: "Price High-Low", value: "price-high" },
 ];
+
+export const OTPExpiryTime = 5 * 60 * 1000;

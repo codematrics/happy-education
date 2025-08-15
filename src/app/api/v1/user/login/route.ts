@@ -1,5 +1,9 @@
+import { compareHash } from "@/lib/bcrypt";
+import connect from "@/lib/db";
 import { assignJWT } from "@/lib/jwt";
-import { LoginFormData, loginValidations } from "@/types/schema";
+import { validateSchema } from "@/lib/schemaValidator";
+import { User } from "@/models/User";
+import { LoginUserFormData, loginUserValidations } from "@/types/schema";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -7,25 +11,17 @@ export const POST = async (req: NextRequest) => {
   try {
     const body = await req.json();
 
-    const validation = loginValidations.safeParse(body);
-    if (!validation.success) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Invalid input",
-          status: false,
-          errors: validation.error.flatten().fieldErrors,
-        },
-        { status: 400 }
-      );
-    }
+    validateSchema(loginUserValidations, body);
 
-    const { userName, password }: LoginFormData = validation.data;
+    const { identifier, password }: LoginUserFormData = body;
 
-    if (
-      userName !== process.env.ADMIN_USERNAME ||
-      password !== process.env.ADMIN_PASS
-    ) {
+    await connect();
+
+    const user = await User.findOne({
+      $or: [{ email: identifier }, { mobileNumber: identifier }],
+    });
+
+    if (!user || !(await compareHash(password, user.password))) {
       return NextResponse.json(
         {
           data: null,
@@ -36,7 +32,7 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    const jwt = await assignJWT({ _id: process.env.ADMIN_USERNAME });
+    const jwt = await assignJWT({ _id: user._id });
 
     if (!jwt) {
       return NextResponse.json(
@@ -49,7 +45,7 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    (await cookies()).set("admin_token", JSON.stringify(jwt), {
+    (await cookies()).set("user_token", JSON.stringify(jwt), {
       httpOnly: process.env.NODE_ENV === "production",
     });
 

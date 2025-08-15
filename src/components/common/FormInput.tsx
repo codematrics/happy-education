@@ -7,6 +7,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { Control, FieldPath, FieldValues } from "react-hook-form";
 
@@ -36,25 +37,36 @@ export function FormInput<T extends FieldValues>({
   const inputType = isPassword ? (showPassword ? "text" : "password") : type;
 
   return (
-    <>
+    <div className="relative">
       <FormField
         control={control}
         name={name}
         render={({ field }) => (
           <div className="relative mb-5">
             <FormItem className="gap-1.5">
-              {label && (
-                <FormLabel className="text-lg text-white font-normal">
-                  {label}
-                </FormLabel>
-              )}
+              {label && <FormLabel className=" font-normal">{label}</FormLabel>}
               <FormControl>
-                <Input
-                  type={inputType}
-                  className={` ${className}`}
-                  placeholder={placeholder}
-                  {...field}
-                />
+                <div className="relative">
+                  <Input
+                    type={inputType}
+                    className={` ${className}`}
+                    placeholder={placeholder}
+                    {...field}
+                  />
+                  {type === "password" && (
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  )}
+                </div>
               </FormControl>
             </FormItem>
             <div className="absolute bottom-0 leading-4 translate-y-5 left-0">
@@ -63,6 +75,6 @@ export function FormInput<T extends FieldValues>({
           </div>
         )}
       />
-    </>
+    </div>
   );
 }

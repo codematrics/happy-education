@@ -23,3 +23,12 @@ export const assignJWT = async (
     return null;
   }
 };
+
+export const decodeJWT = async <T = any>(token: string): Promise<T | null> => {
+  try {
+    const decoded = jwt.decode(token) as T | null;
+    return decoded;
+  } catch (err) {
+    return null;
+  }
+};

@@ -13,11 +13,13 @@ export const getCourses = (
     pagination: PaginationResult<CourseFormData>["pagination"];
   }>
 > => {
-  return fetcher(`/api/v1/course?page=${page}&limit=${limit}&search=${search}`);
+  return fetcher(
+    `/api/v1/admin/course?page=${page}&limit=${limit}&search=${search}`
+  );
 };
 
 export const getCourseById = (
   id?: string
 ): Promise<ResponseInterface<Course>> => {
-  return fetcher(`/api/v1/course/${id}`);
+  return fetcher(`/api/v1/admin/course/${id}`);
 };

@@ -11,8 +11,9 @@ import {
   useQueryClient,
   UseQueryResult,
 } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { toast } from "sonner";
+import useDebounce from "./use-debounce";
 
 interface FetchCoursesParams {
   page?: number;
@@ -22,23 +23,6 @@ interface FetchCoursesParams {
   sortOrder?: "asc" | "desc";
 }
 
-// Custom hook for debouncing
-const useDebounce = <T>(value: T, delay: number): T => {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
-};
-
 export const useCourses = (
   params: FetchCoursesParams = {}
 ): UseQueryResult<
@@ -47,10 +31,8 @@ export const useCourses = (
     pagination: PaginationResult<CourseFormData>["pagination"];
   }>
 > => {
-  // Debounce search term with 500ms delay
   const debouncedSearch = useDebounce(params.search || "", 500);
 
-  // Create stable query key
   const queryKey = useMemo(
     () => [
       "courses",
@@ -89,7 +71,7 @@ export const useCourses = (
           items: Course[];
           pagination: PaginationResult<CourseFormData>["pagination"];
         }>
-      >(`/api/v1/course?${searchParams.toString()}`);
+      >(`/api/v1/admin/course?${searchParams.toString()}`);
     },
     staleTime: 1000 * 60 * 5,
   });
@@ -106,7 +88,6 @@ export const useCourse = (
   });
 };
 
-// Create course mutation
 export const useCreateCourse = () => {
   const queryClient = useQueryClient();
 
@@ -114,7 +95,7 @@ export const useCreateCourse = () => {
     mutationFn: async (data: CourseFormData) => {
       const formData = jsonToFormData(data);
 
-      const response = await fetcher("/api/v1/course", {
+      const response = await fetcher("/api/v1/admin/course", {
         method: "POST",
         body: formData,
       });
@@ -142,7 +123,7 @@ export const useUpdateCourse = () => {
     mutationFn: async ({ courseId, data }) => {
       const formData = jsonToFormData(data);
       const response = await fetcher<ResponseInterface<CourseUpdateData>>(
-        `/api/v1/course/${courseId}`,
+        `/api/v1/admin/course/${courseId}`,
         {
           method: "PUT",
           body: formData,
@@ -166,7 +147,7 @@ export const useDeleteCourse = () => {
   return useMutation<ResponseInterface<null>, Error, string>({
     mutationFn: async (id: string): Promise<ResponseInterface<null>> => {
       const response = await fetcher<ResponseInterface<null>>(
-        `/api/v1/course/${id}`,
+        `/api/v1/admin/course/${id}`,
         {
           method: "DELETE",
         }

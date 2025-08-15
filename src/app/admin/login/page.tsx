@@ -11,32 +11,30 @@ import {
 } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
-import useLogin from "@/hooks/useLogin";
+import useAdminLogin from "@/hooks/useAuth";
 import { Toast } from "@/lib/toast";
-import { LoginFormData, loginValidations } from "@/types/schema";
+import { LoginAdminFormData, loginAdminValidations } from "@/types/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, Lock, User } from "lucide-react";
+import { Eye, Lock, User } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 
-const defaultValues: LoginFormData = {
+const defaultValues: LoginAdminFormData = {
   userName: "",
   password: "",
 };
 
 const Login = () => {
-  const [showPassword, setShowPassword] = useState(false);
-  const { mutate, isPending } = useLogin();
+  const { mutate, isPending } = useAdminLogin();
   const router = useRouter();
 
-  const form = useForm<LoginFormData>({
+  const form = useForm<LoginAdminFormData>({
     defaultValues,
-    resolver: zodResolver(loginValidations),
+    resolver: zodResolver(loginAdminValidations),
     mode: "onSubmit",
   });
 
-  const handleLogin = (data: LoginFormData) => {
+  const handleLogin = (data: LoginAdminFormData) => {
     mutate(data, {
       onSuccess: () => {
         Toast.success("You are Logged In Successfully");
@@ -87,21 +85,10 @@ const Login = () => {
                   <FormInput
                     control={form.control}
                     name="password"
-                    type={showPassword ? "text" : "password"}
+                    type="password"
                     placeholder="Enter your password"
                     className="pl-10 pr-10"
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
                 </div>
               </div>
 
