@@ -8,6 +8,7 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Course, DropdownProps } from "@/types/types";
+import { getAssetUrl } from "@/lib/assetUtils";
 import { Edit, Eye, MoreHorizontal, Trash2, Video } from "lucide-react";
 import CustomDropdown from "../common/CustomDropdown";
 import CustomImage from "../common/CustomImage";
@@ -72,7 +73,7 @@ const CourseCard = ({
         <div className="relative overflow-hidden rounded-t-lg">
           {course.thumbnail ? (
             <CustomImage
-              src={course.thumbnail}
+              src={getAssetUrl(course.thumbnail)}
               alt={course.name}
               className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-200"
             />

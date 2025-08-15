@@ -57,7 +57,7 @@ const optionalFileOrUrlValidation = (allowedExtensions: string[]) =>
     );
 
 export const courseVideoValidation = z.object({
-  _id: z.string().optional(), // For updates - existing video ID
+  _id: z.string().optional(),
   name: z.string().min(1, "Video name is required"),
   description: z.string().min(1, "Video description is required"),
   thumbnail: requiredFileOrUrlValidation([".jpg", ".jpeg", ".png", ".webp"]),

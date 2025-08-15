@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Toast } from "@/lib/toast";
+import { getAssetUrl } from "@/lib/assetUtils";
 import { ICourseVideo } from "@/models/CourseVideo";
 import { GripVertical, Plus, Trash2, Video } from "lucide-react";
 import { useState } from "react";
@@ -19,8 +20,8 @@ interface CourseVideoFormData {
 }
 
 interface CourseVideoManagerProps {
-  videos: ICourseVideo[];
-  onChange: (videos: ICourseVideo[]) => void;
+  videos: any[];
+  onChange: (videos: any[]) => void;
 }
 
 const CourseVideoManager = ({ videos, onChange }: CourseVideoManagerProps) => {
@@ -39,11 +40,11 @@ const CourseVideoManager = ({ videos, onChange }: CourseVideoManagerProps) => {
       return;
     }
 
-    const video: ICourseVideo = {
+    const video = {
       _id: Date.now().toString(),
       ...newVideo,
       createdAt: new Date(),
-    } as ICourseVideo;
+    };
 
     onChange([...videos, video]);
     setNewVideo({ name: "", description: "", thumbnail: "", video: "" });
@@ -54,10 +55,10 @@ const CourseVideoManager = ({ videos, onChange }: CourseVideoManagerProps) => {
 
   const handleUpdateVideo = (
     index: number,
-    updatedVideo: Partial<ICourseVideo>
+    updatedVideo: any
   ) => {
     const updatedVideos = videos.map((video, i) =>
-      i === index ? { ...video, ...updatedVideo } as ICourseVideo : video
+      i === index ? { ...video, ...updatedVideo } : video
     );
     onChange(updatedVideos);
     setEditingIndex(null);
@@ -150,7 +151,7 @@ const CourseVideoManager = ({ videos, onChange }: CourseVideoManagerProps) => {
                   <div className="flex items-center space-x-3">
                     <div className="relative">
                       <CustomImage
-                        src={video.thumbnail}
+                        src={getAssetUrl(video.thumbnail)}
                         alt={video.name}
                         className="w-16 h-10 object-cover rounded border"
                       />
@@ -159,7 +160,7 @@ const CourseVideoManager = ({ videos, onChange }: CourseVideoManagerProps) => {
                       </div>
                     </div>
                     <div className="text-xs text-muted-foreground truncate flex-1">
-                      {video.video}
+                      {getAssetUrl(video.video) || 'No video file'}
                     </div>
                   </div>
                 </CardContent>

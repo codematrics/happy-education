@@ -1,5 +1,4 @@
 "use client";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,7 +10,7 @@ import {
   CourseVideoFormData,
   courseVideoValidation,
 } from "@/types/schema";
-import { GripVertical, Plus, Trash2, Video } from "lucide-react";
+import { Edit, GripVertical, Plus, Save, Trash2, Video, X } from "lucide-react";
 import { useState } from "react";
 import { useFieldArray, UseFormReturn } from "react-hook-form";
 import CustomImage from "../common/CustomImage";
@@ -25,7 +24,7 @@ interface CourseVideoManagerProps {
 
 const CourseVideoManager = ({ form }: CourseVideoManagerProps) => {
   const { control } = form;
-  const { fields, append, remove } = useFieldArray({
+  const { fields, update, append, remove } = useFieldArray({
     control,
     name: "courseVideos",
   });
@@ -37,6 +36,13 @@ const CourseVideoManager = ({ form }: CourseVideoManagerProps) => {
     video: "",
   });
   const [isAdding, setIsAdding] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editingVideo, setEditingVideo] = useState<CourseVideoFormData>({
+    name: "",
+    description: "",
+    thumbnail: "",
+    video: "",
+  });
 
   const handleAddVideo = () => {
     const parsed = courseVideoValidation.safeParse(newVideo);
@@ -52,33 +58,41 @@ const CourseVideoManager = ({ form }: CourseVideoManagerProps) => {
     append(newVideo);
     setNewVideo({ name: "", description: "", thumbnail: "", video: "" });
     setIsAdding(false);
-
-    Toast.success(`"${newVideo.name}" has been added to the course.`);
   };
 
-  const handleUpdateVideo = (
-    index: number,
-    updatedVideo: Partial<CourseVideoFormData>
-  ) => {
-    form.setValue(`courseVideos.${index}`, {
-      ...form.getValues(`courseVideos.${index}`),
-      ...updatedVideo,
-    });
-    Toast.success("Video has been updated successfully.");
+  const handleEditVideo = (index: number) => {
+    const video = form.getValues(`courseVideos.${index}`);
+    setEditingVideo(video);
+    setEditingIndex(index);
+  };
+
+  const handleSaveEdit = () => {
+    if (editingIndex === null) return;
+
+    const parsed = courseVideoValidation.safeParse(editingVideo);
+
+    if (!parsed.success) {
+      const firstError = parsed.error.issues[0]?.message;
+      if (firstError) {
+        Toast.error(firstError);
+      }
+      return;
+    }
+
+    update(editingIndex, editingVideo);
+    setEditingIndex(null);
+    setEditingVideo({ name: "", description: "", thumbnail: "", video: "" });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingIndex(null);
+    setEditingVideo({ name: "", description: "", thumbnail: "", video: "" });
   };
 
   const handleDeleteVideo = (index: number) => {
     const videoName = fields[index]?.name || "";
     remove(index);
     Toast.success(`"${videoName}" has been removed from the course.`);
-  };
-
-  const formatDuration = (index: number) => {
-    return `${Math.floor(Math.random() * 30) + 5}:${Math.floor(
-      Math.random() * 60
-    )
-      .toString()
-      .padStart(2, "0")}`;
   };
 
   return (
@@ -99,70 +113,178 @@ const CourseVideoManager = ({ form }: CourseVideoManagerProps) => {
 
       {fields && fields.length > 0 && (
         <div className="space-y-3">
-          {fields?.map((field, index) => (
-            <Card key={field.id} className="relative">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="flex items-center text-muted-foreground">
-                      <GripVertical className="h-4 w-4 mr-1" />
-                      <span className="text-sm font-medium">#{index + 1}</span>
+          {fields?.map((field, index) => {
+            if (editingIndex === index) {
+              return (
+                <Card className="border-dashed">
+                  <CardHeader>
+                    <CardTitle className="text-sm">Edit Video</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="editVideoName" className="text-sm">
+                        Video Name *
+                      </Label>
+                      <Input
+                        id="editVideoName"
+                        value={editingVideo.name}
+                        onChange={(e) =>
+                          setEditingVideo((prev) => ({
+                            ...prev,
+                            name: e.target.value,
+                          }))
+                        }
+                        placeholder="Enter video name"
+                        className="h-9"
+                      />
                     </div>
-                    <div className="flex-1">
-                      <CardTitle className="text-sm font-medium">
-                        {field.name}
-                      </CardTitle>
-                      {field.description && (
-                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                          {field.description}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Badge variant="secondary" className="text-xs">
-                      {formatDuration(index)}
-                    </Badge>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteVideo(index)}
-                      className="h-6 w-6 p-0 hover:bg-destructive hover:text-destructive-foreground"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
 
-              {field.thumbnail && (
-                <CardContent className="pt-0">
-                  <div className="flex items-center space-x-3">
-                    <div className="relative">
-                      <CustomImage
-                        src={field.thumbnail}
-                        alt={field.name}
-                        className="w-16 h-10 object-cover rounded border"
+                    <div className="space-y-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FileUpload
+                        label="Video File *"
+                        accept=".mp4,.avi,.mov,.wmv,.flv,.webm"
+                        type="video"
+                        placeholder="https://example.com/video.mp4"
+                        onChange={(file, url) =>
+                          setEditingVideo((prev) => ({
+                            ...prev,
+                            video: file || "",
+                          }))
+                        }
+                        value={editingVideo.video}
                       />
-                      <div className="absolute inset-0 bg-black/20 rounded flex items-center justify-center">
-                        <Video className="h-4 w-4 text-white" />
+                      <FileUpload
+                        label="Video Thumbnail"
+                        accept=".jpg,.jpeg,.png,.gif,.webp"
+                        type="image"
+                        placeholder="https://example.com/thumbnail.jpg"
+                        onChange={(file, url) =>
+                          setEditingVideo((prev) => ({
+                            ...prev,
+                            thumbnail: file || "",
+                          }))
+                        }
+                        value={editingVideo.thumbnail}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="editVideoDescription" className="text-sm">
+                        Description
+                      </Label>
+                      <Textarea
+                        id="editVideoDescription"
+                        value={editingVideo.description}
+                        onChange={(e) =>
+                          setEditingVideo((prev) => ({
+                            ...prev,
+                            description: e.target.value,
+                          }))
+                        }
+                        placeholder="Enter video description"
+                        className="min-h-16 resize-none"
+                        rows={2}
+                      />
+                    </div>
+
+                    <div className="flex justify-end space-x-2 pt-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleCancelEdit}
+                      >
+                        <X className="h-4 w-4 mr-1" />
+                        Cancel
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={handleSaveEdit}
+                        className="bg-primary hover:bg-primary/90"
+                      >
+                        <Save className="h-4 w-4 mr-1" />
+                        Save Changes
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            }
+
+            return (
+              <Card key={field.id} className="relative">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="flex items-center text-muted-foreground">
+                        <GripVertical className="h-4 w-4 mr-1" />
+                        <span className="text-sm font-medium">
+                          #{index + 1}
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <CardTitle className="text-sm font-medium">
+                          {field.name}
+                        </CardTitle>
+                        {field.description && (
+                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                            {field.description}
+                          </p>
+                        )}
                       </div>
                     </div>
-                    <div className="relative">
-                      <CustomVideo
-                        src={field.video}
-                        className="w-16 h-10 object-cover rounded border"
-                      />
-                      <div className="absolute inset-0 bg-black/20 rounded flex items-center justify-center">
-                        <Video className="h-4 w-4 text-white" />
-                      </div>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEditVideo(index)}
+                        className="h-6 w-6 p-0 hover:bg-primary hover:text-primary-foreground"
+                      >
+                        <Edit className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteVideo(index)}
+                        className="h-6 w-6 p-0 hover:bg-destructive hover:text-destructive-foreground"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
                     </div>
                   </div>
-                </CardContent>
-              )}
-            </Card>
-          ))}
+                </CardHeader>
+
+                {field.thumbnail && (
+                  <CardContent className="pt-0">
+                    <div className="flex items-center space-x-3">
+                      <div className="relative">
+                        <CustomImage
+                          src={field.thumbnail}
+                          alt={field.name}
+                          className="w-16 h-10 object-cover rounded border"
+                        />
+                        <div className="absolute inset-0 bg-black/20 rounded flex items-center justify-center">
+                          <Video className="h-4 w-4 text-white" />
+                        </div>
+                      </div>
+                      <div className="relative">
+                        <CustomVideo
+                          src={field.video}
+                          className="w-16 h-10 object-cover rounded border"
+                        />
+                        <div className="absolute inset-0 bg-black/20 rounded flex items-center justify-center">
+                          <Video className="h-4 w-4 text-white" />
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                )}
+              </Card>
+            );
+          })}
         </div>
       )}
 

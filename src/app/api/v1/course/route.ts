@@ -17,31 +17,31 @@ export const GET = async (req: NextRequest) => {
 
     const searchParams = req.nextUrl.searchParams;
     const options = getPaginationOptions(searchParams);
-    
+
     // Get search and sort parameters
-    const search = searchParams.get('search') || '';
-    const sortBy = searchParams.get('sortBy') || 'createdAt';
-    const sortOrder = searchParams.get('sortOrder') || 'desc';
+    const search = searchParams.get("search") || "";
+    const sortBy = searchParams.get("sortBy") || "createdAt";
+    const sortOrder = searchParams.get("sortOrder") || "desc";
 
     // Build search filter
     let filter = {};
     if (search) {
       filter = {
         $or: [
-          { name: { $regex: search, $options: 'i' } },
-          { description: { $regex: search, $options: 'i' } }
-        ]
+          { name: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } },
+        ],
       };
     }
 
     // Build sort object
     const sortObj: Record<string, 1 | -1> = {};
-    sortObj[sortBy] = sortOrder === 'asc' ? 1 : -1;
+    sortObj[sortBy] = sortOrder === "asc" ? 1 : -1;
 
     const result = await paginate(Course, filter, {
       ...options,
       sort: sortObj,
-      populate: 'courseVideos'
+      populate: "courseVideos",
     });
 
     const data = createPaginationResponse(

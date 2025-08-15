@@ -24,6 +24,7 @@ import {
   useCreateCourse,
   useUpdateCourse,
 } from "@/hooks/useCourses";
+import { transformCourseDataForForm } from "@/lib/courseDataTransformer";
 import { CourseCurrency } from "@/types/constants";
 import {
   CourseFormData,
@@ -33,6 +34,7 @@ import {
 } from "@/types/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import FileUpload from "../common/FileUpload";
@@ -59,12 +61,15 @@ const CourseForm = ({ courseId }: CourseFormProps) => {
   const { mutateAsync: updateCourse, isPending: isUpdating } =
     useUpdateCourse();
   const { data: course, isLoading } = useCourse(courseId);
+  const router = useRouter();
 
   const form = useForm<CourseFormData | CourseUpdateData>({
     resolver: zodResolver(
       course?.data ? courseUpdateValidations : courseValidations
     ),
-    defaultValues: (course?.data as CourseUpdateData) ?? defaultValues,
+    defaultValues: course?.data
+      ? transformCourseDataForForm(course.data)
+      : defaultValues,
   });
 
   const handleSubmit = async (values: CourseFormData | CourseUpdateData) => {
@@ -73,13 +78,14 @@ const CourseForm = ({ courseId }: CourseFormProps) => {
     } else {
       await createCourse(values as CourseFormData);
     }
+    router.back();
   };
 
   useEffect(() => {
     if (course?.data) {
-      form.reset(course.data as CourseUpdateData);
+      form.reset(transformCourseDataForForm(course.data));
     }
-  }, [course]);
+  }, [course, form]);
 
   if (isLoading) {
     return <FormSpinner />;
@@ -99,11 +105,22 @@ const CourseForm = ({ courseId }: CourseFormProps) => {
               </h1>
             </div>
             <Button
+              disabled={
+                !form.formState.isDirty ||
+                form.formState.isSubmitting ||
+                isCreating ||
+                isUpdating
+              }
               type="submit"
               className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
-              <Plus className="h-4 w-4 mr-2" />
-              Create Course
+              {isCreating
+                ? "Creating..."
+                : isUpdating
+                ? "Updating..."
+                : courseId
+                ? "Update Course"
+                : "Create Course"}
             </Button>
           </div>
           <div className="space-y-6 pb-6">

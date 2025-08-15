@@ -4,7 +4,7 @@ import { formDataToJson } from "@/lib/formDataParser";
 import { validateSchema } from "@/lib/schemaValidator";
 import { Course } from "@/models/Course";
 import "@/models/CourseVideo";
-import { CourseUpdateData, courseUpdateValidations } from "@/types/schema";
+import { CourseUpdateData, CourseVideoFormData, courseUpdateValidations } from "@/types/schema";
 import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (
@@ -28,8 +28,6 @@ export const GET = async (
     await connect();
 
     const course = await Course.findById(id).populate("courseVideos").lean();
-
-    console.log("Fetched course:", course);
 
     if (!course) {
       return NextResponse.json(
@@ -85,29 +83,49 @@ export const PUT = async (
 
     validateSchema(courseUpdateValidations, json);
 
+    // Get existing course data to preserve asset structures
+    await connect();
+    const existingCourse = await Course.findById(id).populate("courseVideos").lean();
+    
+    if (!existingCourse) {
+      return NextResponse.json(
+        {
+          data: null,
+          message: "Course not found",
+          status: false,
+        },
+        { status: 404 }
+      );
+    }
+
     const fileUploadResults = await processFilesAndReturnUpdatedResults(
       ["thumbnail", "previewVideo"],
       json,
-      "courses"
+      "courses",
+      existingCourse
     );
 
     const finalResults = {
       ...fileUploadResults,
       courseVideos: json.courseVideos
         ? await Promise.all(
-            json.courseVideos.map(async (video: CourseUpdateData) => {
+            json.courseVideos.map(async (video: CourseVideoFormData, index: number) => {
+              const existingVideos = existingCourse.courseVideos as any[] || [];
+              const existingVideo = video._id 
+                ? existingVideos.find(v => v._id.toString() === video._id)
+                : null;
+              
               const uploadResult = await processFilesAndReturnUpdatedResults(
                 ["thumbnail", "video"],
                 video,
-                "course_videos"
+                "course_videos",
+                existingVideo
               );
               return uploadResult;
             })
           )
         : [],
     };
-
-    await connect();
 
     const updatedCourse = await Course.updateWithVideos(id, finalResults);
 

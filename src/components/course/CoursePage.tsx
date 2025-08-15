@@ -128,10 +128,7 @@ const CoursePage: React.FC<Props> = ({ initialSearch, initialPage }) => {
   };
 
   const handleViewVideos = (courseId: string) => {
-    // toast({
-    //   title: "Feature Coming Soon",
-    //   description: "Video management feature will be available soon.",
-    // });
+    router.push(`/admin/course/${courseId}/videos`);
   };
   return (
     <>
@@ -215,7 +212,7 @@ const CoursePage: React.FC<Props> = ({ initialSearch, initialPage }) => {
           >
             {data?.data?.items?.map((course) => (
               <CourseCard
-                key={course.name}
+                key={course._id}
                 course={course}
                 onEdit={handleEditCourse}
                 onDelete={handleDeleteCourse}
