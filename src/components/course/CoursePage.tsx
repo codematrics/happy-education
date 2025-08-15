@@ -2,6 +2,7 @@
 
 import { useCourses, useDeleteCourse } from "@/hooks/useCourses";
 import { coursesSortOptions } from "@/types/constants";
+import { getSortParams } from "@/utils/data";
 import { Grid3X3, List, Plus, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -24,71 +25,52 @@ interface Props {
   initialPage: number;
 }
 
+interface DeleteConfirmDialogProps {
+  isOpen: boolean;
+  onDelete: () => void | Promise<void>;
+  courseName: string;
+  courseId: string;
+}
+
 const CoursePage: React.FC<Props> = ({ initialSearch, initialPage }) => {
   const [search, setSearch] = useState(initialSearch);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [page, setPage] = useState(initialPage);
   const [sort, setSort] = useState("newest");
-  const [deleteConfirm, setDeleteConfirm] = useState<{
-    isOpen: boolean;
-    courseId: string;
-    courseName: string;
-    onDelete: () => void | Promise<void>;
-  }>({
+  const [deleteConfirm, setDeleteConfirm] = useState<DeleteConfirmDialogProps>({
     isOpen: false,
     courseId: "",
     courseName: "",
     onDelete: () => {},
   });
+
   const limit = 10;
-
-  // Map sort values to API parameters
-  const getSortParams = (sortValue: string) => {
-    switch (sortValue) {
-      case "newest":
-        return { sortBy: "createdAt", sortOrder: "desc" as const };
-      case "oldest":
-        return { sortBy: "createdAt", sortOrder: "asc" as const };
-      case "name":
-        return { sortBy: "name", sortOrder: "asc" as const };
-      case "price-low":
-        return { sortBy: "price", sortOrder: "asc" as const };
-      case "price-high":
-        return { sortBy: "price", sortOrder: "desc" as const };
-      default:
-        return { sortBy: "createdAt", sortOrder: "desc" as const };
-    }
-  };
-
   const sortParams = getSortParams(sort);
   const { mutateAsync: deleteCourse } = useDeleteCourse();
-  const { data, isLoading, refetch } = useCourses({ 
-    page, 
-    limit, 
-    search, 
+  const { data, isLoading, refetch } = useCourses({
+    page,
+    limit,
+    search,
     sortBy: sortParams.sortBy,
-    sortOrder: sortParams.sortOrder
+    sortOrder: sortParams.sortOrder,
   });
   const router = useRouter();
 
+  const handleCreateCourse = () => router.push("/admin/course/new");
+  const handleViewVideos = (courseId: string) =>
+    router.push(`/admin/course/${courseId}/videos`);
+  const handleEditCourse = (courseId: string) =>
+    router.push(`/admin/course/${courseId}`);
+
   const handleSearch = (value: string) => {
     setSearch(value);
-    setPage(1); // Reset to first page when searching
+    setPage(1);
   };
 
   const handleSort = (value: string) => {
     setSort(value);
-    setPage(1); // Reset to first page when sorting
+    setPage(1);
   };
-
-  const handleCreateCourse = () => {
-    // setEditingCourse(undefined);
-    // setIsFormOpen(true);
-    router.push("/admin/course/new");
-  };
-
-  const handleEditCourse = (courseId: string) =>
-    router.push(`/admin/course/${courseId}`);
 
   const handleDeleteCourse = (courseId: string) => {
     setDeleteConfirm({
@@ -107,29 +89,6 @@ const CoursePage: React.FC<Props> = ({ initialSearch, initialPage }) => {
     });
   };
 
-  const confirmDelete = () => {
-    // const updatedCourses = courses.filter(
-    //   (c) => c.id !== deleteConfirm.courseId
-    // );
-    // setCourses(updatedCourses);
-    // applyFilters(searchTerm, sortBy, updatedCourses);
-
-    // toast({
-    //   title: "Course Deleted",
-    //   description: `Course "${deleteConfirm.courseName}" has been deleted successfully.`,
-    // });
-
-    setDeleteConfirm({
-      isOpen: false,
-      courseId: "",
-      courseName: "",
-      onDelete: () => {},
-    });
-  };
-
-  const handleViewVideos = (courseId: string) => {
-    router.push(`/admin/course/${courseId}/videos`);
-  };
   return (
     <>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -245,8 +204,8 @@ const CoursePage: React.FC<Props> = ({ initialSearch, initialPage }) => {
           })
         }
         onConfirm={deleteConfirm.onDelete}
-        itemName={deleteConfirm.courseName}
-        itemType="course"
+        title="Delete Course"
+        description={`Are you sure you want to delete "${deleteConfirm.courseName}"? This action cannot be undone and will permanently remove this course and all associated data.`}
       />
     </>
   );

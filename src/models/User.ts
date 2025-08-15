@@ -11,6 +11,7 @@ export interface IUser extends Document {
   otp: string | null;
   password: string;
   otpGenerationTime: Date | null;
+  isBlocked: boolean;
   profileImage?: {
     publicId: string | null;
     url: string | null;
@@ -45,8 +46,10 @@ const UserSchema: Schema<IUser> = new Schema({
     },
     default: null,
   },
+  isBlocked: { type: Boolean, default: false },
   purchasedCourses: [{ type: Schema.Types.ObjectId, ref: "Course" }],
   transactions: [{ type: Schema.Types.ObjectId, ref: "Transaction" }],
+  createdAt: { type: Date, default: Date.now },
 });
 
 UserSchema.pre("validate", function (next) {

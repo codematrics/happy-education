@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 
-const CustomDropdown = ({ label, options }: DropdownProps) => {
+const CustomDropdown = ({ label, options, data }: DropdownProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -25,7 +25,7 @@ const CustomDropdown = ({ label, options }: DropdownProps) => {
           return (
             <DropdownMenuItem
               key={option.label}
-              onClick={option.action}
+              onClick={() => (data ? option.action(data) : option.action())}
               className={option.itemClassName || ""}
             >
               {Icon && (

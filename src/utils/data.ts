@@ -8,7 +8,7 @@ export const sidebarItems = [
   },
   {
     title: "Users",
-    url: "#",
+    url: "/admin/users",
     icon: User,
   },
   {
@@ -27,3 +27,20 @@ export const sidebarItems = [
     icon: BookCopy,
   },
 ];
+
+export const getSortParams = (sortValue: string) => {
+  switch (sortValue) {
+    case "newest":
+      return { sortBy: "createdAt", sortOrder: "desc" as const };
+    case "oldest":
+      return { sortBy: "createdAt", sortOrder: "asc" as const };
+    case "name":
+      return { sortBy: "name", sortOrder: "asc" as const };
+    case "price-low":
+      return { sortBy: "price", sortOrder: "asc" as const };
+    case "price-high":
+      return { sortBy: "price", sortOrder: "desc" as const };
+    default:
+      return { sortBy: "createdAt", sortOrder: "desc" as const };
+  }
+};

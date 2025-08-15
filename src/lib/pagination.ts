@@ -24,6 +24,10 @@ export interface PaginationQueryOptions extends PaginationOptions {
   search?: string;
   searchFields?: string[];
   populate?: string | string[];
+  fields?: string | string[]; // select only specific fields
+  counts?: string[]; // fields to count distinct values
+  combineFields?: { newField: string; fields: string[]; separator?: string }[]; // combine fields into one
+  computeFields?: Record<string, (item: any) => any | Promise<any>>; // NEW: compute extra fields
 }
 
 /**
@@ -32,12 +36,11 @@ export interface PaginationQueryOptions extends PaginationOptions {
  * @param query - MongoDB query filter
  * @param options - Pagination options
  * @returns Paginated result with metadata
- */
-export async function paginate<T>(
+ */ export async function paginate<T>(
   model: Model<T>,
   query: FilterQuery<T> = {},
   options: PaginationQueryOptions = { page: 1, limit: 10 }
-): Promise<PaginationResult<T>> {
+): Promise<PaginationResult<T> & { counts?: Record<string, number> }> {
   const {
     page = 1,
     limit = 10,
@@ -46,13 +49,15 @@ export async function paginate<T>(
     search,
     searchFields = [],
     populate,
+    fields,
+    counts,
+    combineFields = [],
+    computeFields = {}, // ✅ NEW
   } = options;
 
-  // Ensure positive values
   const currentPage = Math.max(1, page);
-  const perPage = Math.max(1, Math.min(limit, 100)); // Max 100 items per page
+  const perPage = Math.max(1, Math.min(limit, 100));
 
-  // Build search query if provided
   let finalQuery = { ...query };
   if (search && searchFields.length > 0) {
     const searchRegex = new RegExp(search, "i");
@@ -62,27 +67,32 @@ export async function paginate<T>(
     };
   }
 
-  // Calculate pagination values
   const skip = (currentPage - 1) * perPage;
-  
-  // Handle sort object
+
   let sortObj: { [key: string]: SortOrder };
-  if (typeof sort === 'string') {
+  if (typeof sort === "string") {
     sortObj = { [sort]: order === "asc" ? 1 : -1 };
   } else {
     sortObj = sort as { [key: string]: SortOrder };
   }
 
-  // Build query with population
   let queryBuilder = model
     .find(finalQuery)
     .sort(sortObj)
     .skip(skip)
     .limit(perPage);
 
+  // Field selection
+  if (fields) {
+    queryBuilder = queryBuilder.select(
+      Array.isArray(fields) ? fields.join(" ") : fields
+    );
+  }
+
+  // Populate
   if (populate) {
     if (Array.isArray(populate)) {
-      populate.forEach(field => {
+      populate.forEach((field) => {
         queryBuilder = queryBuilder.populate(field);
       });
     } else {
@@ -90,13 +100,48 @@ export async function paginate<T>(
     }
   }
 
-  // Execute queries in parallel for better performance
   const [total, data] = await Promise.all([
     model.countDocuments(finalQuery),
     queryBuilder.lean().exec(),
   ]);
 
   const totalPages = Math.ceil(total / perPage);
+
+  // Add combined fields
+  if (combineFields.length > 0) {
+    data.forEach((item: any) => {
+      combineFields.forEach(({ newField, fields, separator = " " }) => {
+        item[newField] = fields
+          .map((f) => item[f] ?? "")
+          .join(separator)
+          .trim();
+      });
+    });
+  }
+
+  // ✅ Add computed fields
+  if (computeFields && Object.keys(computeFields).length > 0) {
+    data.forEach((item: any) => {
+      for (const [fieldName, computeFn] of Object.entries(computeFields)) {
+        try {
+          item[fieldName] = computeFn(item);
+        } catch (err) {
+          console.error(`Error computing field "${fieldName}":`, err);
+        }
+      }
+    });
+  }
+
+  // Count distinct values if requested
+  let countsResult: Record<string, number> | undefined = undefined;
+  if (counts && counts.length > 0) {
+    countsResult = {};
+    for (const field of counts) {
+      countsResult[field] = await model
+        .distinct(field, finalQuery)
+        .then((res) => res.length);
+    }
+  }
 
   return {
     data: data as T[],
@@ -108,6 +153,7 @@ export async function paginate<T>(
       hasNext: currentPage < totalPages,
       hasPrev: currentPage > 1,
     },
+    ...(countsResult ? { counts: countsResult } : {}),
   };
 }
 

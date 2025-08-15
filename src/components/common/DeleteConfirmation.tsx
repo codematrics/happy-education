@@ -14,16 +14,16 @@ interface DeleteConfirmDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void | Promise<void>;
-  itemName: string;
-  itemType?: string;
+  title: string;
+  description?: string;
 }
 
 const DeleteConfirmDialog = ({
   isOpen,
   onClose,
   onConfirm,
-  itemName,
-  itemType = "course",
+  title,
+  description = "Are you sure you want to delete? This action cannot be undone and will permanently remove this and all associated data.",
 }: DeleteConfirmDialogProps) => {
   const [deleting, setDeleting] = useState<boolean>(false);
   const handleConfirm = async () => {
@@ -36,12 +36,8 @@ const DeleteConfirmDialog = ({
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete {itemType}</AlertDialogTitle>
-          <AlertDialogDescription>
-            Are you sure you want to delete "{itemName}"? This action cannot be
-            undone and will permanently remove this {itemType} and all
-            associated data.
-          </AlertDialogDescription>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>

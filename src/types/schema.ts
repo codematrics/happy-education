@@ -159,6 +159,25 @@ export const courseUpdateValidations = z.object({
   courseVideos: z.array(courseVideoValidation).optional(),
 });
 
+export const userUpdateValidations = z.object({
+  email: z.string().email("Invalid email address").optional(),
+  firstName: z
+    .string()
+    .min(2, "First name must be at least 2 characters")
+    .optional(),
+  lastName: z
+    .string()
+    .min(2, "Last name must be at least 2 characters")
+    .optional(),
+  mobileNumber: z
+    .string()
+    .min(10, "Mobile number must be at least 10 digits")
+    .optional(),
+  isBlocked: z.boolean().optional(),
+  isVerified: z.boolean().optional(),
+});
+
+export type userUpdateFormData = z.infer<typeof userUpdateValidations>;
 export type SignUpUserFormData = z.infer<typeof signupUserValidations>;
 export type LoginAdminFormData = z.infer<typeof loginAdminValidations>;
 export type LoginUserFormData = z.infer<typeof loginUserValidations>;
