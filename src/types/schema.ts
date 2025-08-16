@@ -100,11 +100,16 @@ const requiredFileOrUrlValidation = (allowedExtensions: string[]) =>
       message: "File or URL is required",
     })
     .refine(
-      (value) =>
-        typeof value === "string" ||
-        allowedExtensions.some((ext) =>
-          value.name?.toLowerCase().endsWith(ext)
-        ),
+      (value) => {
+        if (!value) return false; // value is null or undefined
+        if (typeof value === "string") return true; // URL is fine
+        if (value instanceof File) {
+          return allowedExtensions.some((ext) =>
+            value.name?.toLowerCase().endsWith(ext)
+          );
+        }
+        return false;
+      },
       {
         message: `Only ${allowedExtensions.join(", ")} files are allowed`,
       }
@@ -142,6 +147,7 @@ export const courseVideoValidation = z.object({
 export const courseValidations = z.object({
   name: z.string().min(1, "Course name is required"),
   description: z.string().min(1, "Course description is required"),
+  benefits: z.array(z.string()).optional(),
   thumbnail: requiredFileOrUrlValidation([".jpg", ".jpeg", ".png", ".webp"]),
   previewVideo: optionalFileOrUrlValidation([".mp4", ".avi", ".mov", ".mkv"]),
   price: z.number().positive("Price must be a positive number"),
@@ -152,6 +158,7 @@ export const courseValidations = z.object({
 export const courseUpdateValidations = z.object({
   name: z.string().min(1).optional(),
   description: z.string().min(1).optional(),
+  benefits: z.array(z.string()).optional(),
   thumbnail: requiredFileOrUrlValidation([".jpg", ".jpeg", ".png", ".webp"]),
   previewVideo: optionalFileOrUrlValidation([".mp4", ".avi", ".mov", ".mkv"]),
   price: z.number().positive().optional(),

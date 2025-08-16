@@ -24,4 +24,9 @@ export const coursesSortOptions = [
   { label: "Price High-Low", value: "price-high" },
 ];
 
+export const currencyOptions = [
+  { label: "Dollar ($)", value: CourseCurrency.dollar },
+  { label: "Rupee (₹)", value: CourseCurrency.rupee },
+];
+
 export const OTPExpiryTime = 5 * 60 * 1000;

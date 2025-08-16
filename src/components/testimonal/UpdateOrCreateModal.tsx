@@ -11,7 +11,7 @@ import React, { useEffect, useState } from "react";
 import { SubmitHandler, useForm, UseFormReturn } from "react-hook-form";
 import Modal from "../common/CustomDialog";
 import CustomImage from "../common/CustomImage";
-import FileUpload from "../common/FileUpload";
+import { FormFileUpload } from "../common/FileUpload";
 import {
   Accordion,
   AccordionContent,
@@ -215,21 +215,20 @@ const UpdateModal: React.FC<ModalProps> = ({
           className="grid grid-cols-1 space-y-2 mt-5"
         >
           <div className="grid grid-cols-1 lg:gap-2 space-y-2">
-            <FileUpload
+            <FormFileUpload
+              name="video"
               label="Video File *"
               accept=".mp4,.avi,.mov,.wmv,.flv,.webm"
               type="video"
-              placeholder="https://example.com/video.mp4"
-              onChange={(file, url) => form.setValue("video", file)}
-              value={form.getValues().video}
+              control={form.control}
             />
-            <FileUpload
+            <FormFileUpload
+              name="thumbnail"
               label="Video Thumbnail"
               accept=".jpg,.jpeg,.png,.gif,.webp"
               type="image"
               placeholder="https://example.com/thumbnail.jpg"
-              onChange={(file, url) => form.setValue("thumbnail", file)}
-              value={form.getValues().thumbnail}
+              control={form.control}
             />
             <AddCourse form={form} />
           </div>

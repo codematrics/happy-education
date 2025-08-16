@@ -8,6 +8,7 @@ import { CourseVideo, ICourseVideo } from "./CourseVideo";
 export interface ICourse extends Document {
   name: string;
   description: string;
+  benefits: string[];
   thumbnail: {
     publicId: string;
     url: string;
@@ -40,6 +41,7 @@ export interface ICourseModel extends Model<ICourse> {
 const CourseSchema: Schema<ICourse> = new Schema({
   name: { type: String, required: true },
   description: { type: String, required: true },
+  benefits: [{ type: String }],
   thumbnail: {
     publicId: { type: String, required: true },
     url: { type: String, required: true },

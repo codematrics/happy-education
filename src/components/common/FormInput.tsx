@@ -20,6 +20,7 @@ interface FormInputProps<T extends FieldValues> {
   placeholder?: string;
   helperText?: string;
   variant?: "default" | "outline";
+  [key: string]: any;
 }
 
 export function FormInput<T extends FieldValues>({
@@ -31,6 +32,7 @@ export function FormInput<T extends FieldValues>({
   placeholder,
   helperText,
   variant = "default",
+  ...props
 }: FormInputProps<T>) {
   const [showPassword, setShowPassword] = useState(false);
   const isPassword = type === "password";
@@ -41,17 +43,33 @@ export function FormInput<T extends FieldValues>({
       <FormField
         control={control}
         name={name}
-        render={({ field }) => (
+        render={({ field, fieldState }) => (
           <div className="relative mb-5">
             <FormItem className="gap-1.5">
-              {label && <FormLabel className=" font-normal">{label}</FormLabel>}
+              {label && <FormLabel className="font-normal">{label}</FormLabel>}
               <FormControl>
                 <div className="relative">
                   <Input
                     type={inputType}
-                    className={` ${className}`}
                     placeholder={placeholder}
+                    className={`${className} ${
+                      fieldState.error
+                        ? "border-destructive focus:border-destructive focus:ring-destructive"
+                        : ""
+                    }`}
                     {...field}
+                    onChange={(e) =>
+                      type === "number"
+                        ? field.onChange({
+                            ...e,
+                            target: {
+                              ...e.target,
+                              value: Number(e.target.value || 0),
+                            },
+                          })
+                        : field.onChange(e)
+                    }
+                    {...props}
                   />
                   {type === "password" && (
                     <button

@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Course, DropdownProps } from "@/types/types";
 import { getAssetUrl } from "@/lib/assetUtils";
-import { Edit, Eye, MoreHorizontal, Trash2, Video } from "lucide-react";
+import { CheckCircle, Edit, Eye, MoreHorizontal, Trash2, Video } from "lucide-react";
 import CustomDropdown from "../common/CustomDropdown";
 import CustomImage from "../common/CustomImage";
 
@@ -98,6 +98,28 @@ const CourseCard = ({
               {course.description}
             </p>
           </div>
+
+          {/* Benefits Section */}
+          {course.benefits && course.benefits.length > 0 && (
+            <div className="space-y-1">
+              <h4 className="text-xs font-medium text-muted-foreground">Key Benefits:</h4>
+              <div className="space-y-1">
+                {course.benefits.slice(0, 3).map((benefit, index) => (
+                  <div key={index} className="flex items-start gap-1.5">
+                    <CheckCircle className="h-3 w-3 text-green-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-xs text-muted-foreground line-clamp-1">
+                      {benefit}
+                    </span>
+                  </div>
+                ))}
+                {course.benefits.length > 3 && (
+                  <div className="text-xs text-muted-foreground">
+                    +{course.benefits.length - 3} more benefits
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           <div className="flex items-center justify-between">
             <Badge variant="secondary" className="text-xs">

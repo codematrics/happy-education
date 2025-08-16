@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
 
 const MONGODB_URI = process.env.MONGODB_URI;
+const MONGO_DB = process.env.MONGO_DB;
 
-if (!MONGODB_URI) {
+if (!MONGODB_URI || !MONGO_DB) {
   throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
 }
 
@@ -36,16 +37,20 @@ async function connect() {
       maxPoolSize: 1,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
+      dbName: MONGO_DB,
     };
 
-    cached!.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
-      console.log('MongoDB connected successfully');
-      return mongoose;
-    }).catch((error) => {
-      // Clear the promise on error to allow retry
-      cached!.promise = null;
-      throw error;
-    });
+    cached!.promise = mongoose
+      .connect(MONGODB_URI!, opts)
+      .then((mongoose) => {
+        console.log("MongoDB connected successfully");
+        return mongoose;
+      })
+      .catch((error) => {
+        // Clear the promise on error to allow retry
+        cached!.promise = null;
+        throw error;
+      });
   }
 
   try {

@@ -1,81 +1,53 @@
+"use client";
 import { Button } from "@/components/ui/button";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { cn } from "@/lib/utils";
-import { File, Image, Upload, Video, X } from "lucide-react";
+import { File, Image, Video, X } from "lucide-react";
 import { useRef, useState } from "react";
-import { FormItem, FormLabel } from "../ui/form";
+import { Control, FieldPath, FieldValues } from "react-hook-form";
 import CustomImage from "./CustomImage";
 import CustomVideo from "./CustomVideo";
 
-interface FileUploadProps {
+interface FormFileUploadProps<T extends FieldValues> {
+  name: FieldPath<T>;
+  control: Control<T>;
   label: string;
   accept: string;
-  value?: string;
-  onChange: (file: File | null, url?: string) => void;
-  placeholder?: string;
   type?: "image" | "video" | "file";
+  placeholder?: string;
   className?: string;
 }
 
-const FileUpload = ({
+export function FormFileUpload<T extends FieldValues>({
+  name,
+  control,
   label,
   accept,
-  value,
-  onChange,
-  placeholder,
   type = "file",
+  placeholder,
   className,
-}: FileUploadProps) => {
+}: FormFileUploadProps<T>) {
   const [isDragging, setIsDragging] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string>(value || "");
+  const [previewUrl, setPreviewUrl] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (file: File) => {
     setUploadedFile(file);
     const fileUrl = URL.createObjectURL(file);
     setPreviewUrl(fileUrl);
-    onChange(file, fileUrl);
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleFileSelect(file);
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      handleFileSelect(files[0]);
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
   };
 
   const clearFile = () => {
     setUploadedFile(null);
     setPreviewUrl("");
-    onChange(null, "");
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
-  const handleUrlChange = (url: string) => {
-    setPreviewUrl(url);
-    setUploadedFile(null);
-    onChange(null, url);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const getIcon = () => {
@@ -90,108 +62,106 @@ const FileUpload = ({
   };
 
   return (
-    <FormItem>
-      <div className={cn("space-y-3", className)}>
-        <FormLabel className="font-medium">{label}</FormLabel>
-
-        <div
-          className={cn(
-            "border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer",
-            isDragging
-              ? "border-primary bg-primary/5"
-              : "border-border hover:border-primary/50 hover:bg-muted/50"
-          )}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept={accept}
-            onChange={handleFileChange}
-            className="hidden"
-          />
-
-          {uploadedFile ? (
+    <FormField
+      control={control}
+      name={name}
+      render={({ field, fieldState }) => (
+        <FormItem className={cn("relative mb-5", className)}>
+          <FormLabel className="font-normal">{label}</FormLabel>
+          <FormControl>
             <div className="space-y-2">
-              <div className="flex items-center justify-center space-x-2">
-                {getIcon()}
-                <span className="text-sm font-medium">{uploadedFile.name}</span>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    clearFile();
+              <div
+                className={cn(
+                  "border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer",
+                  isDragging
+                    ? "border-primary bg-primary/5"
+                    : fieldState.error
+                    ? "border-red-500 bg-red-50"
+                    : "border-border hover:border-primary/50 hover:bg-muted/50"
+                )}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDragging(false);
+                  const files = e.dataTransfer.files;
+                  if (files.length > 0) {
+                    handleFileSelect(files[0]);
+                    field.onChange(files[0]);
+                  }
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDragging(true);
+                }}
+                onDragLeave={(e) => {
+                  e.preventDefault();
+                  setIsDragging(false);
+                }}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept={accept}
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      handleFileSelect(file);
+                      field.onChange(file);
+                    }
                   }}
-                  className="h-6 w-6 p-0 hover:bg-destructive hover:text-destructive-foreground"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <div className="flex justify-center">
-                <Upload className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium">
-                  Drop files here or click to upload
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Supports: {accept.replace(/\./g, "").toUpperCase()}
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
+                />
 
-        {previewUrl && (
-          <div className="relative">
-            {type === "image" ? (
-              <CustomImage
-                src={previewUrl}
-                alt="Preview"
-                className="w-full h-32 object-cover rounded-lg border"
-              />
-            ) : type === "video" ? (
-              <CustomVideo
-                src={previewUrl}
-                className="w-full h-32 object-cover rounded-lg border"
-              />
-            ) : null}
+                {uploadedFile ? (
+                  <div className="flex items-center justify-center space-x-2">
+                    {getIcon()}
+                    <span>{uploadedFile.name}</span>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center space-x-2 text-sm">
+                    {getIcon()}
+                    <span>Drop files here or click to upload</span>
+                  </div>
+                )}
+              </div>
 
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={clearFile}
-              className="absolute top-2 right-2 h-6 w-6 p-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+              {field.value && (
+                <div className="mt-3 relative">
+                  {type === "image" ? (
+                    <CustomImage
+                      src={field.value}
+                      alt="Preview"
+                      className="w-full h-32 object-cover rounded-lg border"
+                    />
+                  ) : type === "video" ? (
+                    <CustomVideo
+                      src={field.value}
+                      className="w-full h-32 object-cover rounded-lg border"
+                    />
+                  ) : null}
+
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      clearFile();
+                      field.onChange(null);
+                    }}
+                    className="absolute top-2 right-2 h-6 w-6 p-0"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
+          </FormControl>
+
+          <div className="absolute bottom-0 leading-4 translate-y-5 left-0">
+            <FormMessage className="text-red-500 ms-1" />
           </div>
-        )}
-
-        {/* <div className="space-y-2">
-          <Label className="text-sm text-muted-foreground">Or enter URL:</Label>
-          <Input
-            value={previewUrl}
-            onChange={(e) => handleUrlChange(e.target.value)}
-            placeholder={placeholder}
-            className="h-10"
-          />
-        </div> */}
-      </div>
-    </FormItem>
+        </FormItem>
+      )}
+    />
   );
-};
-
-export default FileUpload;
+}

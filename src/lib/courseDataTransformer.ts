@@ -16,6 +16,7 @@ export const transformCourseDataForForm = (course: Course): CourseUpdateData => 
   const transformedData: CourseUpdateData = {
     name: course.name,
     description: course.description,
+    benefits: course.benefits || [],
     price: course.price,
     currency: course.currency as CourseCurrency,
     thumbnail: thumbnail,
