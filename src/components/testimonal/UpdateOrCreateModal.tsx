@@ -1,12 +1,9 @@
 import { useCourses } from "@/hooks/useCourses";
-import { useCreateUser, useUpdateUser } from "@/hooks/useUsers";
-import { AuthIdentifiers } from "@/types/constants";
 import {
-  userCreateFormData,
-  userCreateValidations,
-  userUpdateFormValidations,
-  userUpdateModalFormData,
-} from "@/types/schema";
+  useCreateTestimonial,
+  useUpdateTestimonial,
+} from "@/hooks/useTestimonial";
+import { testimonialCreateSchema, TestimonialFormData } from "@/types/schema";
 import { Course } from "@/types/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
@@ -14,8 +11,7 @@ import React, { useEffect, useState } from "react";
 import { SubmitHandler, useForm, UseFormReturn } from "react-hook-form";
 import Modal from "../common/CustomDialog";
 import CustomImage from "../common/CustomImage";
-import { FormCheckbox } from "../common/FormCheckBox";
-import { FormInput } from "../common/FormInput";
+import FileUpload from "../common/FileUpload";
 import {
   Accordion,
   AccordionContent,
@@ -29,42 +25,27 @@ import { Form } from "../ui/form";
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  data?: userUpdateModalFormData | null;
-  userId?: string | null;
+  data?: TestimonialFormData | null;
+  testimonialId?: string | null;
 }
 
-const defaultValues: userCreateFormData = {
-  identifier: AuthIdentifiers.email,
-  firstName: "",
-  lastName: "",
-  email: "",
-  mobileNumber: "",
-  password: "",
-  confirmPassword: "",
-  isBlocked: false,
-  isVerified: false,
+const defaultValues: TestimonialFormData = {
+  thumbnail: null,
+  video: null,
+  courseId: [],
   selectedCourse: [],
 };
 
-const AddCourse = ({
-  form,
-  userId,
-}: {
-  form: UseFormReturn<userUpdateModalFormData | userCreateFormData>;
-  userId?: string | null;
-}) => {
+const AddCourse = ({ form }: { form: UseFormReturn<TestimonialFormData> }) => {
   const [page, setPage] = useState(1);
   const [allCourses, setAllCourses] = useState<Course[]>([]);
+
   const { data: courses, isLoading } = useCourses({
     page,
     limit: 10,
-    userId,
-    isIncludePurchased: true,
   });
 
   const totalPages = courses?.data?.pagination?.totalPages || 1;
-  const purchasedCourses: string[] = form.watch("purchasedCourses") || [];
-  const selectedCourse: string[] = form.watch("selectedCourse") || [];
 
   useEffect(() => {
     if (courses?.data?.items) {
@@ -78,13 +59,16 @@ const AddCourse = ({
     }
   }, [courses]);
 
+  const selectedCourseIds: string[] = form.watch("courseId") || [];
+  const selectedCourse: string[] = form.watch("selectedCourse") || [];
+
   const toggleCourse = (course: Course) => {
-    const current = purchasedCourses || [];
+    const current = selectedCourseIds || [];
     const currentCourseName = selectedCourse || [];
 
     if (current.includes(course._id)) {
       form.setValue(
-        "purchasedCourses",
+        "courseId",
         current.filter((id) => id !== course._id)
       );
       form.setValue(
@@ -94,7 +78,7 @@ const AddCourse = ({
         )
       );
     } else {
-      form.setValue("purchasedCourses", [...current, course._id]);
+      form.setValue("courseId", [...current, course._id]);
       form.setValue("selectedCourse", [...currentCourseName, course]);
     }
   };
@@ -107,8 +91,9 @@ const AddCourse = ({
       defaultValue="item-1"
     >
       <AccordionItem value="item-1" className="px-2">
-        <AccordionTrigger className="px-3">Purchased Courses</AccordionTrigger>
+        <AccordionTrigger className="px-3">Select Courses</AccordionTrigger>
         <AccordionContent className="flex flex-col gap-4">
+          {/* Selected Courses */}
           <div className="flex flex-wrap gap-2">
             {selectedCourse.map((course) => (
               <Badge key={(course as unknown as Course)._id}>
@@ -123,15 +108,16 @@ const AddCourse = ({
             ))}
           </div>
 
-          {courses?.data?.items?.map((course) => (
+          {/* Courses List */}
+          {allCourses.map((course) => (
             <label
               key={course._id}
               className="flex items-center gap-2 cursor-pointer select-none border rounded-md p-2"
             >
               <Checkbox
-                id={`course-${course._id}`}
-                checked={purchasedCourses.includes(course._id)}
+                checked={selectedCourseIds.includes(course._id)}
                 onCheckedChange={() => toggleCourse(course)}
+                className="w-4 h-4"
               />
               <div className="flex items-start gap-2">
                 <CustomImage
@@ -149,6 +135,7 @@ const AddCourse = ({
             </label>
           ))}
 
+          {/* 🟢 Load More Button */}
           {page < totalPages && (
             <button
               type="button"
@@ -165,17 +152,21 @@ const AddCourse = ({
   );
 };
 
-const UpdateModal: React.FC<ModalProps> = ({ data, userId, ...props }) => {
-  const { mutateAsync: createUser, isPending: isCreating } = useCreateUser();
-  const { mutateAsync: updateUser, isPending: isUpdating } = useUpdateUser();
+const UpdateModal: React.FC<ModalProps> = ({
+  data,
+  testimonialId,
+  ...props
+}) => {
+  const { mutateAsync: createTestimonial, isPending: isCreating } =
+    useCreateTestimonial();
+  const { mutateAsync: updateTestimonial, isPending: isUpdating } =
+    useUpdateTestimonial();
 
-  type FormValues = userCreateFormData | userUpdateModalFormData;
+  type FormValues = TestimonialFormData;
 
   const form = useForm<FormValues>({
     defaultValues: data ?? defaultValues,
-    resolver: zodResolver(
-      data ? userUpdateFormValidations : userCreateValidations
-    ),
+    resolver: zodResolver(testimonialCreateSchema),
     mode: "onChange",
   });
 
@@ -186,23 +177,21 @@ const UpdateModal: React.FC<ModalProps> = ({ data, userId, ...props }) => {
   }, [data, form]);
 
   const handleSubmit: SubmitHandler<FormValues> = async (formData) => {
-    if (data) {
-      await updateUser({
-        data: formData as userUpdateModalFormData,
-        userId: userId,
+    if (data && testimonialId) {
+      await updateTestimonial({
+        data: formData,
+        testimonialId: testimonialId,
       }).then(() => {
         props.onClose();
         form.reset();
       });
     } else {
-      await createUser(formData as userCreateFormData).then(() => {
+      await createTestimonial(formData).then(() => {
         props.onClose();
         form.reset();
       });
     }
   };
-
-  console.log(form.getValues(), form.formState.errors);
 
   return (
     <Modal
@@ -214,74 +203,36 @@ const UpdateModal: React.FC<ModalProps> = ({ data, userId, ...props }) => {
             ? "Updating..."
             : "Update"
           : isCreating
-          ? "Creating..."
-          : "Create"
+          ? "Adding..."
+          : "Add"
       }
       isLoading={isUpdating || isCreating}
-      title={data ? "Update User" : "Create User"}
+      title={data ? "Update Testimonial" : "Add Testimonial"}
     >
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(handleSubmit)}
           className="grid grid-cols-1 space-y-2 mt-5"
         >
-          <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-2">
-            <FormInput<FormValues>
-              type="text"
-              name="firstName"
-              placeholder="Enter First Name"
-              label="First Name"
-              control={form.control}
+          <div className="grid grid-cols-1 lg:gap-2 space-y-2">
+            <FileUpload
+              label="Video File *"
+              accept=".mp4,.avi,.mov,.wmv,.flv,.webm"
+              type="video"
+              placeholder="https://example.com/video.mp4"
+              onChange={(file, url) => form.setValue("video", file)}
+              value={form.getValues().video}
             />
-            <FormInput<FormValues>
-              type="text"
-              name="lastName"
-              placeholder="Enter Last Name"
-              label="Last Name"
-              control={form.control}
+            <FileUpload
+              label="Video Thumbnail"
+              accept=".jpg,.jpeg,.png,.gif,.webp"
+              type="image"
+              placeholder="https://example.com/thumbnail.jpg"
+              onChange={(file, url) => form.setValue("thumbnail", file)}
+              value={form.getValues().thumbnail}
             />
+            <AddCourse form={form} />
           </div>
-          <FormInput<FormValues>
-            type="text"
-            name="email"
-            placeholder="Enter Email"
-            label="Email"
-            control={form.control}
-          />
-
-          {!data && (
-            <>
-              <FormInput<FormValues>
-                type="text"
-                name="password"
-                placeholder="Enter Password"
-                label="Password"
-                control={form.control}
-              />
-              <FormInput<FormValues>
-                type="text"
-                name="confirmPassword"
-                placeholder="Confirm Password"
-                label="Confirm Password"
-                control={form.control}
-              />
-            </>
-          )}
-
-          <AddCourse form={form} userId={userId} />
-
-          <FormCheckbox<FormValues>
-            name="isBlocked"
-            control={form.control}
-            label="Is Blocked"
-            helperText="User will not be able to log in if blocked"
-          />
-          <FormCheckbox<FormValues>
-            name="isVerified"
-            control={form.control}
-            label="Is Verified"
-            helperText="User has verified their email"
-          />
         </form>
       </Form>
     </Modal>

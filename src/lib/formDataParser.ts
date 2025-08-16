@@ -14,49 +14,42 @@ export const jsonToFormData = (data: Record<string, any>): FormData => {
   const isFile = (value: unknown): value is File | Blob =>
     value instanceof File || value instanceof Blob;
 
-  const entries = Object.entries(data);
-
-  for (let i = 0; i < entries.length; i++) {
-    const arKey = entries[i][0];
-    let arVal = entries[i][1];
-
-    if (typeof arVal === "boolean") {
-      arVal = arVal ? 1 : 0;
+  const appendFormData = (formData: FormData, key: string, value: any) => {
+    if (value === null || value === undefined || value === "") {
+      return; // ✅ skip null, undefined, empty string
     }
 
-    if (Array.isArray(arVal)) {
-      if (arVal.length === 0) continue;
-
-      if (isFile(arVal[0])) {
-        for (let z = 0; z < arVal.length; z++) {
-          formData.append(`${arKey}[${z}]`, arVal[z]);
-        }
-        continue;
-      } else if (typeof arVal[0] === "object" && arVal[0] !== null) {
-        for (let j = 0; j < arVal.length; j++) {
-          for (const prop in arVal[j]) {
-            if (Object.prototype.hasOwnProperty.call(arVal[j], prop)) {
-              const value = arVal[j][prop];
-              formData.append(`${arKey}[${j}][${prop}]`, String(value));
-            }
-          }
-        }
-        continue;
-      } else {
-        // ✅ array of primitives (string, number, etc.)
-        for (let z = 0; z < arVal.length; z++) {
-          formData.append(`${arKey}[${z}]`, String(arVal[z]));
-        }
-        continue;
-      }
+    if (typeof value === "boolean") {
+      formData.append(key, value ? "1" : "0");
+      return;
     }
 
-    if (arVal === null || arVal === undefined || arVal === "") {
-      continue;
+    if (isFile(value)) {
+      formData.append(key, value);
+      return;
     }
 
-    formData.append(arKey, String(arVal));
-  }
+    if (Array.isArray(value)) {
+      value.forEach((item, index) => {
+        appendFormData(formData, `${key}[${index}]`, item);
+      });
+      return;
+    }
+
+    if (typeof value === "object") {
+      Object.keys(value).forEach((prop) => {
+        appendFormData(formData, `${key}[${prop}]`, value[prop]);
+      });
+      return;
+    }
+
+    // numbers, strings
+    formData.append(key, String(value));
+  };
+
+  Object.entries(data).forEach(([key, value]) => {
+    appendFormData(formData, key, value);
+  });
 
   return formData;
 };
@@ -90,8 +83,25 @@ export const formDataToJson = (formData: FormData): Record<string, any> => {
       return;
     }
 
-    // Normal key
-    obj[key] = value instanceof File ? value : castValue(value);
+    // Case: arr[] (push into array)
+    const arrayPushMatch = key.match(/^([^\[]+)\[\]$/);
+    if (arrayPushMatch) {
+      const [, arrKey] = arrayPushMatch;
+
+      if (!obj[arrKey]) obj[arrKey] = [];
+      obj[arrKey].push(value instanceof File ? value : castValue(value));
+      return;
+    }
+
+    // Normal key (handle duplicates → array)
+    if (obj[key] !== undefined) {
+      if (!Array.isArray(obj[key])) {
+        obj[key] = [obj[key]];
+      }
+      obj[key].push(value instanceof File ? value : castValue(value));
+    } else {
+      obj[key] = value instanceof File ? value : castValue(value);
+    }
   });
 
   return obj;
@@ -100,6 +110,9 @@ export const formDataToJson = (formData: FormData): Record<string, any> => {
 // helper to restore types
 const castValue = (value: FormDataEntryValue): any => {
   if (typeof value !== "string") return value;
+
+  // null string → null
+  if (value === "null") return null;
 
   // boolean
   if (value === "1" || value === "0") return value === "1";

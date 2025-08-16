@@ -36,7 +36,7 @@ const Modal: React.FC<ModalProps> = ({
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md overflow-y-auto bg-background border border-primary rounded-xl shadow-lg p-0 gap-0">
+      <DialogContent className="max-w-md bg-background border border-primary rounded-xl shadow-lg p-0 gap-0">
         {title && (
           <DialogHeader className="px-6 py-4">
             <DialogTitle className="text-primary text-lg font-semibold">
@@ -45,6 +45,7 @@ const Modal: React.FC<ModalProps> = ({
           </DialogHeader>
         )}
 
+        {/* Only one scrollbar (inside here) */}
         <ScrollArea className="px-4 max-h-[60vh] text-foreground">
           <div className="px-2">{children}</div>
         </ScrollArea>

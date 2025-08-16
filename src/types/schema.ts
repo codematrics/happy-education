@@ -189,6 +189,7 @@ export const userUpdateFormValidations = z.object({
   isBlocked: z.boolean(),
   isVerified: z.boolean(),
   purchasedCourses: z.array(z.string()).optional(),
+  selectedCourse: z.any(),
 });
 
 export const userCreateValidations = z
@@ -208,6 +209,7 @@ export const userCreateValidations = z
     lastName: z.string().min(1, "Last name is required"),
     isVerified: z.boolean().optional(),
     isBlocked: z.boolean().optional(),
+    selectedCourse: z.any(),
   })
   .refine(
     (data) =>
@@ -223,7 +225,30 @@ export const userCreateValidations = z
     path: ["confirmPassword"],
   });
 
+export const testimonialCreateSchema = z.object({
+  thumbnail: optionalFileOrUrlValidation([".jpg", ".jpeg", ".png", ".webp"]),
+  video: requiredFileOrUrlValidation([".mp4", ".avi", ".mov", ".mkv"]),
+  courseId: z.array(z.string()).min(1, "At least one course is required."),
+  selectedCourse: z.any(),
+});
+
+export const testimonialApiUpdateSchema = z.object({
+  thumbnail: optionalFileOrUrlValidation([".jpg", ".jpeg", ".png", ".webp"]),
+  video: optionalFileOrUrlValidation([".mp4", ".avi", ".mov", ".mkv"]),
+  courseId: z.array(z.string()).optional(),
+});
+
+export const testimonialUpdateSchema = z.object({
+  thumbnail: optionalFileOrUrlValidation([".jpg", ".jpeg", ".png", ".webp"]),
+  video: requiredFileOrUrlValidation([".mp4", ".avi", ".mov", ".mkv"]),
+  courseId: z.array(z.string()).min(1, "At least one course is required."),
+});
+
 export type userUpdateFormData = z.infer<typeof userUpdateValidations>;
+export type TestimonialFormData = z.infer<typeof testimonialCreateSchema>;
+export type TestimonialApiUpdateFormData = z.infer<
+  typeof testimonialApiUpdateSchema
+>;
 export type userUpdateModalFormData = z.infer<typeof userUpdateFormValidations>;
 export type userCreateFormData = z.infer<typeof userCreateValidations>;
 export type SignUpUserFormData = z.infer<typeof signupUserValidations>;

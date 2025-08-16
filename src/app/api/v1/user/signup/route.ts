@@ -27,7 +27,7 @@ export const POST = async (req: NextRequest) => {
 
     await connect();
 
-    let query = [];
+    const query = [];
 
     if (email) {
       query.push({ email });

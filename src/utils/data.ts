@@ -25,7 +25,7 @@ export const sidebarItems = [
   },
   {
     title: "Testimonials",
-    url: "#",
+    url: "/admin/testimonial",
     icon: BookCopy,
   },
 ];

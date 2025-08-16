@@ -4,7 +4,7 @@ import { formDataToJson } from "@/lib/formDataParser";
 import { validateSchema } from "@/lib/schemaValidator";
 import { Course } from "@/models/Course";
 import "@/models/CourseVideo";
-import { CourseUpdateData, CourseVideoFormData, courseUpdateValidations } from "@/types/schema";
+import { CourseVideoFormData, courseUpdateValidations } from "@/types/schema";
 import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (
@@ -85,8 +85,10 @@ export const PUT = async (
 
     // Get existing course data to preserve asset structures
     await connect();
-    const existingCourse = await Course.findById(id).populate("courseVideos").lean();
-    
+    const existingCourse = await Course.findById(id)
+      .populate("courseVideos")
+      .lean();
+
     if (!existingCourse) {
       return NextResponse.json(
         {
@@ -109,20 +111,23 @@ export const PUT = async (
       ...fileUploadResults,
       courseVideos: json.courseVideos
         ? await Promise.all(
-            json.courseVideos.map(async (video: CourseVideoFormData, index: number) => {
-              const existingVideos = existingCourse.courseVideos as any[] || [];
-              const existingVideo = video._id 
-                ? existingVideos.find(v => v._id.toString() === video._id)
-                : null;
-              
-              const uploadResult = await processFilesAndReturnUpdatedResults(
-                ["thumbnail", "video"],
-                video,
-                "course_videos",
-                existingVideo
-              );
-              return uploadResult;
-            })
+            json.courseVideos.map(
+              async (video: CourseVideoFormData, index: number) => {
+                const existingVideos =
+                  (existingCourse.courseVideos as any[]) || [];
+                const existingVideo = video._id
+                  ? existingVideos.find((v) => v._id.toString() === video._id)
+                  : null;
+
+                const uploadResult = await processFilesAndReturnUpdatedResults(
+                  ["thumbnail", "video"],
+                  video,
+                  "course_videos",
+                  existingVideo
+                );
+                return uploadResult;
+              }
+            )
           )
         : [],
     };

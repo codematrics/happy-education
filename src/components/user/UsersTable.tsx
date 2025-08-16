@@ -3,7 +3,7 @@
 import { useBlockUser, useUsers, useVerifyUser } from "@/hooks/useUsers";
 import { coursesSortOptions } from "@/types/constants";
 import { userUpdateModalFormData } from "@/types/schema";
-import { DropdownProps, User } from "@/types/types";
+import { Course, DropdownProps, User } from "@/types/types";
 import { getSortParams } from "@/utils/data";
 import { ColumnDef } from "@tanstack/react-table";
 import {
@@ -99,10 +99,21 @@ const UserPage: React.FC<Props> = ({ initialSearch, initialPage }) => {
   };
 
   const openUpdateModal = (data: User) => {
+    const courseIds = Array.isArray(data.purchasedCourses)
+      ? data.purchasedCourses.map((course: any) => course._id || course)
+      : [(data.purchasedCourses as Course)._id || data.purchasedCourses].filter(
+          Boolean
+        );
+
+    const formData: userUpdateModalFormData = {
+      ...data,
+      purchasedCourses: courseIds,
+      selectedCourse: data.purchasedCourses,
+    };
     setUpdateModal({
       isOpen: true,
       onClose: closeCreateUpdateModal,
-      data: data as unknown as userUpdateModalFormData,
+      data: formData,
       userId: data._id,
     });
   };

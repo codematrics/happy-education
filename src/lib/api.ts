@@ -1,5 +1,5 @@
 import { CourseFormData } from "@/types/schema";
-import { Course, ResponseInterface, User } from "@/types/types";
+import { Course, ResponseInterface, Testimonial, User } from "@/types/types";
 import { fetcher } from "./fetch";
 import { PaginationResult } from "./pagination";
 
@@ -16,6 +16,18 @@ export const getCourses = (
   return fetcher(
     `/api/v1/admin/course?page=${page}&limit=${limit}&search=${search}`
   );
+};
+
+export const getTestimonial = (
+  page: number = 1,
+  limit: number = 10
+): Promise<
+  ResponseInterface<{
+    items: Testimonial[];
+    pagination: PaginationResult<CourseFormData>["pagination"];
+  }>
+> => {
+  return fetcher(`/api/v1/admin/testimonial?page=${page}&limit=${limit}`);
 };
 
 export const getUsers = (

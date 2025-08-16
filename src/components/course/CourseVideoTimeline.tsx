@@ -4,9 +4,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCourse } from "@/hooks/useCourses";
-import { ICourseVideo } from "@/models/CourseVideo";
-import { formatDuration, estimateVideoDuration, calculateTotalDuration } from "@/lib/videoUtils";
 import { getAssetUrl } from "@/lib/assetUtils";
+import {
+  calculateTotalDuration,
+  estimateVideoDuration,
+  formatDuration,
+} from "@/lib/videoUtils";
+import { ICourseVideo } from "@/models/CourseVideo";
 import {
   ArrowLeft,
   Calendar,
@@ -19,8 +23,9 @@ import {
   Video,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import CustomImage from "../common/CustomImage";
+import CustomVideo from "../common/CustomVideo";
 import LoadingError from "../common/LoadingError";
 import CourseVideoTimelineSkeleton from "../skeleton/CourseVideoTimeline";
 import CourseVideoTimelineItem from "./CourseVideoTimelineItem";
@@ -44,8 +49,8 @@ const CourseVideoTimeline = ({ courseId }: CourseVideoTimelineProps) => {
   const totalDuration = useMemo(() => {
     if (videos.length === 0) return 0;
     // Use actual durations from database if available, otherwise estimate
-    const durations = videos.map(video => 
-      video.video?.duration || estimateVideoDuration()
+    const durations = videos.map(
+      (video) => video.video?.duration || estimateVideoDuration()
     );
     return calculateTotalDuration(durations);
   }, [videos]);
@@ -219,10 +224,9 @@ const CourseVideoTimeline = ({ courseId }: CourseVideoTimelineProps) => {
                   <Card className="py-0">
                     <CardContent className="p-4">
                       <div className="aspect-video bg-black rounded-lg mb-4 relative overflow-hidden">
-                        <video
+                        <CustomVideo
                           src={getAssetUrl(selectedVideo.video)}
-                          poster={getAssetUrl(selectedVideo.thumbnail)}
-                          controls
+                          thumbnail={getAssetUrl(selectedVideo.thumbnail)}
                           className="w-full h-full object-cover"
                         />
                       </div>

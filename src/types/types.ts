@@ -1,4 +1,5 @@
 import { ICourse } from "@/models/Course";
+import { ITestimonial } from "@/models/Testimonial";
 import { IUser } from "@/models/User";
 import { HTMLProps } from "react";
 
@@ -14,6 +15,12 @@ export interface Course extends ICourse {
 
 export interface User extends IUser {
   _id: string;
+}
+
+export interface Testimonial extends ITestimonial {
+  _id: string;
+  courseName?: string[];
+  courseIds?: string[];
 }
 
 export interface DropdownProps<T = any> {

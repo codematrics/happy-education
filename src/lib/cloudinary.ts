@@ -179,7 +179,7 @@ export const generateCloudinaryUrl = (
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
   if (!cloudName) throw new Error("Cloudinary cloud name not configured");
 
-  let transformations: string[] = [];
+  const transformations: string[] = [];
 
   // Image/Video dimensions
   if (width || height) {

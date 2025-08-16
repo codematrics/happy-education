@@ -19,7 +19,6 @@ export const GET = async (req: NextRequest) => {
     const searchParams = req.nextUrl.searchParams;
     const options = getPaginationOptions(searchParams);
 
-    // Get search and sort parameters
     const search = searchParams.get("search") || "";
     const sortBy = searchParams.get("sortBy") || "createdAt";
     const sortOrder = searchParams.get("sortOrder") || "desc";
@@ -27,7 +26,6 @@ export const GET = async (req: NextRequest) => {
     const userId = searchParams.get("userId");
     const isIncludePurchased = searchParams.get("isIncludePurchased");
 
-    // Build search filter
     let filter = {};
     if (search) {
       filter = {
@@ -38,11 +36,10 @@ export const GET = async (req: NextRequest) => {
       };
     }
 
-    // Build sort object
     const sortObj: Record<string, 1 | -1> = {};
     sortObj[sortBy] = sortOrder === "asc" ? 1 : -1;
 
-    let purchasedCourses = userId
+    const purchasedCourses = userId
       ? (await User.findOne({ _id: userId }))?.purchasedCourses || []
       : [];
 

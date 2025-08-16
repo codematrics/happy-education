@@ -52,6 +52,7 @@ export const GET = async (req: NextRequest) => {
         "isBlocked",
         "purchasedCourses",
       ],
+      populate: "purchasedCourses",
       computeFields: {
         fullName: (item) => `${item.firstName} ${item.lastName}`,
         purchasedCount: (item) => item.purchasedCourses.length,
