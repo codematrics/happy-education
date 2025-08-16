@@ -1,14 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Mail, Phone, Send } from "lucide-react";
+import InquiryForm from "@/components/inquiry/InquiryForm";
+import { Mail, Phone } from "lucide-react";
 
 const Contact = () => {
   return (
@@ -29,104 +20,7 @@ const Contact = () => {
             <div className="bg-card rounded-2xl p-8 shadow-soft border">
               <h2 className="text-2xl font-bold mb-6">Send us a Message</h2>
 
-              <form className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">
-                      Full Name *
-                    </label>
-                    <Input
-                      placeholder="Your full name"
-                      //   value={formData.name}
-                      //   onChange={(e) =>
-                      // handleInputChange("name", e.target.value)
-                      //   }
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">
-                      Email Address *
-                    </label>
-                    <Input
-                      type="email"
-                      placeholder="your.email@example.com"
-                      //   value={formData.email}
-                      //   onChange={(e) =>
-                      // handleInputChange("email", e.target.value)
-                      //   }
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">
-                      Subject *
-                    </label>
-                    <Input
-                      placeholder="Brief description of your inquiry"
-                      //   value={formData.subject}
-                      //   onChange={(e) =>
-                      // handleInputChange("subject", e.target.value)
-                      //   }
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">
-                      Category
-                    </label>
-                    <Select
-                    //   value={formData.category}
-                    //   onValueChange={(value) =>
-                    // handleInputChange("category", value)
-                    //   }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="general">General Inquiry</SelectItem>
-                        <SelectItem value="technical">
-                          Technical Support
-                        </SelectItem>
-                        <SelectItem value="billing">
-                          Billing & Payment
-                        </SelectItem>
-                        <SelectItem value="course">Course Related</SelectItem>
-                        <SelectItem value="partnership">Partnership</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">
-                    Message *
-                  </label>
-                  <Textarea
-                    placeholder="Please describe your inquiry in detail..."
-                    rows={6}
-                    // value={formData.message}
-                    // onChange={(e) =>
-                    //   handleInputChange("message", e.target.value)
-                    // }
-                    required
-                  />
-                </div>
-
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="w-full gradient-primary text-white border-0 shadow-medium hover:shadow-strong transition-smooth group"
-                >
-                  Send Message
-                  <Send className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-smooth" />
-                </Button>
-              </form>
+              <InquiryForm />
 
               <div className="mt-6 p-4 bg-secondary/30 rounded-lg">
                 <p className="text-sm text-muted-foreground">

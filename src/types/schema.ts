@@ -251,6 +251,13 @@ export const testimonialUpdateSchema = z.object({
   courseId: z.array(z.string()).min(1, "At least one course is required."),
 });
 
+export const inquirySchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  message: z.string().optional(),
+  phone: z.string().regex(/^[0-9]{10}$/, "Invalid mobile number"),
+});
+
+export type inquiryFormData = z.infer<typeof inquirySchema>;
 export type userUpdateFormData = z.infer<typeof userUpdateValidations>;
 export type TestimonialFormData = z.infer<typeof testimonialCreateSchema>;
 export type TestimonialApiUpdateFormData = z.infer<

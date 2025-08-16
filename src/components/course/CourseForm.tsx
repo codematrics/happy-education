@@ -49,7 +49,7 @@ const CourseForm = ({ courseId }: CourseFormProps) => {
     useCreateCourse();
   const { mutateAsync: updateCourse, isPending: isUpdating } =
     useUpdateCourse();
-  const { data: course, isLoading } = useCourse(courseId);
+  const { data: course, isLoading } = useCourse({ courseId });
   const router = useRouter();
 
   const form = useForm<CourseFormData | CourseUpdateData>({

@@ -1,6 +1,13 @@
 "use client";
 
-import { BookCopy, BookOpen, Calendar, Home, User } from "lucide-react";
+import {
+  BookCopy,
+  BookOpen,
+  Calendar,
+  Home,
+  User,
+  UserRoundSearch,
+} from "lucide-react";
 
 export const sidebarItems = [
   {
@@ -27,6 +34,11 @@ export const sidebarItems = [
     title: "Testimonials",
     url: "/admin/testimonial",
     icon: BookCopy,
+  },
+  {
+    title: "Inquiry",
+    url: "/admin/inquiries",
+    icon: UserRoundSearch,
   },
 ];
 

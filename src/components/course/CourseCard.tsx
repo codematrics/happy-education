@@ -84,7 +84,7 @@ const CourseCard = ({
   };
 
   return (
-    <Card className="group py-0 hover:shadow-lg transition-all duration-200 border-border bg-card gap-4 w-full">
+    <Card className="group h-full py-0 hover:shadow-lg transition-all duration-200 border-border bg-card gap-4 w-full">
       <CardHeader className="p-0">
         <div className="relative overflow-hidden rounded-t-lg">
           {course.thumbnail ? (
@@ -152,7 +152,7 @@ const CourseCard = ({
         </div>
       </CardContent>
 
-      <CardFooter className="p-4 pt-0">
+      <CardFooter className="p-4 pt-0 justify-self-end">
         <div className="flex items-center justify-between w-full gap-2">
           <span className="text-xl font-bold text-primary">
             {formatPrice(course.price, course.currency)}

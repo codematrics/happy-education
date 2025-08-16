@@ -89,11 +89,17 @@ export const useCourses = (
   });
 };
 
-export const useCourse = (
-  courseId?: string
-): UseQueryResult<ResponseInterface<Course>> => {
+export const useCourse = ({
+  courseId,
+  relatedCourse,
+}: {
+  courseId?: string;
+  relatedCourse?: boolean;
+}): UseQueryResult<ResponseInterface<Course>> => {
   return useQuery<ResponseInterface<Course>>({
-    queryKey: [courseId, courseId],
+    queryKey: relatedCourse
+      ? [courseId, courseId, relatedCourse]
+      : [courseId, courseId],
     queryFn: () => getCourseById(courseId),
     staleTime: 1000 * 60 * 5,
     enabled: !!courseId,

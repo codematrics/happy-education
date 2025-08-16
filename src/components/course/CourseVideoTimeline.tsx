@@ -35,7 +35,7 @@ interface CourseVideoTimelineProps {
 }
 
 const CourseVideoTimeline = ({ courseId }: CourseVideoTimelineProps) => {
-  const { data: course, isLoading, error, refetch } = useCourse(courseId);
+  const { data: course, isLoading, error, refetch } = useCourse({ courseId });
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
   const router = useRouter();
 

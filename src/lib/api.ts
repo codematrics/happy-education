@@ -1,5 +1,11 @@
 import { CourseFormData } from "@/types/schema";
-import { Course, ResponseInterface, Testimonial, User } from "@/types/types";
+import {
+  Course,
+  Inquiry,
+  ResponseInterface,
+  Testimonial,
+  User,
+} from "@/types/types";
 import { fetcher } from "./fetch";
 import { PaginationResult } from "./pagination";
 
@@ -42,7 +48,24 @@ export const getUsers = (
 };
 
 export const getCourseById = (
-  id?: string
+  id?: string,
+  relatedCourse?: string
 ): Promise<ResponseInterface<Course>> => {
-  return fetcher(`/api/v1/course/${id}`);
+  const query = relatedCourse ? "" : `?relatedCourse=${relatedCourse}`;
+  return fetcher(`/api/v1/course/${id}${query}`);
+};
+
+export const getInquiry = (
+  page: number = 1,
+  limit: number = 10,
+  search: string = ""
+): Promise<
+  ResponseInterface<{
+    items: Inquiry[];
+    pagination: PaginationResult<Inquiry>["pagination"];
+  }>
+> => {
+  return fetcher(
+    `/api/v1/inquiry?page=${page}&limit=${limit}&search=${search}`
+  );
 };

@@ -2,18 +2,15 @@
 
 import { useDeleteTestimonial, useTestimonials } from "@/hooks/useTestimonial";
 import { TestimonialFormData } from "@/types/schema";
-import { Course, DropdownProps, Testimonial } from "@/types/types";
-import { Edit, MoreHorizontal, Plus, Trash2, Video } from "lucide-react";
+import { Course, Testimonial } from "@/types/types";
+import { Plus } from "lucide-react";
 import React, { useState } from "react";
-import CustomDropdown from "../common/CustomDropdown";
 import { CustomPagination } from "../common/CustomPagination";
-import CustomVideo from "../common/CustomVideo";
 import DeleteConfirmDialog from "../common/DeleteConfirmation";
 import LoadingError from "../common/LoadingError";
 import CourseCardSkeleton from "../skeleton/CourseCard";
-import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader } from "../ui/card";
+import TestimonialCard from "./TestimonialCard";
 import UpdateModal from "./UpdateOrCreateModal";
 
 interface Props {
@@ -126,90 +123,15 @@ const TestimonialList: React.FC<Props> = ({ initialPage }) => {
         {(data?.data?.items?.length ?? 0) > 0 ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {data?.data?.items?.map((testimonial) => {
-                const testimonialDropdownData: DropdownProps = {
-                  label: <MoreHorizontal className="h-4 w-4" />,
-                  options: [
-                    {
-                      label: "Edit",
-                      action: () => handleEditTestimonial(testimonial),
-                      icon: Edit,
-                    },
-                    {
-                      label: "Delete",
-                      action: () => handleDeleteTestimonial(testimonial._id),
-                      icon: Trash2,
-                      itemClassName: "text-destructive hover:text-destructive",
-                      iconClassName: "text-destructive",
-                    },
-                  ],
-                };
-
-                const formatDate = (date: Date) => {
-                  return new Intl.DateTimeFormat("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  }).format(new Date(date));
-                };
-
-                return (
-                  <Card
-                    key={testimonial._id}
-                    className="group hover:shadow-lg transition-all duration-200 border-none shadow-none bg-card p-0 space-0 gap-0"
-                  >
-                    <CardHeader className="p-0">
-                      <div className="relative overflow-hidden rounded-t-lg">
-                        {testimonial.video?.url ? (
-                          <CustomVideo
-                            src={testimonial.video.url}
-                            thumbnail={testimonial?.thumbnail?.url}
-                            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-200"
-                          />
-                        ) : (
-                          <div className="w-full h-48 bg-muted flex items-center justify-center">
-                            <Video className="h-12 w-12 text-muted-foreground" />
-                          </div>
-                        )}
-                        <div className="absolute top-3 right-3">
-                          <CustomDropdown {...testimonialDropdownData} />
-                        </div>
-                      </div>
-                    </CardHeader>
-
-                    <CardContent className="p-2">
-                      <div className="space-y-3">
-                        <div className="flex flex-wrap gap-1">
-                          {Array.isArray(testimonial.courseId) ? (
-                            testimonial.courseId.map(
-                              (course: any, index: number) => (
-                                <Badge
-                                  key={course._id || index}
-                                  variant="secondary"
-                                  className="text-xs"
-                                >
-                                  {course.name || "Unknown"}
-                                </Badge>
-                              )
-                            )
-                          ) : (
-                            <Badge variant="secondary" className="text-xs">
-                              {(testimonial.courseId as Course)?.name ||
-                                "Unknown"}
-                            </Badge>
-                          )}
-                        </div>
-
-                        <div className="flex items-center justify-end">
-                          <span className="text-xs text-muted-foreground">
-                            {formatDate(testimonial.createdAt)}
-                          </span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+              {data?.data?.items?.map((testimonial) => (
+                <TestimonialCard
+                  key={testimonial._id}
+                  onEdit={handleEditTestimonial}
+                  onDelete={handleDeleteTestimonial}
+                  testimonial={testimonial}
+                  showMoreMenu
+                />
+              ))}
             </div>
             {data?.data?.pagination && (
               <CustomPagination

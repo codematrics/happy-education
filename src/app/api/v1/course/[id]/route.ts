@@ -2,9 +2,11 @@ import { processFilesAndReturnUpdatedResults } from "@/lib/cloudinary";
 import connect from "@/lib/db";
 import { formDataToJson } from "@/lib/formDataParser";
 import { validateSchema } from "@/lib/schemaValidator";
+import "@/models/Course";
 import { Course } from "@/models/Course";
-import "@/models/CourseVideo";
+import { Testimonial } from "@/models/Testimonial";
 import { CourseVideoFormData, courseUpdateValidations } from "@/types/schema";
+import { Course as TypeOfCourse } from "@/types/types";
 import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (
@@ -13,6 +15,8 @@ export const GET = async (
 ) => {
   try {
     const { id } = await params;
+    const searchParams = req.nextUrl.searchParams;
+    const relatedCourse = searchParams.get("relatedCourse");
 
     if (!id) {
       return NextResponse.json(
@@ -39,10 +43,26 @@ export const GET = async (
         { status: 404 }
       );
     }
+    const testimonials = await Testimonial.find({
+      courseId: { $in: [id] },
+    }).populate("courseId");
+
+    let result: TypeOfCourse = {
+      ...course,
+      testimonials: testimonials,
+    } as unknown as TypeOfCourse;
+
+    if (relatedCourse) {
+      const relatedCourse = await Course.find({ $nor: [{ _id: id }] });
+      result = {
+        ...result,
+        relatedCourse: relatedCourse,
+      } as unknown as TypeOfCourse;
+    }
 
     return NextResponse.json(
       {
-        data: course,
+        data: result,
         message: "Course fetched successfully",
         status: true,
       },

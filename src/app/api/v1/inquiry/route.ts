@@ -1,16 +1,14 @@
-import { processFilesAndReturnUpdatedResults } from "@/lib/cloudinary";
 import connect from "@/lib/db";
-import { formDataToJson } from "@/lib/formDataParser";
 import {
   createPaginationResponse,
   getPaginationOptions,
   paginate,
 } from "@/lib/pagination";
 import { validateSchema } from "@/lib/schemaValidator";
-import { Course } from "@/models/Course";
-import { User } from "@/models/User";
-import { courseValidations, CourseVideoFormData } from "@/types/schema";
+import { Inquiry } from "@/models/Inquiry";
+import { inquirySchema } from "@/types/schema";
 import { NextRequest, NextResponse } from "next/server";
+
 export const GET = async (req: NextRequest) => {
   try {
     await connect();
@@ -22,15 +20,12 @@ export const GET = async (req: NextRequest) => {
     const sortBy = searchParams.get("sortBy") || "createdAt";
     const sortOrder = searchParams.get("sortOrder") || "desc";
 
-    const userId = searchParams.get("userId");
-    const isIncludePurchased = searchParams.get("isIncludePurchased");
-
     let filter = {};
     if (search) {
       filter = {
         $or: [
-          { name: { $regex: search, $options: "i" } },
-          { description: { $regex: search, $options: "i" } },
+          { phone: { $regex: search, $options: "i" } },
+          { firstName: { $regex: search, $options: "i" } },
         ],
       };
     }
@@ -38,30 +33,20 @@ export const GET = async (req: NextRequest) => {
     const sortObj: Record<string, 1 | -1> = {};
     sortObj[sortBy] = sortOrder === "asc" ? 1 : -1;
 
-    const purchasedCourses = userId
-      ? (await User.findOne({ _id: userId }))?.purchasedCourses || []
-      : [];
-
-    let result = await paginate(Course, filter, {
+    const result = await paginate(Inquiry, filter, {
       ...options,
       sort: sortObj,
-      populate: "courseVideos",
-      computeFields: isIncludePurchased
-        ? {
-            isPurchased: (course) => purchasedCourses.includes(course._id),
-          }
-        : {},
     });
 
     const data = createPaginationResponse(
       result.data,
       result.pagination,
-      "Courses fetched successfully"
+      "Inquiries fetched successfully"
     );
 
     return NextResponse.json(data, { status: 200 });
   } catch (error) {
-    console.error("Error fetching courses:", error);
+    console.error("Error fetching inquiry:", error);
     return NextResponse.json(
       {
         data: null,
@@ -75,47 +60,24 @@ export const GET = async (req: NextRequest) => {
 
 export const POST = async (req: NextRequest) => {
   try {
-    const formData = await req.formData();
-    const json = formDataToJson(formData);
+    const json = await req.json();
 
-    validateSchema(courseValidations, json);
-
-    const fileUploadResults = await processFilesAndReturnUpdatedResults(
-      ["thumbnail", "previewVideo"],
-      json,
-      "courses"
-    );
-
-    const finalResults = {
-      ...fileUploadResults,
-      courseVideos: json.courseVideos
-        ? await Promise.all(
-            json.courseVideos.map(async (video: CourseVideoFormData) => {
-              const uploadResult = await processFilesAndReturnUpdatedResults(
-                ["thumbnail", "video"],
-                video,
-                "course_videos"
-              );
-              return uploadResult;
-            })
-          )
-        : [],
-    };
+    validateSchema(inquirySchema, json);
 
     await connect();
 
-    const newCourse = await Course.createWithVideos(finalResults);
+    const newCourse = await Inquiry.create(json);
 
     return NextResponse.json(
       {
         data: newCourse,
-        message: "Course created successfully",
+        message: "Inquiry sent successfully",
         status: true,
       },
       { status: 201 }
     );
   } catch (error) {
-    console.error("Error creating course:", error);
+    console.error("Error creating inquiry:", error);
 
     if (error instanceof Error && error.message.includes("Validation failed")) {
       return NextResponse.json(

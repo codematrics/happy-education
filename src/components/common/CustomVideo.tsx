@@ -1,3 +1,4 @@
+"use client";
 import { motion } from "framer-motion";
 import { Maximize, Pause, Play, Volume2, VolumeX } from "lucide-react";
 import React, { HTMLProps, useRef, useState } from "react";
@@ -5,7 +6,7 @@ import React, { HTMLProps, useRef, useState } from "react";
 interface Props {
   src: string | File;
   className?: HTMLProps<HTMLElement>["className"];
-  thumbnail?: string; // Poster image
+  thumbnail?: string;
 }
 
 const CustomVideo: React.FC<Props> = ({ src, className, thumbnail }) => {

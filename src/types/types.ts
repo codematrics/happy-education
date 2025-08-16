@@ -1,4 +1,5 @@
 import { ICourse } from "@/models/Course";
+import { IInquiry } from "@/models/Inquiry";
 import { ITestimonial } from "@/models/Testimonial";
 import { IUser } from "@/models/User";
 import { HTMLProps } from "react";
@@ -11,9 +12,15 @@ export interface ResponseInterface<T> {
 
 export interface Course extends ICourse {
   _id: string;
+  testimonials?: Testimonial[];
+  relatedCourse?: Course[];
 }
 
 export interface User extends IUser {
+  _id: string;
+}
+
+export interface Inquiry extends IInquiry {
   _id: string;
 }
 
