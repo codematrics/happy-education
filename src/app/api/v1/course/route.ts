@@ -1,6 +1,7 @@
 import { processFilesAndReturnUpdatedResults } from "@/lib/cloudinary";
 import connect from "@/lib/db";
 import { formDataToJson } from "@/lib/formDataParser";
+import { decodeJWT, verifyJWT } from "@/lib/jwt";
 import {
   createPaginationResponse,
   getPaginationOptions,
@@ -10,7 +11,9 @@ import { validateSchema } from "@/lib/schemaValidator";
 import { Course } from "@/models/Course";
 import { User } from "@/models/User";
 import { courseValidations, CourseVideoFormData } from "@/types/schema";
+import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+
 export const GET = async (req: NextRequest) => {
   try {
     await connect();
@@ -22,8 +25,14 @@ export const GET = async (req: NextRequest) => {
     const sortBy = searchParams.get("sortBy") || "createdAt";
     const sortOrder = searchParams.get("sortOrder") || "desc";
 
-    const userId = searchParams.get("userId");
+    let userId = searchParams.get("userId");
     const isIncludePurchased = searchParams.get("isIncludePurchased");
+
+    const userToken = (await cookies()).get("user_token")?.value;
+    if (userToken && (await verifyJWT(JSON.parse(userToken)))) {
+      const decodedToken = await decodeJWT(JSON.parse(userToken));
+      userId = decodedToken._id;
+    }
 
     let filter = {};
     if (search) {
@@ -46,11 +55,12 @@ export const GET = async (req: NextRequest) => {
       ...options,
       sort: sortObj,
       populate: "courseVideos",
-      computeFields: isIncludePurchased
-        ? {
-            isPurchased: (course) => purchasedCourses.includes(course._id),
-          }
-        : {},
+      computeFields:
+        isIncludePurchased || userId
+          ? {
+              isPurchased: (course) => purchasedCourses.includes(course._id),
+            }
+          : {},
     });
 
     const data = createPaginationResponse(

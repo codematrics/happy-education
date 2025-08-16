@@ -64,7 +64,7 @@ const OTPVerification = () => {
           Toast.success(
             "Account verified successfully! You are now logged in."
           );
-          router.push("/dashboard");
+          router.push("/");
         } else if (otpType === "forgot-password") {
           Toast.success("OTP verified! You can now reset your password.");
           router.push("/new-password");

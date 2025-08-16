@@ -1,6 +1,7 @@
 import AppFooter from "@/components/common/AppFooter";
 import AppNavbar from "@/components/common/AppNavbar";
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -12,9 +13,20 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const isAuthenticated = (await cookies()).get("user_token")?.value;
+  const role =
+    (await cookies()).get("user_token")?.value &&
+    (await cookies()).get("admin_token")?.value
+      ? "both"
+      : (await cookies()).get("user_token")?.value
+      ? "user"
+      : (await cookies()).get("admin_token")?.value
+      ? "admin"
+      : null;
+
   return (
     <>
-      <AppNavbar />
+      <AppNavbar role={role} isAuthenticated={Boolean(isAuthenticated)} />
       <main className="pt-[72px]">{children}</main>
       <AppFooter />
     </>
