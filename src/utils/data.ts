@@ -30,6 +30,30 @@ export const sidebarItems = [
   },
 ];
 
+export const navbarItems = [
+  {
+    title: "Home",
+    url: "/",
+  },
+  {
+    title: "Courses",
+    url: "/courses",
+  },
+  {
+    title: "Testimonials",
+    url: "/testimonials",
+  },
+  // {
+  //   title: "Events",
+  //   url: "#",
+  //   icon: Calendar,
+  // },
+  {
+    title: "Contact",
+    url: "/contact",
+  },
+];
+
 export const getSortParams = (sortValue: string) => {
   switch (sortValue) {
     case "newest":

@@ -7,17 +7,29 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Course, DropdownProps } from "@/types/types";
 import { getAssetUrl } from "@/lib/assetUtils";
-import { CheckCircle, Edit, Eye, MoreHorizontal, Trash2, Video } from "lucide-react";
+import { Course, DropdownProps } from "@/types/types";
+import {
+  CheckCircle,
+  Edit,
+  Eye,
+  MoreHorizontal,
+  Trash2,
+  Video,
+} from "lucide-react";
+import Link from "next/link";
 import CustomDropdown from "../common/CustomDropdown";
 import CustomImage from "../common/CustomImage";
 
 interface CourseCardProps {
   course: Course;
-  onEdit: (courseId: string) => void;
-  onDelete: (courseId: string) => void;
-  onViewVideos: (courseId: string) => void;
+  onEdit?: (courseId: string) => void;
+  onDelete?: (courseId: string) => void;
+  onViewVideos?: (courseId: string) => void;
+  showMore?: boolean;
+  onBuy?: (courseId: string) => void;
+  showBuy?: boolean;
+  showBenefits?: boolean;
 }
 
 const CourseCard = ({
@@ -25,23 +37,27 @@ const CourseCard = ({
   onEdit,
   onDelete,
   onViewVideos,
+  onBuy,
+  showBuy = true,
+  showMore = false,
+  showBenefits = true,
 }: CourseCardProps) => {
   const courseDropdownData: DropdownProps = {
     label: <MoreHorizontal className="h-4 w-4" />,
     options: [
       {
         label: "Edit",
-        action: () => onEdit(course._id),
+        action: () => onEdit && onEdit(course._id),
         icon: Edit,
       },
       {
         label: "View Videos",
-        action: () => onViewVideos(course._id),
+        action: () => onViewVideos && onViewVideos(course._id),
         icon: Eye,
       },
       {
         label: "Delete",
-        action: () => onDelete(course._id),
+        action: () => onDelete && onDelete(course._id),
         icon: Trash2,
         itemClassName: "text-destructive hover:text-destructive",
         iconClassName: "text-destructive",
@@ -68,7 +84,7 @@ const CourseCard = ({
   };
 
   return (
-    <Card className="group py-0 hover:shadow-lg transition-all duration-200 border-border bg-card gap-4">
+    <Card className="group py-0 hover:shadow-lg transition-all duration-200 border-border bg-card gap-4 w-full">
       <CardHeader className="p-0">
         <div className="relative overflow-hidden rounded-t-lg">
           {course.thumbnail ? (
@@ -82,9 +98,11 @@ const CourseCard = ({
               <Video className="h-12 w-12 text-muted-foreground" />
             </div>
           )}
-          <div className="absolute top-3 right-3">
-            <CustomDropdown {...courseDropdownData} />
-          </div>
+          {showMore && (
+            <div className="absolute top-3 right-3">
+              <CustomDropdown {...courseDropdownData} />
+            </div>
+          )}
         </div>
       </CardHeader>
 
@@ -100,9 +118,11 @@ const CourseCard = ({
           </div>
 
           {/* Benefits Section */}
-          {course.benefits && course.benefits.length > 0 && (
+          {course.benefits && showBenefits && course.benefits.length > 0 && (
             <div className="space-y-1">
-              <h4 className="text-xs font-medium text-muted-foreground">Key Benefits:</h4>
+              <h4 className="text-xs font-medium text-muted-foreground">
+                Key Benefits:
+              </h4>
               <div className="space-y-1">
                 {course.benefits.slice(0, 3).map((benefit, index) => (
                   <div key={index} className="flex items-start gap-1.5">
@@ -133,18 +153,42 @@ const CourseCard = ({
       </CardContent>
 
       <CardFooter className="p-4 pt-0">
-        <div className="flex items-center justify-between w-full">
+        <div className="flex items-center justify-between w-full gap-2">
           <span className="text-xl font-bold text-primary">
             {formatPrice(course.price, course.currency)}
           </span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onEdit(course._id)}
-            className="hover:bg-primary hover:text-primary-foreground transition-colors"
-          >
-            Edit Course
-          </Button>
+          <div className="flex items-center gap-2">
+            {showBuy && onBuy && (
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                onClick={() => onBuy(course._id)}
+                className="hover:bg-primary hover:text-primary-foreground transition-colors"
+              >
+                <Link href={`/course/${course._id}`}>View Details</Link>
+              </Button>
+            )}
+            {showBuy && onBuy && (
+              <Button
+                size="sm"
+                onClick={() => onBuy(course._id)}
+                className="hover:bg-primary hover:text-primary-foreground transition-colors"
+              >
+                Buy Course
+              </Button>
+            )}
+            {showMore && onEdit && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onEdit(course._id)}
+                className="hover:bg-primary hover:text-primary-foreground transition-colors"
+              >
+                Edit Course
+              </Button>
+            )}
+          </div>
         </div>
       </CardFooter>
     </Card>

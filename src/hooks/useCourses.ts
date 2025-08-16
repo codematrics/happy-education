@@ -83,7 +83,7 @@ export const useCourses = (
           items: Course[];
           pagination: PaginationResult<CourseFormData>["pagination"];
         }>
-      >(`/api/v1/admin/course?${searchParams.toString()}`);
+      >(`/api/v1/course?${searchParams.toString()}`);
     },
     staleTime: 1000 * 60 * 5,
   });
@@ -107,7 +107,7 @@ export const useCreateCourse = () => {
     mutationFn: async (data: CourseFormData) => {
       const formData = jsonToFormData(data);
 
-      const response = await fetcher("/api/v1/admin/course", {
+      const response = await fetcher("/api/v1/course", {
         method: "POST",
         body: formData,
       });
@@ -135,7 +135,7 @@ export const useUpdateCourse = () => {
     mutationFn: async ({ courseId, data }) => {
       const formData = jsonToFormData(data);
       const response = await fetcher<ResponseInterface<CourseUpdateData>>(
-        `/api/v1/admin/course/${courseId}`,
+        `/api/v1/course/${courseId}`,
         {
           method: "PUT",
           body: formData,
@@ -159,7 +159,7 @@ export const useDeleteCourse = () => {
   return useMutation<ResponseInterface<null>, Error, string>({
     mutationFn: async (id: string): Promise<ResponseInterface<null>> => {
       const response = await fetcher<ResponseInterface<null>>(
-        `/api/v1/admin/course/${id}`,
+        `/api/v1/course/${id}`,
         {
           method: "DELETE",
         }

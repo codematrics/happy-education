@@ -105,7 +105,9 @@ const CustomVideo: React.FC<Props> = ({ src, className, thumbnail }) => {
           onClick={handlePlayPause}
           className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/50"
         >
-          <Play size={64} className="text-white" />
+          <div className="bg-white/20 rounded-full p-3">
+            <Play className="w-10 h-10 text-primary fill-primary" />
+          </div>
         </motion.button>
       )}
 

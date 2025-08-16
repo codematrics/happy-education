@@ -1,0 +1,146 @@
+"use client";
+
+import Logo from "@/../public/logo/logo.png";
+import {
+  Facebook,
+  Instagram,
+  Linkedin,
+  Mail,
+  MapPin,
+  Phone,
+  Twitter,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+const AppFooter = () => {
+  const pathName = usePathname();
+  const showMap = pathName !== "/contact";
+  return (
+    <footer className="bg-card border-t border-border">
+      {showMap && (
+        <div className="w-full overflow-hidden px-4 pt-12">
+          <iframe
+            className="w-full h-50 rounded-lg"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14678.071183989867!2d72.64091005289413!3d23.11474141574521!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395e81c03ae1b4d7%3A0x7aed3a98cfd3654d!2sHappy%20Education!5e0!3m2!1sen!2sin!4v1755353717459!5m2!1sen!2sin"
+            loading="lazy"
+          ></iframe>
+        </div>
+      )}
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* Brand Section */}
+          <div className="space-y-4">
+            <Link href="/" className="flex items-center space-x-2">
+              <div className="p-2 rounded-xl gradient-primary">
+                <Image
+                  src={Logo}
+                  alt="Happy-Education"
+                  className="w-6 h-6 text-white"
+                />
+              </div>
+              <span className="text-xl font-bold bg-gradient-to-r from-primary to-info bg-clip-text text-transparent">
+                Happy Education
+              </span>
+            </Link>
+            <p className="text-muted-foreground">
+              Empowering learners worldwide with quality education and
+              innovative courses.
+            </p>
+            <div className="flex space-x-4">
+              <div className="p-2 rounded-lg bg-secondary/50 hover:bg-secondary transition-smooth cursor-pointer">
+                <Facebook className="w-4 h-4 text-muted-foreground hover:text-primary transition-smooth" />
+              </div>
+              <div className="p-2 rounded-lg bg-secondary/50 hover:bg-secondary transition-smooth cursor-pointer">
+                <Twitter className="w-4 h-4 text-muted-foreground hover:text-primary transition-smooth" />
+              </div>
+              <div className="p-2 rounded-lg bg-secondary/50 hover:bg-secondary transition-smooth cursor-pointer">
+                <Instagram className="w-4 h-4 text-muted-foreground hover:text-primary transition-smooth" />
+              </div>
+              <div className="p-2 rounded-lg bg-secondary/50 hover:bg-secondary transition-smooth cursor-pointer">
+                <Linkedin className="w-4 h-4 text-muted-foreground hover:text-primary transition-smooth" />
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Links */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Quick Links</h3>
+            <div className="space-y-2">
+              <Link
+                href="/"
+                className="block text-muted-foreground hover:text-primary transition-smooth"
+              >
+                Home
+              </Link>
+              <Link
+                href="/courses"
+                className="block text-muted-foreground hover:text-primary transition-smooth"
+              >
+                Courses
+              </Link>
+              <Link
+                href="/testimonials"
+                className="block text-muted-foreground hover:text-primary transition-smooth"
+              >
+                Testimonials
+              </Link>
+              <Link
+                href="/contact"
+                className="block text-muted-foreground hover:text-primary transition-smooth"
+              >
+                Contact
+              </Link>
+            </div>
+          </div>
+
+          {/* Contact Info */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Contact Info</h3>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <Mail className="w-5 h-5 text-primary" />
+                <span className="text-muted-foreground">
+                  info@eduplatform.com
+                </span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Phone className="w-5 h-5 text-primary" />
+                <span className="text-muted-foreground">+1 (555) 123-4567</span>
+              </div>
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-start space-x-3">
+                  <MapPin className="w-5 h-5 text-primary mt-1" />
+                  <span className="text-muted-foreground">
+                    123 Education St, Learning City
+                  </span>
+                </div>
+                {/* Responsive Google Map */}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="border-t border-border mt-8 pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <p className="text-muted-foreground text-sm">
+              © 2024 Happy Education. All rights reserved.
+            </p>
+            <div className="text-muted-foreground text-sm mt-2 md:mt-0 flex gap-[1ch]">
+              <p className="">Developed and Designed By</p>
+              <Link
+                href="https://www.codematrics.com/"
+                className="text-primary hover:underline"
+              >
+                CodeMatrics
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+export default AppFooter;

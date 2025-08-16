@@ -69,7 +69,7 @@ export const useUsers = (
           items: User[];
           pagination: PaginationResult<User>["pagination"];
         }>
-      >(`/api/v1/admin/users?${searchParams.toString()}`);
+      >(`/api/v1/users?${searchParams.toString()}`);
     },
     staleTime: 1000 * 60 * 5,
   });
@@ -87,7 +87,7 @@ export const useCreateUser = () => {
       data: userCreateFormData
     ): Promise<ResponseInterface<userCreateFormData>> => {
       const response = await fetcher<ResponseInterface<userCreateFormData>>(
-        `/api/v1/admin/users`,
+        `/api/v1/users`,
         {
           method: "POST",
           body: jsonToFormData(data),
@@ -122,7 +122,7 @@ export const useUpdateUser = () => {
     }): Promise<ResponseInterface<userUpdateModalFormData>> => {
       const response = await fetcher<
         ResponseInterface<userUpdateModalFormData>
-      >(`/api/v1/admin/users/${userId}`, {
+      >(`/api/v1/users/${userId}`, {
         method: "PUT",
         body: jsonToFormData(data),
       });
@@ -156,7 +156,7 @@ export const useBlockUser = () => {
   return useMutation<ResponseInterface<null>, Error, string>({
     mutationFn: async (userId: string): Promise<ResponseInterface<null>> => {
       const response = await fetcher<ResponseInterface<null>>(
-        `/api/v1/admin/users/${userId}`,
+        `/api/v1/users/${userId}`,
         {
           method: "PUT",
           body: jsonToFormData({ isBlocked: true }),
@@ -180,7 +180,7 @@ export const useVerifyUser = () => {
   return useMutation<ResponseInterface<null>, Error, string>({
     mutationFn: async (userId: string): Promise<ResponseInterface<null>> => {
       const response = await fetcher<ResponseInterface<null>>(
-        `/api/v1/admin/users/${userId}`,
+        `/api/v1/users/${userId}`,
         {
           method: "PUT",
           body: jsonToFormData({ isVerified: true }),

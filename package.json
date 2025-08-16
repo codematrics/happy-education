@@ -33,8 +33,10 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "framer-motion": "^12.23.12",
+    "google-map-react": "^2.2.5",
     "input-otp": "^1.4.2",
     "jsonwebtoken": "^9.0.2",
+    "keen-slider": "^6.8.6",
     "lucide-react": "^0.536.0",
     "mongodb": "^6.18.0",
     "mongoose": "^8.17.0",
@@ -51,6 +53,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/google-map-react": "^2.1.10",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/mongodb": "^4.0.7",
     "@types/mongoose": "^5.11.97",

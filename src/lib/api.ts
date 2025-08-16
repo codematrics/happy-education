@@ -13,9 +13,7 @@ export const getCourses = (
     pagination: PaginationResult<CourseFormData>["pagination"];
   }>
 > => {
-  return fetcher(
-    `/api/v1/admin/course?page=${page}&limit=${limit}&search=${search}`
-  );
+  return fetcher(`/api/v1/course?page=${page}&limit=${limit}&search=${search}`);
 };
 
 export const getTestimonial = (
@@ -27,7 +25,7 @@ export const getTestimonial = (
     pagination: PaginationResult<CourseFormData>["pagination"];
   }>
 > => {
-  return fetcher(`/api/v1/admin/testimonial?page=${page}&limit=${limit}`);
+  return fetcher(`/api/v1/testimonial?page=${page}&limit=${limit}`);
 };
 
 export const getUsers = (
@@ -40,13 +38,11 @@ export const getUsers = (
     pagination: PaginationResult<User>["pagination"];
   }>
 > => {
-  return fetcher(
-    `/api/v1/admin/users?page=${page}&limit=${limit}&search=${search}`
-  );
+  return fetcher(`/api/v1/users?page=${page}&limit=${limit}&search=${search}`);
 };
 
 export const getCourseById = (
   id?: string
 ): Promise<ResponseInterface<Course>> => {
-  return fetcher(`/api/v1/admin/course/${id}`);
+  return fetcher(`/api/v1/course/${id}`);
 };

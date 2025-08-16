@@ -178,6 +178,7 @@ const CoursePage: React.FC<Props> = ({ initialSearch, initialPage }) => {
                   onEdit={handleEditCourse}
                   onDelete={handleDeleteCourse}
                   onViewVideos={handleViewVideos}
+                  showMore
                 />
               ))}
             </div>

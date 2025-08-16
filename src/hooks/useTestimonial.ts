@@ -55,7 +55,7 @@ export const useTestimonials = (
           items: Testimonial[];
           pagination: PaginationResult<CourseFormData>["pagination"];
         }>
-      >(`/api/v1/admin/testimonial?${searchParams.toString()}`);
+      >(`/api/v1/testimonial?${searchParams.toString()}`);
     },
     staleTime: 1000 * 60 * 5,
   });
@@ -68,7 +68,7 @@ export const useCreateTestimonial = () => {
     mutationFn: async (data: TestimonialFormData) => {
       const formData = jsonToFormData(data);
 
-      const response = await fetcher("/api/v1/admin/testimonial", {
+      const response = await fetcher("/api/v1/testimonial", {
         method: "POST",
         body: formData,
       });
@@ -96,7 +96,7 @@ export const useUpdateTestimonial = () => {
     mutationFn: async ({ testimonialId, data }) => {
       const formData = jsonToFormData(data);
       const response = await fetcher<ResponseInterface<TestimonialFormData>>(
-        `/api/v1/admin/testimonial/${testimonialId}`,
+        `/api/v1/testimonial/${testimonialId}`,
         {
           method: "PUT",
           body: formData,
@@ -117,7 +117,8 @@ export const useUpdateTestimonial = () => {
 export const useTestimonial = (id?: string) => {
   return useQuery<ResponseInterface<Testimonial>>({
     queryKey: ["testimonial", id],
-    queryFn: () => fetcher<ResponseInterface<Testimonial>>(`/api/v1/admin/testimonial/${id}`),
+    queryFn: () =>
+      fetcher<ResponseInterface<Testimonial>>(`/api/v1/testimonial/${id}`),
     enabled: !!id,
     staleTime: 1000 * 60 * 5,
   });
@@ -129,7 +130,7 @@ export const useDeleteTestimonial = () => {
   return useMutation<ResponseInterface<null>, Error, string>({
     mutationFn: async (id: string): Promise<ResponseInterface<null>> => {
       const response = await fetcher<ResponseInterface<null>>(
-        `/api/v1/admin/testimonial/${id}`,
+        `/api/v1/testimonial/${id}`,
         {
           method: "DELETE",
         }
