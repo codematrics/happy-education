@@ -7,6 +7,7 @@ export interface ValidationResult {
   data?: any;
   errors?: any;
 }
+
 export const jsonToFormData = (data: Record<string, any>): FormData => {
   const formData = new FormData();
 
@@ -24,45 +25,37 @@ export const jsonToFormData = (data: Record<string, any>): FormData => {
     }
 
     if (Array.isArray(arVal)) {
-      // ✅ Skip empty arrays
-      if (arVal.length === 0) {
-        continue;
-      }
+      if (arVal.length === 0) continue;
 
       if (isFile(arVal[0])) {
         for (let z = 0; z < arVal.length; z++) {
-          formData.append(`${arKey}[]`, arVal[z]);
+          formData.append(`${arKey}[${z}]`, arVal[z]);
         }
         continue;
       } else if (typeof arVal[0] === "object" && arVal[0] !== null) {
         for (let j = 0; j < arVal.length; j++) {
-          if (typeof arVal[j] === "object" && arVal[j] !== null) {
-            for (const prop in arVal[j]) {
-              if (Object.prototype.hasOwnProperty.call(arVal[j], prop)) {
-                const value = arVal[j][prop];
-                if (!isNaN(Date.parse(value))) {
-                  formData.append(
-                    `${arKey}[${j}][${prop}]`,
-                    new Date(value).toISOString()
-                  );
-                } else {
-                  formData.append(`${arKey}[${j}][${prop}]`, value);
-                }
-              }
+          for (const prop in arVal[j]) {
+            if (Object.prototype.hasOwnProperty.call(arVal[j], prop)) {
+              const value = arVal[j][prop];
+              formData.append(`${arKey}[${j}][${prop}]`, String(value));
             }
           }
         }
         continue;
       } else {
-        arVal = JSON.stringify(arVal);
+        // ✅ array of primitives (string, number, etc.)
+        for (let z = 0; z < arVal.length; z++) {
+          formData.append(`${arKey}[${z}]`, String(arVal[z]));
+        }
+        continue;
       }
     }
 
-    if (arVal === null || arVal === undefined) {
+    if (arVal === null || arVal === undefined || arVal === "") {
       continue;
     }
 
-    formData.append(arKey, arVal);
+    formData.append(arKey, String(arVal));
   }
 
   return formData;
@@ -72,31 +65,47 @@ export const formDataToJson = (formData: FormData): Record<string, any> => {
   const obj: Record<string, any> = {};
 
   formData.forEach((value, key) => {
-    // Check if key ends with [] (array)
-    if (key.endsWith("[]")) {
-      const cleanKey = key.slice(0, -2);
-      if (!obj[cleanKey]) {
-        obj[cleanKey] = [];
-      }
-      obj[cleanKey].push(value instanceof File ? value : String(value));
+    // Case: arr[0][prop]
+    const objectMatch = key.match(/^([^\[]+)\[(\d+)\]\[([^\]]+)\]$/);
+    if (objectMatch) {
+      const [, arrKey, indexStr, prop] = objectMatch;
+      const index = parseInt(indexStr, 10);
+
+      if (!obj[arrKey]) obj[arrKey] = [];
+      if (!obj[arrKey][index]) obj[arrKey][index] = {};
+
+      obj[arrKey][index][prop] =
+        value instanceof File ? value : castValue(value);
+      return;
     }
-    // Handle nested keys like arr[0][prop]
-    else if (/\[\d+\]/.test(key)) {
-      const match = key.match(/^([^\[]+)\[(\d+)\]\[([^\]]+)\]$/);
-      if (match) {
-        const [, arrKey, indexStr, prop] = match;
-        const index = parseInt(indexStr, 10);
-        if (!obj[arrKey]) obj[arrKey] = [];
-        if (!obj[arrKey][index]) obj[arrKey][index] = {};
-        obj[arrKey][index][prop] =
-          value instanceof File ? value : String(value);
-      }
+
+    // Case: arr[0]
+    const arrayMatch = key.match(/^([^\[]+)\[(\d+)\]$/);
+    if (arrayMatch) {
+      const [, arrKey, indexStr] = arrayMatch;
+      const index = parseInt(indexStr, 10);
+
+      if (!obj[arrKey]) obj[arrKey] = [];
+      obj[arrKey][index] = value instanceof File ? value : castValue(value);
+      return;
     }
-    // Handle normal keys
-    else {
-      obj[key] = value instanceof File ? value : String(value);
-    }
+
+    // Normal key
+    obj[key] = value instanceof File ? value : castValue(value);
   });
 
   return obj;
+};
+
+// helper to restore types
+const castValue = (value: FormDataEntryValue): any => {
+  if (typeof value !== "string") return value;
+
+  // boolean
+  if (value === "1" || value === "0") return value === "1";
+
+  // number
+  if (!isNaN(Number(value)) && value.trim() !== "") return Number(value);
+
+  return value;
 };

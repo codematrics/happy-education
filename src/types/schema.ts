@@ -175,9 +175,57 @@ export const userUpdateValidations = z.object({
     .optional(),
   isBlocked: z.boolean().optional(),
   isVerified: z.boolean().optional(),
+  purchasedCourses: z.array(z.string()).optional(),
 });
 
+export const userUpdateFormValidations = z.object({
+  email: z.string().email("Invalid email address"),
+  firstName: z.string().min(2, "First name must be at least 2 characters"),
+  lastName: z.string().min(2, "Last name must be at least 2 characters"),
+  mobileNumber: z
+    .string()
+    .min(10, "Mobile number must be at least 10 digits")
+    .or(z.literal("")),
+  isBlocked: z.boolean(),
+  isVerified: z.boolean(),
+  purchasedCourses: z.array(z.string()).optional(),
+});
+
+export const userCreateValidations = z
+  .object({
+    identifier: z.nativeEnum(AuthIdentifiers),
+    email: z.string().email("Invalid email").optional().or(z.literal("")),
+    mobileNumber: z
+      .string()
+      .regex(/^[0-9]{10}$/, "Invalid mobile number")
+      .optional()
+      .or(z.literal("")),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z
+      .string()
+      .min(6, "Confirm Password must be at least 6 characters"),
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().min(1, "Last name is required"),
+    isVerified: z.boolean().optional(),
+    isBlocked: z.boolean().optional(),
+  })
+  .refine(
+    (data) =>
+      (data.identifier === AuthIdentifiers.email && !!data.email) ||
+      (data.identifier === AuthIdentifiers.phone && !!data.mobileNumber),
+    {
+      message: "Email or mobile number is required based on identifier",
+      path: ["identifier"],
+    }
+  )
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords must match",
+    path: ["confirmPassword"],
+  });
+
 export type userUpdateFormData = z.infer<typeof userUpdateValidations>;
+export type userUpdateModalFormData = z.infer<typeof userUpdateFormValidations>;
+export type userCreateFormData = z.infer<typeof userCreateValidations>;
 export type SignUpUserFormData = z.infer<typeof signupUserValidations>;
 export type LoginAdminFormData = z.infer<typeof loginAdminValidations>;
 export type LoginUserFormData = z.infer<typeof loginUserValidations>;

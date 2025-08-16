@@ -21,6 +21,8 @@ interface FetchCoursesParams {
   search?: string;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
+  userId?: string | null;
+  isIncludePurchased?: boolean;
 }
 
 export const useCourses = (
@@ -41,6 +43,8 @@ export const useCourses = (
       debouncedSearch,
       params.sortBy || "createdAt",
       params.sortOrder || "desc",
+      params.userId || "",
+      params.isIncludePurchased || false,
     ],
     [
       params.page,
@@ -48,6 +52,8 @@ export const useCourses = (
       debouncedSearch,
       params.sortBy,
       params.sortOrder,
+      params.userId,
+      params.isIncludePurchased,
     ]
   );
 
@@ -65,6 +71,12 @@ export const useCourses = (
       if (debouncedSearch) searchParams.set("search", debouncedSearch);
       if (params.sortBy) searchParams.set("sortBy", params.sortBy);
       if (params.sortOrder) searchParams.set("sortOrder", params.sortOrder);
+      if (params.isIncludePurchased)
+        searchParams.set(
+          "isIncludePurchased",
+          String(params.isIncludePurchased)
+        );
+      if (params.userId) searchParams.set("userId", params.userId);
 
       return fetcher<
         ResponseInterface<{

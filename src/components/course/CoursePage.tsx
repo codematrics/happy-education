@@ -6,6 +6,7 @@ import { getSortParams } from "@/utils/data";
 import { Grid3X3, List, Plus, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { CustomPagination } from "../common/CustomPagination";
 import DeleteConfirmDialog from "../common/DeleteConfirmation";
 import LoadingError from "../common/LoadingError";
 import CourseCardSkeleton from "../skeleton/CourseCard";
@@ -162,23 +163,31 @@ const CoursePage: React.FC<Props> = ({ initialSearch, initialPage }) => {
         skeleton={<CourseCardSkeleton />}
       >
         {(data?.data?.items?.length ?? 0) > 0 ? (
-          <div
-            className={
-              viewMode === "grid"
-                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                : "space-y-4"
-            }
-          >
-            {data?.data?.items?.map((course) => (
-              <CourseCard
-                key={course._id}
-                course={course}
-                onEdit={handleEditCourse}
-                onDelete={handleDeleteCourse}
-                onViewVideos={handleViewVideos}
+          <>
+            <div
+              className={
+                viewMode === "grid"
+                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                  : "space-y-4"
+              }
+            >
+              {data?.data?.items?.map((course) => (
+                <CourseCard
+                  key={course._id}
+                  course={course}
+                  onEdit={handleEditCourse}
+                  onDelete={handleDeleteCourse}
+                  onViewVideos={handleViewVideos}
+                />
+              ))}
+            </div>
+            {data?.data?.pagination && (
+              <CustomPagination
+                {...data?.data?.pagination}
+                onPageChange={(page) => setPage(page)}
               />
-            ))}
-          </div>
+            )}{" "}
+          </>
         ) : (
           <div className="text-center py-12">
             <div className="text-muted-foreground">

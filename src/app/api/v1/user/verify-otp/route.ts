@@ -14,7 +14,6 @@ export const POST = async (req: NextRequest) => {
 
     const { otp }: OtpFormData = body;
 
-    // Check for both signup and forgot password tokens
     const signupToken = JSON.parse(
       req.cookies.get("user_otp_token")?.value || "{}"
     );
@@ -26,7 +25,6 @@ export const POST = async (req: NextRequest) => {
     let isSignupFlow = false;
     let isForgotPasswordFlow = false;
 
-    // Determine which flow this is
     if (signupToken && (await verifyJWT(signupToken))) {
       activeToken = signupToken;
       isSignupFlow = true;
@@ -61,9 +59,6 @@ export const POST = async (req: NextRequest) => {
 
     await connect();
 
-    console.log("Connected to database", decodedJWT, otp);
-
-    // Find user with matching OTP
     const user = await User.findOne({ _id: decodedJWT._id, otp: Number(otp) });
 
     if (!user) {
@@ -77,7 +72,6 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    // Check OTP expiration (5 minutes)
     if (!user.otpGenerationTime) {
       return NextResponse.json(
         {
@@ -102,7 +96,6 @@ export const POST = async (req: NextRequest) => {
     }
 
     if (isSignupFlow) {
-      // For signup: activate user account and log them in
       await User.updateOne(
         { _id: user._id },
         {
@@ -144,13 +137,11 @@ export const POST = async (req: NextRequest) => {
         { status: 200 }
       );
     } else if (isForgotPasswordFlow) {
-      // For forgot password: clear OTP and allow password reset
       await User.updateOne(
         { _id: user._id },
-        { otp: null, otpGenerationTime: null }
+        { otp: null, otpGenerationTime: null, isVerified: true }
       );
 
-      // Keep forgot password token for new password page
       return NextResponse.json(
         {
           data: null,

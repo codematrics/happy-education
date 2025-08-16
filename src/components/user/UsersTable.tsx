@@ -2,6 +2,7 @@
 
 import { useBlockUser, useUsers, useVerifyUser } from "@/hooks/useUsers";
 import { coursesSortOptions } from "@/types/constants";
+import { userUpdateModalFormData } from "@/types/schema";
 import { DropdownProps, User } from "@/types/types";
 import { getSortParams } from "@/utils/data";
 import { ColumnDef } from "@tanstack/react-table";
@@ -14,9 +15,9 @@ import {
   ShieldX,
   X,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import CustomDropdown from "../common/CustomDropdown";
+import { CustomPagination } from "../common/CustomPagination";
 import { CustomTable } from "../common/CustomTable";
 import DeleteConfirmDialog from "../common/DeleteConfirmation";
 import LoadingError from "../common/LoadingError";
@@ -30,6 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import UpdateModal from "./UpdateModal";
 
 interface Props {
   initialSearch: string;
@@ -43,7 +45,20 @@ interface BlockConfirmationProps {
   onBlock: () => void | Promise<void>;
 }
 
+interface UpdateModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  data: userUpdateModalFormData | null;
+  userId: string | null;
+}
+
 const UserPage: React.FC<Props> = ({ initialSearch, initialPage }) => {
+  const [updateModal, setUpdateModal] = useState<UpdateModalProps>({
+    isOpen: false,
+    onClose: () => setUpdateModal((prev) => ({ ...prev, isOpen: false })),
+    data: null,
+    userId: null,
+  });
   const [search, setSearch] = useState(initialSearch);
   const [page, setPage] = useState(initialPage);
   const [sort, setSort] = useState("newest");
@@ -65,15 +80,39 @@ const UserPage: React.FC<Props> = ({ initialSearch, initialPage }) => {
     sortBy: sortParams.sortBy,
     sortOrder: sortParams.sortOrder,
   });
-  const router = useRouter();
+
+  const closeCreateUpdateModal = () =>
+    setUpdateModal((pre) => ({
+      ...pre,
+      isOpen: false,
+      data: null,
+      userId: null,
+    }));
+
+  const openCreationModal = () => {
+    setUpdateModal({
+      isOpen: true,
+      onClose: closeCreateUpdateModal,
+      data: null,
+      userId: null,
+    });
+  };
+
+  const openUpdateModal = (data: User) => {
+    setUpdateModal({
+      isOpen: true,
+      onClose: closeCreateUpdateModal,
+      data: data as unknown as userUpdateModalFormData,
+      userId: data._id,
+    });
+  };
 
   const userDropdownData: DropdownProps = {
     label: <MoreHorizontal className="h-4 w-4" />,
     options: [
       {
         label: "Edit User",
-        // action: () => onEdit(course._id),
-        action: () => {},
+        action: (data: User) => openUpdateModal(data),
         icon: Edit,
       },
       {
@@ -179,54 +218,6 @@ const UserPage: React.FC<Props> = ({ initialSearch, initialPage }) => {
     setPage(1);
   };
 
-  const handleCreateCourse = () => {
-    router.push("/admin/course/new");
-  };
-
-  const handleEditUser = (userId: string) =>
-    router.push(`/admin/user/${userId}`);
-
-  const handleBlockUser = (userId: string) => {
-    setBlockConfirmation({
-      isOpen: true,
-      userId,
-      userName:
-        data?.data?.items.find((c) => c._id === userId)?.firstName || "",
-      onBlock: async () => {
-        await blockUser(userId);
-        setBlockConfirmation({
-          isOpen: false,
-          userId: "",
-          userName: "",
-          onBlock: () => {},
-        });
-      },
-    });
-  };
-
-  const confirmDelete = () => {
-    // const updatedCourses = courses.filter(
-    //   (c) => c.id !== deleteConfirm.courseId
-    // );
-    // setCourses(updatedCourses);
-    // applyFilters(searchTerm, sortBy, updatedCourses);
-
-    // toast({
-    //   title: "Course Deleted",
-    //   description: `Course "${deleteConfirm.courseName}" has been deleted successfully.`,
-    // });
-
-    setBlockConfirmation({
-      isOpen: false,
-      userId: "",
-      userName: "",
-      onBlock: () => {},
-    });
-  };
-
-  const handleViewVideos = (courseId: string) => {
-    router.push(`/admin/course/${courseId}/videos`);
-  };
   return (
     <>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -235,7 +226,7 @@ const UserPage: React.FC<Props> = ({ initialSearch, initialPage }) => {
           <p className="text-muted-foreground">Manage your user accounts</p>
         </div>
         <Button
-          onClick={handleCreateCourse}
+          onClick={openCreationModal}
           className="bg-primary hover:bg-primary/90 text-primary-foreground"
         >
           <Plus className="h-4 w-4 mr-2" />
@@ -276,7 +267,15 @@ const UserPage: React.FC<Props> = ({ initialSearch, initialPage }) => {
         skeleton={<CustomTableSkeleton columns={columns.length} />}
       >
         {(data?.data?.items?.length ?? 0) > 0 ? (
-          <CustomTable data={data?.data?.items || []} columns={columns} />
+          <>
+            <CustomTable data={data?.data?.items || []} columns={columns} />
+            {data?.data?.pagination && (
+              <CustomPagination
+                {...data?.data?.pagination}
+                onPageChange={(page) => setPage(page)}
+              />
+            )}
+          </>
         ) : (
           <div className="text-center py-12">
             <div className="text-muted-foreground">
@@ -290,6 +289,13 @@ const UserPage: React.FC<Props> = ({ initialSearch, initialPage }) => {
           </div>
         )}
       </LoadingError>
+
+      <UpdateModal
+        isOpen={updateModal.isOpen}
+        onClose={updateModal.onClose}
+        data={updateModal.data}
+        userId={updateModal.userId}
+      />
 
       <DeleteConfirmDialog
         isOpen={blockConfirmation.isOpen}

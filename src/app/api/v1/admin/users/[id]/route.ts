@@ -29,8 +29,9 @@ export const PUT = async (
 
     validateSchema(userUpdateValidations, json);
 
-    // Get existing course data to preserve asset structures
     await connect();
+
+    console.log(json);
 
     const updatedUser = await User.findOneAndUpdate({ _id: id }, json, {
       new: true,

@@ -8,6 +8,7 @@ import {
 } from "@/lib/pagination";
 import { validateSchema } from "@/lib/schemaValidator";
 import { Course } from "@/models/Course";
+import { User } from "@/models/User";
 import { courseValidations, CourseVideoFormData } from "@/types/schema";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -22,6 +23,9 @@ export const GET = async (req: NextRequest) => {
     const search = searchParams.get("search") || "";
     const sortBy = searchParams.get("sortBy") || "createdAt";
     const sortOrder = searchParams.get("sortOrder") || "desc";
+
+    const userId = searchParams.get("userId");
+    const isIncludePurchased = searchParams.get("isIncludePurchased");
 
     // Build search filter
     let filter = {};
@@ -38,10 +42,19 @@ export const GET = async (req: NextRequest) => {
     const sortObj: Record<string, 1 | -1> = {};
     sortObj[sortBy] = sortOrder === "asc" ? 1 : -1;
 
+    let purchasedCourses = userId
+      ? (await User.findOne({ _id: userId }))?.purchasedCourses || []
+      : [];
+
     const result = await paginate(Course, filter, {
       ...options,
       sort: sortObj,
       populate: "courseVideos",
+      computeFields: isIncludePurchased
+        ? {
+            isPurchased: (course) => purchasedCourses.includes(course._id),
+          }
+        : {},
     });
 
     const data = createPaginationResponse(

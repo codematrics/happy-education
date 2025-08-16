@@ -1,3 +1,5 @@
+"use client";
+
 import { BookCopy, BookOpen, Calendar, Home, User } from "lucide-react";
 
 export const sidebarItems = [

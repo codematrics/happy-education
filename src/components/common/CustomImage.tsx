@@ -1,3 +1,4 @@
+import PlaceHolderImage from "@/../public/placeholders/image.png";
 import Image from "next/image";
 import React, { HTMLProps } from "react";
 
@@ -8,6 +9,8 @@ interface Props {
 }
 
 const CustomImage: React.FC<Props> = ({ src, alt, className }) => {
+  if (!src)
+    return <Image src={PlaceHolderImage} alt={alt} className={className} />;
   return (
     <Image
       src={typeof src === "string" ? src : URL.createObjectURL(src)}

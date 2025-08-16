@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import * as React from "react";
+import { ScrollArea } from "../ui/scroll-area";
 
 interface ModalProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ interface ModalProps {
   onConfirm?: () => void;
   cancelText?: string;
   showCancel?: boolean;
+  isLoading?: boolean;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -30,25 +32,28 @@ const Modal: React.FC<ModalProps> = ({
   cancelText = "Cancel",
   onConfirm,
   showCancel = true,
+  isLoading = false,
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md bg-[var(--background)] border border-[var(--primary)] rounded-xl shadow-lg p-6">
+      <DialogContent className="max-w-md overflow-y-auto bg-background border border-primary rounded-xl shadow-lg p-0 gap-0">
         {title && (
-          <DialogHeader>
-            <DialogTitle className="text-[var(--primary)] text-lg font-semibold">
+          <DialogHeader className="px-6 py-4">
+            <DialogTitle className="text-primary text-lg font-semibold">
               {title}
             </DialogTitle>
           </DialogHeader>
         )}
 
-        <div className="my-4 text-[var(--foreground)]">{children}</div>
+        <ScrollArea className="px-4 max-h-[60vh] text-foreground">
+          <div className="px-2">{children}</div>
+        </ScrollArea>
 
-        <DialogFooter className="flex justify-end gap-3">
+        <DialogFooter className="flex justify-end gap-3 px-6 py-4">
           {showCancel && (
             <Button
               variant="outline"
-              className="border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-[var(--background)]"
+              className="text-primary hover:bg-primary hover:text-background"
               onClick={onClose}
             >
               {cancelText}
@@ -56,7 +61,8 @@ const Modal: React.FC<ModalProps> = ({
           )}
           {onConfirm && (
             <Button
-              className="bg-[var(--primary)] text-[var(--background)] hover:bg-[var(--primary-hover)]"
+              disabled={isLoading}
+              className="bg-primary text-background hover:bg-primary"
               onClick={onConfirm}
             >
               {confirmText}

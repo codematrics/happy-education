@@ -1,6 +1,7 @@
 import { fetcher } from "@/lib/fetch";
 import { jsonToFormData } from "@/lib/formDataParser";
 import { PaginationResult } from "@/lib/pagination";
+import { userCreateFormData, userUpdateModalFormData } from "@/types/schema";
 import { ResponseInterface, User } from "@/types/types";
 import {
   useMutation,
@@ -71,6 +72,81 @@ export const useUsers = (
       >(`/api/v1/admin/users?${searchParams.toString()}`);
     },
     staleTime: 1000 * 60 * 5,
+  });
+};
+
+export const useCreateUser = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    ResponseInterface<userCreateFormData>,
+    Error,
+    userCreateFormData
+  >({
+    mutationFn: async (
+      data: userCreateFormData
+    ): Promise<ResponseInterface<userCreateFormData>> => {
+      const response = await fetcher<ResponseInterface<userCreateFormData>>(
+        `/api/v1/admin/users`,
+        {
+          method: "POST",
+          body: jsonToFormData(data),
+        }
+      );
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["Users"] });
+      toast.success("User Created successfully");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to create user");
+    },
+  });
+};
+
+export const useUpdateUser = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    ResponseInterface<userUpdateModalFormData>,
+    Error,
+    { userId?: string | null; data: userUpdateModalFormData }
+  >({
+    mutationFn: async ({
+      userId,
+      data,
+    }: {
+      userId?: string | null;
+      data: userUpdateModalFormData;
+    }): Promise<ResponseInterface<userUpdateModalFormData>> => {
+      const response = await fetcher<
+        ResponseInterface<userUpdateModalFormData>
+      >(`/api/v1/admin/users/${userId}`, {
+        method: "PUT",
+        body: jsonToFormData(data),
+      });
+      return response;
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["Users"] });
+      queryClient.invalidateQueries({
+        stale: false,
+        predicate: (query) => {
+          const [key, , , , , , qUserId, qIsPurchased] =
+            query.queryKey as any[];
+          return (
+            key === "courses" &&
+            qUserId === variables.userId &&
+            qIsPurchased === true
+          );
+        },
+      });
+      toast.success("User Updated successfully");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to update user");
+    },
   });
 };
 

@@ -7,7 +7,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     <div className="min-h-screen grid grid-cols-1 justify-center items-center">
       <SidebarProvider>
         <AppSidebar />
-        <main className="w-full">
+        <main className="w-full overflow-hidden">
           <SidebarTrigger />
           {children}
         </main>
