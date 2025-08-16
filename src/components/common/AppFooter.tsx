@@ -33,11 +33,11 @@ const AppFooter = () => {
           {/* Brand Section */}
           <div className="space-y-4">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="p-2 rounded-xl gradient-primary">
+              <div className="rounded-xl gradient-primary">
                 <Image
                   src={Logo}
                   alt="Happy-Education"
-                  className="w-6 h-6 text-white"
+                  className="w-9 h-9 text-white"
                 />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-primary to-info bg-clip-text text-transparent">

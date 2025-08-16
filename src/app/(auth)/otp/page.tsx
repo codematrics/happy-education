@@ -50,7 +50,7 @@ const OTPVerification = () => {
       } else if (hasForgotPassToken) {
         setOtpType("forgot-password");
       } else {
-        router.push("/login");
+        router.push("/signin");
       }
     };
 

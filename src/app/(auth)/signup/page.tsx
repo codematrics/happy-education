@@ -1,4 +1,5 @@
 "use client";
+import Logo from "@/../public/logo/logo.png";
 import { FormInput } from "@/components/common/FormInput";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -8,7 +9,8 @@ import { Toast } from "@/lib/toast";
 import { AuthIdentifiers } from "@/types/constants";
 import { SignUpUserFormData, signupUserValidations } from "@/types/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, User } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -50,10 +52,10 @@ const SignUp = () => {
   return (
     <>
       <div className="text-center mb-8">
-        <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <User className="w-8 h-8 text-white" />
+        <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto">
+          <Image src={Logo} alt="logo" className="w-16 h-16 text-white" />
         </div>
-        <h1 className="text-3xl font-bold mb-2">Join EduPlatform</h1>
+        <h1 className="text-3xl font-bold mb-2">Start Learning</h1>
         <p className="text-muted-foreground">
           Create your account and start learning today
         </p>
@@ -216,7 +218,7 @@ const SignUp = () => {
         <p className="text-center text-sm text-muted-foreground">
           Already have an account?{" "}
           <Link
-            href="/login"
+            href="/signin"
             className="text-primary hover:underline font-medium"
           >
             Sign in here

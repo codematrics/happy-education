@@ -32,12 +32,16 @@ const NewPassword = () => {
   // Check if user has valid forgot password token
   useEffect(() => {
     const checkForgotPasswordToken = () => {
-      const hasForgotPassToken = document.cookie.includes("user_forgot_pass_token");
-      
+      const hasForgotPassToken = document.cookie.includes(
+        "user_forgot_pass_token"
+      );
+
       if (!hasForgotPassToken) {
         // No valid token, redirect to login
-        Toast.error("Session expired. Please restart the password reset process.");
-        router.push("/login");
+        Toast.error(
+          "Session expired. Please restart the password reset process."
+        );
+        router.push("/signin");
       }
     };
 
@@ -47,8 +51,10 @@ const NewPassword = () => {
   const handleNewPassword = (data: NewPasswordFormData) => {
     mutate(data, {
       onSuccess: () => {
-        Toast.success("Password updated successfully! You can now login with your new password.");
-        router.push("/login");
+        Toast.success(
+          "Password updated successfully! You can now login with your new password."
+        );
+        router.push("/signin");
       },
       onError: (err) => {
         Toast.error(err.message || "Failed to update password");
@@ -103,7 +109,7 @@ const NewPassword = () => {
         <Separator className="my-4" />
         <p className="text-center text-sm text-muted-foreground">
           <Link
-            href="/login"
+            href="/signin"
             className="text-primary hover:underline font-medium"
           >
             Back to Login

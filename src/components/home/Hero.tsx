@@ -39,9 +39,12 @@ const Hero = () => {
                 size="lg"
                 variant="outline"
                 className="hover:bg-primary hover:text-primary-foreground transition-smooth group"
+                asChild
               >
-                <Play className="w-5 h-5 mr-2" />
-                Watch Demo
+                <Link href="/testimonials">
+                  <Play className="w-5 h-5 mr-2" />
+                  Watch Demo
+                </Link>
               </Button>
             </div>
           </div>

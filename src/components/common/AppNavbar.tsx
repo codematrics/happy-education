@@ -45,14 +45,14 @@ const AppNavbar = () => {
             href="/"
             className="flex items-center space-x-2 transition-smooth hover:scale-105"
           >
-            <div className="p-2 rounded-xl gradient-primary">
+            <div className="rounded-xl gradient-primary">
               <Image
                 src={Logo}
                 alt="Happy-Education"
-                className="w-6 h-6 text-white"
+                className="w-9 h-9 text-white"
               />
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-primary to-info bg-clip-text text-transparent">
+            <span className="text-xl font-bold bg-gradient-to-r from-primary to-info bg-clip-text text-transparent max-md:hidden">
               Happy Education
             </span>
           </Link>
@@ -199,7 +199,7 @@ const AppNavbar = () => {
                 {!isAuthenticated ? (
                   <>
                     <Link href="/signin" onClick={() => setIsMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start">
+                      <Button variant="ghost" className="w-full justify-center">
                         Sign In
                       </Button>
                     </Link>
