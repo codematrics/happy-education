@@ -33,7 +33,7 @@ const StaticPageTestimonials = () => {
           onRetry={refetch}
           skeleton={<CourseCardSkeleton />}
         >
-          <div className="mb-12">
+          <div className="mb-12 px-5">
             <CustomCarousel
               data={data?.data?.items || []}
               render={(testimonial: Testimonial) => (

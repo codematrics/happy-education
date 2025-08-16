@@ -47,6 +47,7 @@ const TestimonialCard: React.FC<Props> = ({
         <div className="relative overflow-hidden rounded-t-lg">
           {testimonial.video?.url ? (
             <CustomVideo
+              duration={testimonial.video.duration}
               src={testimonial.video.url}
               thumbnail={testimonial?.thumbnail?.url}
               className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-200"

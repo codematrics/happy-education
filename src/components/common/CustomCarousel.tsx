@@ -15,7 +15,7 @@ interface Props<T> {
 
 const CustomCarousel = <T,>({ data, render, className }: Props<T>) => {
   return (
-    <Carousel>
+    <Carousel className="max-w-full">
       <CarouselContent>
         {data?.map((item, index) => (
           <CarouselItem key={index} className={className}>

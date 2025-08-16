@@ -53,7 +53,7 @@ export const GET = async (
     } as unknown as TypeOfCourse;
 
     if (relatedCourse) {
-      const relatedCourse = await Course.find({ $nor: [{ _id: id }] });
+      const relatedCourse = await Course.find({ _id: { $ne: id } }).limit(4);
       result = {
         ...result,
         relatedCourse: relatedCourse,

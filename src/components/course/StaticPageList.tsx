@@ -31,7 +31,7 @@ const CourseSlider = () => {
           onRetry={refetch}
           skeleton={<CourseCardSkeleton />}
         >
-          <div className="mb-12">
+          <div className="mb-12 px-5">
             <CustomCarousel
               data={data?.data?.items || []}
               className="basis-1/1 md:basis-1/2 lg:sm:basis-1/3"

@@ -225,6 +225,7 @@ const CourseVideoTimeline = ({ courseId }: CourseVideoTimelineProps) => {
                     <CardContent className="p-4">
                       <div className="aspect-video bg-black rounded-lg mb-4 relative overflow-hidden">
                         <CustomVideo
+                          duration={selectedVideo?.video?.duration}
                           src={getAssetUrl(selectedVideo.video)}
                           thumbnail={getAssetUrl(selectedVideo.thumbnail)}
                           className="w-full h-full object-cover"
