@@ -43,6 +43,12 @@ export const getMyVideos = (
   return fetcher(`/api/v1/videos/${courseId}`);
 };
 
+export const getCourseProgress = (
+  courseId: string
+): Promise<ResponseInterface<Course>> => {
+  return fetcher(`/api/v1/video-progress?courseId=${courseId}`);
+};
+
 export const getTestimonial = (
   page: number = 1,
   limit: number = 10

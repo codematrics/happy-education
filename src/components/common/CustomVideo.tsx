@@ -9,6 +9,7 @@ interface Props {
   className?: string;
   thumbnail?: string;
   duration?: number; // optional duration to show before play
+  onTimeUpdate?: (currentTime: number, duration: number) => void;
 }
 
 const CustomVideo: React.FC<Props> = ({
@@ -16,6 +17,7 @@ const CustomVideo: React.FC<Props> = ({
   className,
   thumbnail,
   duration,
+  onTimeUpdate,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -44,6 +46,11 @@ const CustomVideo: React.FC<Props> = ({
     const percent =
       (videoRef.current.currentTime / videoRef.current.duration) * 100;
     setProgress(percent);
+    
+    // Call the onTimeUpdate callback if provided
+    if (onTimeUpdate) {
+      onTimeUpdate(videoRef.current.currentTime, videoRef.current.duration);
+    }
   };
 
   // Load metadata

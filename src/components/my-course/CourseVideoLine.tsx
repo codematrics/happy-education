@@ -6,17 +6,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import useMyCourseVideos from "@/hooks/useCourseVideo";
+import { useCourseProgress, useUpdateVideoProgress } from "@/hooks/useVideoProgress";
 import { getAssetUrl } from "@/lib/assetUtils";
 import { CourseVideo } from "@/types/types";
 import {
   CheckCircle,
   Clock,
   List,
-  Lock,
   Play,
   PlayCircle,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface CourseVideoLineProps {
   courseId: string;
@@ -28,11 +29,24 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
   const videos = (data?.data?.courseVideos as CourseVideo[]) || [];
   
   const [selectedVideoIndex, setSelectedVideoIndex] = useState(0);
-  const [completedVideos, setCompletedVideos] = useState<Set<string>>(new Set());
   const [showPlaylist, setShowPlaylist] = useState(true);
+  const [watchTime, setWatchTime] = useState(0);
 
   const selectedVideo = videos[selectedVideoIndex];
-  const completionPercentage = videos.length > 0 ? (completedVideos.size / videos.length) * 100 : 0;
+  
+  // Fetch course progress from API
+  const { data: progressData, isLoading: progressLoading } = useCourseProgress(courseId);
+  const updateProgressMutation = useUpdateVideoProgress();
+
+  const courseProgress = progressData?.data?.courseProgress;
+  const videoProgresses = progressData?.data?.videoProgresses || [];
+
+  // Get completed video IDs from API
+  const completedVideoIds = new Set(
+    videoProgresses.filter(p => p.isCompleted).map(p => p.videoId)
+  );
+
+  const completionPercentage = courseProgress?.progressPercentage || 0;
 
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -41,8 +55,44 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
   };
 
   const handleVideoComplete = (videoId: string) => {
-    setCompletedVideos(prev => new Set([...prev, videoId]));
+    const video = videos.find(v => v._id === videoId);
+    if (!video) return;
+
+    updateProgressMutation.mutate({
+      courseId,
+      videoId,
+      watchTime: video.video.duration, // Mark as fully watched
+      totalDuration: video.video.duration,
+      isCompleted: true,
+    }, {
+      onSuccess: () => {
+        toast.success("Video marked as complete!");
+      },
+      onError: (error) => {
+        toast.error("Failed to update progress");
+        console.error("Progress update error:", error);
+      },
+    });
   };
+
+  // Auto-save progress periodically during video playback
+  useEffect(() => {
+    if (!selectedVideo || watchTime === 0) return;
+
+    const saveProgress = () => {
+      updateProgressMutation.mutate({
+        courseId,
+        videoId: selectedVideo._id,
+        watchTime,
+        totalDuration: selectedVideo.video.duration,
+        isCompleted: watchTime >= selectedVideo.video.duration * 0.9, // Auto-complete at 90%
+      });
+    };
+
+    // Save progress every 10 seconds
+    const interval = setInterval(saveProgress, 10000);
+    return () => clearInterval(interval);
+  }, [selectedVideo, watchTime, courseId]);
 
   const handleVideoSelect = (index: number) => {
     setSelectedVideoIndex(index);
@@ -109,6 +159,7 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
                 thumbnail={getAssetUrl(selectedVideo.thumbnail)}
                 duration={selectedVideo.video.duration}
                 className="w-full h-full"
+                onTimeUpdate={(currentTime) => setWatchTime(currentTime)}
               />
             )}
           </div>
@@ -134,7 +185,7 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-semibold">Course Progress</h3>
                   <span className="text-sm text-muted-foreground">
-                    {completedVideos.size} of {videos.length} completed
+                    {courseProgress?.completedVideos || 0} of {courseProgress?.totalVideos || videos.length} completed
                   </span>
                 </div>
                 <Progress value={completionPercentage} className="mb-2" />
@@ -166,14 +217,16 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
               </Button>
               <Button
                 onClick={() => handleVideoComplete(selectedVideo?._id || '')}
-                disabled={completedVideos.has(selectedVideo?._id || '')}
+                disabled={completedVideoIds.has(selectedVideo?._id || '') || updateProgressMutation.isPending}
                 className="flex-1"
               >
-                {completedVideos.has(selectedVideo?._id || '') ? (
+                {completedVideoIds.has(selectedVideo?._id || '') ? (
                   <>
                     <CheckCircle className="h-4 w-4 mr-2" />
                     Completed
                   </>
+                ) : updateProgressMutation.isPending ? (
+                  'Updating...'
                 ) : (
                   'Mark as Complete'
                 )}
@@ -220,15 +273,13 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
           <div className="overflow-y-auto max-h-[calc(100vh-200px)]">
             {videos.map((video, index) => {
               const isSelected = index === selectedVideoIndex;
-              const isCompleted = completedVideos.has(video._id);
-              const isLocked = index > selectedVideoIndex + 1 && !isCompleted;
+              const isCompleted = completedVideoIds.has(video._id);
 
               return (
                 <div key={video._id}>
                   <button
-                    onClick={() => !isLocked && handleVideoSelect(index)}
-                    disabled={isLocked}
-                    className={`w-full p-4 text-left hover:bg-muted/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                    onClick={() => handleVideoSelect(index)}
+                    className={`w-full p-4 text-left hover:bg-muted/50 transition-colors ${
                       isSelected ? 'bg-primary/10 border-r-2 border-primary' : ''
                     }`}
                   >
@@ -245,9 +296,7 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
                         
                         {/* Status Overlay */}
                         <div className="absolute inset-0 flex items-center justify-center">
-                          {isLocked ? (
-                            <Lock className="h-4 w-4 text-muted-foreground" />
-                          ) : isCompleted ? (
+                          {isCompleted ? (
                             <CheckCircle className="h-4 w-4 text-green-600" />
                           ) : isSelected ? (
                             <Play className="h-4 w-4 text-primary" />

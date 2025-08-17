@@ -7,6 +7,7 @@ import {
 } from "@/lib/pagination";
 import { Course } from "@/models/Course";
 import { User } from "@/models/User";
+import { VideoProgress } from "@/models/VideoProgress";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -116,8 +117,19 @@ export const GET = async (req: NextRequest) => {
       console.log("Paginated result:", result);
       console.log("Found courses count:", result.data.length);
 
+      // Add progress data to each course
+      const coursesWithProgress = await Promise.all(
+        result.data.map(async (course: any) => {
+          const courseProgress = await VideoProgress.getCourseProgress(userId, course._id);
+          return {
+            ...course.toObject(),
+            progress: courseProgress,
+          };
+        })
+      );
+
       const data = createPaginationResponse(
-        result.data,
+        coursesWithProgress,
         result.pagination,
         "Courses fetched successfully"
       );

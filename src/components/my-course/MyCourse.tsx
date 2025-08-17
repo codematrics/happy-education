@@ -42,25 +42,20 @@ const MyCourses = () => {
   const myCourses = myCoursesData?.data?.items || [];
   const exploreCourses = exploreCoursesData?.data?.items || [];
 
-  // Mock progress data - In real app, this would come from API
-  const getProgressForCourse = (courseId: string) => {
-    const mockProgress: Record<
-      string,
-      { percentage: number; completedLessons: number; totalLessons: number }
-    > = {
-      [courseId]: {
-        percentage: Math.floor(Math.random() * 100),
-        completedLessons: Math.floor(Math.random() * 20),
-        totalLessons: Math.floor(Math.random() * 30) + 20,
-      },
+  // Get progress data from API response
+  const getProgressForCourse = (course: any) => {
+    if (course.progress) {
+      return {
+        percentage: course.progress.progressPercentage,
+        completedLessons: course.progress.completedVideos,
+        totalLessons: course.progress.totalVideos,
+      };
+    }
+    return {
+      percentage: 0,
+      completedLessons: 0,
+      totalLessons: course.courseVideos?.length || 1,
     };
-    return (
-      mockProgress[courseId] || {
-        percentage: 0,
-        completedLessons: 0,
-        totalLessons: 1,
-      }
-    );
   };
 
   const handleCourseView = (id: string) => {
@@ -80,7 +75,7 @@ const MyCourses = () => {
     myCourses.length > 0
       ? Math.round(
           myCourses.reduce(
-            (sum, course) => sum + getProgressForCourse(course._id).percentage,
+            (sum, course) => sum + getProgressForCourse(course).percentage,
             0
           ) / myCourses.length
         )
@@ -216,7 +211,7 @@ const MyCourses = () => {
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {myCourses.map((course) => {
-                    const progress = getProgressForCourse(course._id);
+                    const progress = getProgressForCourse(course);
                     return (
                       <CourseCard
                         key={course._id}
