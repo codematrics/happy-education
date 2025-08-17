@@ -27,11 +27,6 @@ const MyCourses = () => {
     search: searchQuery,
   });
 
-  // Debug logging
-  console.log("My Courses Data:", myCoursesData);
-  console.log("My Courses Loading:", myCoursesLoading);
-  console.log("My Courses Error:", myCoursesError);
-
   // Fetch available courses for explore tab
   const {
     data: exploreCoursesData,
@@ -226,7 +221,6 @@ const MyCourses = () => {
                       <CourseCard
                         key={course._id}
                         course={course}
-                        onContinue={handleCourseAccess}
                         showContinue={true}
                         showBuy={false}
                         progress={progress}

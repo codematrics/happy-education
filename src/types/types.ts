@@ -1,4 +1,5 @@
 import { ICourse } from "@/models/Course";
+import { ICourseVideo } from "@/models/CourseVideo";
 import { IInquiry } from "@/models/Inquiry";
 import { ITestimonial } from "@/models/Testimonial";
 import { IUser } from "@/models/User";
@@ -28,6 +29,10 @@ export interface Testimonial extends ITestimonial {
   _id: string;
   courseName?: string[];
   courseIds?: string[];
+}
+
+export interface CourseVideo extends ICourseVideo {
+  _id: string;
 }
 
 export interface DropdownProps<T = any> {

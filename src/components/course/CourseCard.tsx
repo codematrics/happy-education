@@ -30,7 +30,6 @@ interface CourseCardProps {
   onViewVideos?: (courseId: string) => void;
   showMore?: boolean;
   onBuy?: (courseId: string) => void;
-  onContinue?: (courseId: string) => void;
   showBuy?: boolean;
   showContinue?: boolean;
   showBenefits?: boolean;
@@ -47,7 +46,6 @@ const CourseCard = ({
   onDelete,
   onViewVideos,
   onBuy,
-  onContinue,
   showBuy = true,
   showContinue = false,
   showMore = false,
@@ -191,17 +189,23 @@ const CourseCard = ({
               {formatPrice(course.price, course.currency)}
             </span>
           )}
-          <div className={`flex items-center gap-2 ${showContinue ? 'w-full' : ''}`}>
+          <div
+            className={`flex items-center gap-2 ${
+              showContinue ? "w-full" : ""
+            }`}
+          >
             {/* Continue Learning Buttons for My Courses */}
-            {showContinue && onContinue && (
+            {showContinue && (
               <>
                 <Button
-                  onClick={() => onContinue(course._id)}
                   className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
                   size="sm"
+                  asChild
                 >
-                  <Play className="w-4 h-4 mr-2" />
-                  Continue
+                  <Link href={`/videos/${course._id}`}>
+                    <Play className="w-4 h-4 mr-2" />
+                    Continue
+                  </Link>
                 </Button>
                 <Button
                   asChild
@@ -213,7 +217,7 @@ const CourseCard = ({
                 </Button>
               </>
             )}
-            
+
             {/* Regular Buy/View Buttons for Course Catalog */}
             {showBuy && onBuy && !showContinue && (
               <>
@@ -234,7 +238,7 @@ const CourseCard = ({
                 </Button>
               </>
             )}
-            
+
             {/* Admin Edit Button */}
             {showMore && onEdit && (
               <Button
