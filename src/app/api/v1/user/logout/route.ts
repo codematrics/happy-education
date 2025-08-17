@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export const POST = async (req: NextRequest) => {
+export const POST = async () => {
   try {
     // Clear user authentication cookies
     const cookieStore = await cookies();
@@ -19,8 +19,8 @@ export const POST = async (req: NextRequest) => {
       },
       { status: 200 }
     );
-  } catch (err) {
-    console.log("error while signout", err);
+  } catch (error) {
+    console.error("Logout error:", error);
     return NextResponse.json(
       {
         data: null,

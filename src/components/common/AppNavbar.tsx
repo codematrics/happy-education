@@ -2,9 +2,25 @@
 
 import Logo from "@/../public/logo/logo.png";
 import { Button } from "@/components/ui/button";
-import { LogOut, Menu, User, X } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  BookOpen,
+  CircleUser,
+  LogOut,
+  Menu,
+  Shield,
+  User,
+  X,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const AppNavbar = ({
@@ -15,6 +31,22 @@ const AppNavbar = ({
   isAuthenticated: boolean;
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      // Call logout API
+      await fetch("/signout", { method: "POST" });
+      // Redirect to home page
+      router.push("/");
+      // Refresh the page to update auth state
+      window.location.reload();
+    } catch (error) {
+      console.error("Logout failed:", error);
+      // Force refresh even if API call fails
+      window.location.href = "/";
+    }
+  };
 
   const navLinks = [
     { href: "/", label: "Home" },
@@ -24,11 +56,11 @@ const AppNavbar = ({
   ];
 
   const authenticatedLinks = [
-    { href: "/my-courses", label: "My Courses" },
-    { href: "/profile", label: "Profile" },
+    { href: "/my-courses", label: "My Courses", icon: BookOpen },
+    { href: "/profile", label: "Profile", icon: User },
   ];
 
-  const adminLinks = [{ href: "/admin", label: "Admin" }];
+  const adminLinks = [{ href: "/admin", label: "Admin", icon: Shield }];
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border shadow-soft">
@@ -61,27 +93,6 @@ const AppNavbar = ({
               {link.label}
             </Link>
           ))}
-          {isAuthenticated &&
-            authenticatedLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="font-medium transition-smooth hover:text-primary"
-              >
-                {link.label}
-              </Link>
-            ))}
-          {isAuthenticated &&
-            (role === "admin" || role === "both") &&
-            adminLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="font-medium transition-smooth hover:text-primary"
-              >
-                {link.label}
-              </Link>
-            ))}
         </nav>
 
         {/* Auth Buttons (Right) */}
@@ -98,18 +109,52 @@ const AppNavbar = ({
               </Link>
             </>
           ) : (
-            <div className="flex items-center space-x-4">
-              {(role === "user" || role === "both") && (
-                <Link href="/profile">
-                  <Button variant="ghost" size="icon">
-                    <User className="w-4 h-4" />
-                  </Button>
-                </Link>
-              )}
-              <Button variant="ghost" size="icon">
-                <LogOut className="w-4 h-4" />
-              </Button>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild className="p-0">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative rounded-full hover:bg-primary/10 transition-colors p-0"
+                >
+                  <CircleUser className="w-9 h-9" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                {/* User Links */}
+                {authenticatedLinks.map((link) => (
+                  <DropdownMenuItem key={link.href} asChild>
+                    <Link href={link.href} className="cursor-pointer">
+                      <link.icon className="w-4 h-4 mr-2" />
+                      {link.label}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+
+                {/* Admin Links */}
+                {isAuthenticated && (role === "admin" || role === "both") && (
+                  <>
+                    <DropdownMenuSeparator />
+                    {adminLinks.map((link) => (
+                      <DropdownMenuItem key={link.href} asChild>
+                        <Link href={link.href} className="cursor-pointer">
+                          <link.icon className="w-4 h-4 mr-2" />
+                          {link.label}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </>
+                )}
+
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="cursor-pointer text-red-600 focus:text-red-600"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
 
@@ -190,8 +235,8 @@ const AppNavbar = ({
                   )}
                   <Button
                     variant="ghost"
-                    className="w-full justify-start"
-                    // onClick={handleLogout}
+                    className="w-full justify-start text-red-600 hover:text-red-600 hover:bg-red-50"
+                    onClick={handleLogout}
                   >
                     <LogOut className="w-4 h-4 mr-2" />
                     Logout
