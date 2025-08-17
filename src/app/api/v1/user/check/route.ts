@@ -15,9 +15,16 @@ export const POST = async () => {
         ? "admin"
         : null;
 
+    if (!isLoggedIn) {
+      return NextResponse.json(
+        { message: "You are not logged in", data: { isLoggedIn, role } },
+        { status: 401 }
+      );
+    }
+
     return NextResponse.json(
       { message: "You are logged in", data: { isLoggedIn, role } },
-      { status: 500 }
+      { status: 200 }
     );
   } catch {
     return NextResponse.json(

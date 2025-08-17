@@ -2,7 +2,7 @@
 
 import { useAuthCheck } from "@/hooks/useAuth";
 import { useCreateCheckout } from "@/hooks/usePayment";
-import { CourseCurrency } from "@/types/constants";
+import { CourseAccessType, CourseCurrency } from "@/types/constants";
 import { Course } from "@/types/types";
 import { Loader2, Play, ShoppingCart } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -40,7 +40,6 @@ const BuyButton = forwardRef<HTMLButtonElement, BuyButtonProps>(
     const [isPaymentOpen, setIsPaymentOpen] = useState(false);
     const [checkoutData, setCheckoutData] = useState<any>(null);
     const router = useRouter();
-    // ✅ Use cached auth data instead of cookie
     const { data: authData, isLoading: authLoading } = useAuthCheck();
     const isLoggedIn = authData?.data?.isLoggedIn ?? false;
 
@@ -48,7 +47,6 @@ const BuyButton = forwardRef<HTMLButtonElement, BuyButtonProps>(
 
     const handleBuyClick = async () => {
       if (course.accessType === "free") {
-        // Handle free course enrollment
         return;
       }
 
@@ -108,9 +106,7 @@ const BuyButton = forwardRef<HTMLButtonElement, BuyButtonProps>(
           ref={ref}
           size={size}
           variant="default"
-          className={`bg-primary hover:bg-primary/90 text-primary-foreground shadow-medium hover:shadow-strong transition-smooth ${
-            fullWidth ? "w-full" : ""
-          } ${className}`}
+          className={getButtonClassName()}
           onClick={handleBuyClick}
           disabled={disabled}
         >
@@ -120,15 +116,13 @@ const BuyButton = forwardRef<HTMLButtonElement, BuyButtonProps>(
       );
     }
 
-    if (course.accessType === "free") {
+    if (course.accessType === CourseAccessType.free) {
       return (
         <Button
           ref={ref}
           size={size}
           variant="default"
-          className={`bg-success hover:bg-success/90 text-white shadow-medium hover:shadow-strong transition-smooth ${
-            fullWidth ? "w-full" : ""
-          } ${className}`}
+          className={getButtonClassName()}
           onClick={handleBuyClick}
           disabled={disabled}
         >

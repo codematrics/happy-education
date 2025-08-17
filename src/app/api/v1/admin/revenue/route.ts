@@ -1,6 +1,8 @@
 import connect from "@/lib/db";
 import { decodeJWT, verifyJWT } from "@/lib/jwt";
+import "@/models/Course";
 import { Transaction } from "@/models/Transaction";
+import "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (req: NextRequest) => {

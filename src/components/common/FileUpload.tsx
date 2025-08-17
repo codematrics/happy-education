@@ -203,7 +203,7 @@ export function FormFileUpload<T extends FieldValues>({
         };
 
         return (
-          <FormItem className={cn("relative mb-5", className)}>
+          <FormItem className={cn("relative mb-5 flex flex-col", className)}>
             <FormLabel className="font-normal">{label}</FormLabel>
             <FormControl>
               <div className="space-y-3">

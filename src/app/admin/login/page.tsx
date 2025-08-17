@@ -38,7 +38,7 @@ const Login = () => {
     mutate(data, {
       onSuccess: () => {
         Toast.success("You are Logged In Successfully");
-        router.replace("/admin/dashboard");
+        router.replace("/admin");
       },
       onError: (err) => {
         Toast.error(err.message);

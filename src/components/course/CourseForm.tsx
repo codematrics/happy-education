@@ -82,11 +82,12 @@ const CourseForm = ({ courseId }: CourseFormProps) => {
     } else {
       await createCourse(values as CourseFormData);
     }
-    router.push("/admin/courses");
+    router.push("/admin/course");
   };
 
   useEffect(() => {
     if (course?.data) {
+      console.log(course.data, "ss");
       form.reset(course.data as CourseFormData);
     }
   }, [course, form]);
@@ -94,6 +95,8 @@ const CourseForm = ({ courseId }: CourseFormProps) => {
   if (isLoading) {
     return <FormSpinner />;
   }
+
+  console.log(form.getValues());
 
   return (
     <div className="p-6 space-y-6">
@@ -136,28 +139,34 @@ const CourseForm = ({ courseId }: CourseFormProps) => {
                 label="Course Name *"
                 placeholder="course name"
               />
-              <div className="grid grid-cols-3 items-end gap-4">
-                <FormInput
-                  label="Price *"
-                  name="price"
-                  type="number"
-                  control={form.control}
-                  min="0"
-                  step="0.01"
-                  placeholder="0"
-                />
+              <div className="flex items-center gap-4">
+                <div className="grow">
+                  <FormInput
+                    label="Price *"
+                    name="price"
+                    type="number"
+                    control={form.control}
+                    min="0"
+                    step="0.01"
+                    placeholder="0"
+                  />
+                </div>
 
-                <FormSelect
-                  name="currency"
-                  control={form.control}
-                  options={currencyOptions}
-                />
+                <div className="flex gap-4">
+                  <FormSelect
+                    label="Currency"
+                    name="currency"
+                    control={form.control}
+                    options={currencyOptions}
+                  />
 
-                <FormSelect
-                  name="accessType"
-                  control={form.control}
-                  options={accessTypeOptions}
-                />
+                  <FormSelect
+                    label="Access Time"
+                    name="accessType"
+                    control={form.control}
+                    options={accessTypeOptions}
+                  />
+                </div>
               </div>
               <FormTextarea
                 name="description"

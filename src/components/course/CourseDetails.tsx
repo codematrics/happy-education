@@ -103,7 +103,6 @@ const CourseDetails = ({ courseId }: { courseId: string }) => {
                   {/* <div className="flex items-center space-x-2">
                   <Clock className="w-5 h-5" />
                   <span>{data?.data.duration}</span>
-                </div>
                 <div className="flex items-center space-x-2">
                   <Users className="w-5 h-5" />
                   <span>{data?.data.students.toLocaleString()} students</span>
@@ -112,9 +111,9 @@ const CourseDetails = ({ courseId }: { courseId: string }) => {
                   <Star className="w-5 h-5 fill-warning text-warning" />
                   <span>{data?.data.rating} rating</span>
                 </div> */}
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 capitalize">
                     <Calendar className="w-5 h-5" />
-                    <span>Lifetime access</span>
+                    <span>{data?.data?.accessType} Access</span>
                   </div>
                 </div>
 

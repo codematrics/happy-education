@@ -94,9 +94,10 @@ const AppNavbar = () => {
         <div className="hidden md:flex items-center space-x-4">
           {isLoading ? (
             // Show loading indicator while checking auth
-            <span className="text-sm text-muted-foreground animate-pulse">
-              Checking...
-            </span>
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-muted animate-pulse" />
+              <div className="h-3 w-16 bg-muted rounded animate-pulse" />
+            </div>
           ) : !isAuthenticated ? (
             <>
               <Link href="/signin">
@@ -212,9 +213,10 @@ const AppNavbar = () => {
               ))}
             <div className="flex flex-col space-y-2 pt-4">
               {isLoading ? (
-                <span className="text-sm text-muted-foreground animate-pulse">
-                  Checking...
-                </span>
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-muted animate-pulse" />
+                  <div className="h-3 w-16 bg-muted rounded animate-pulse" />
+                </div>
               ) : !isAuthenticated ? (
                 <>
                   <Link href="/signin" onClick={() => setIsMenuOpen(false)}>
