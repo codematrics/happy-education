@@ -1,6 +1,5 @@
 import { processFilesAndReturnUpdatedResults } from "@/lib/cloudinary";
 import connect from "@/lib/db";
-import { formDataToJson } from "@/lib/formDataParser";
 import { validateSchema } from "@/lib/schemaValidator";
 import { Course } from "@/models/Course";
 import { Testimonial } from "@/models/Testimonial";
@@ -78,10 +77,7 @@ export const PUT = async (
       );
     }
 
-    const formData = await req.formData();
-    const json = formDataToJson(formData);
-
-    console.log(json);
+    const json = await req.json();
 
     validateSchema(testimonialApiUpdateSchema, json);
 

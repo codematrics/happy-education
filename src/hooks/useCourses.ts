@@ -1,6 +1,5 @@
 import { getCourseById } from "@/lib/api";
 import { fetcher } from "@/lib/fetch";
-import { jsonToFormData } from "@/lib/formDataParser";
 import { PaginationResult } from "@/lib/pagination";
 import { Toast } from "@/lib/toast";
 import { CourseFormData, CourseUpdateData } from "@/types/schema";
@@ -116,11 +115,9 @@ export const useCreateCourse = () => {
 
   return useMutation({
     mutationFn: async (data: CourseFormData) => {
-      const formData = jsonToFormData(data);
-
       const response = await fetcher("/api/v1/course", {
         method: "POST",
-        body: formData,
+        body: data,
       });
 
       return response;
@@ -144,12 +141,11 @@ export const useUpdateCourse = () => {
     { courseId: string; data: CourseUpdateData }
   >({
     mutationFn: async ({ courseId, data }) => {
-      const formData = jsonToFormData(data);
       const response = await fetcher<ResponseInterface<CourseUpdateData>>(
         `/api/v1/course/${courseId}`,
         {
           method: "PUT",
-          body: formData,
+          body: data,
         }
       );
       return response;

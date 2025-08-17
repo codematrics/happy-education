@@ -221,14 +221,16 @@ const UpdateModal: React.FC<ModalProps> = ({
               accept=".mp4,.avi,.mov,.wmv,.flv,.webm"
               type="video"
               control={form.control}
+              folder="testimonial-videos"
             />
             <FormFileUpload
               name="thumbnail"
               label="Video Thumbnail"
               accept=".jpg,.jpeg,.png,.gif,.webp"
               type="image"
-              placeholder="https://example.com/thumbnail.jpg"
+              placeholder="Upload Thumbnail"
               control={form.control}
+              folder="testimonial-thumbnails"
             />
             <AddCourse form={form} />
           </div>

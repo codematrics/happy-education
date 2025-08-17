@@ -67,8 +67,8 @@ const TestimonialList: React.FC<Props> = ({ initialPage }) => {
         );
 
     const formData: TestimonialFormData = {
-      thumbnail: testimonial.thumbnail?.url || null,
-      video: testimonial.video?.url || null,
+      thumbnail: testimonial.thumbnail || null,
+      video: testimonial.video || null,
       courseId: courseIds,
       selectedCourse: testimonial.courseId,
     };

@@ -1,6 +1,4 @@
-import { processFilesAndReturnUpdatedResults } from "@/lib/cloudinary";
 import connect from "@/lib/db";
-import { formDataToJson } from "@/lib/formDataParser";
 import { decodeJWT, verifyJWT } from "@/lib/jwt";
 import {
   createPaginationResponse,
@@ -10,7 +8,7 @@ import {
 import { validateSchema } from "@/lib/schemaValidator";
 import { Course } from "@/models/Course";
 import { User } from "@/models/User";
-import { courseValidations, CourseVideoFormData } from "@/types/schema";
+import { courseValidations } from "@/types/schema";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -30,7 +28,7 @@ export const GET = async (req: NextRequest) => {
 
     const userToken = (await cookies()).get("user_token")?.value;
     const excludePurchased = searchParams.get("excludePurchased");
-    
+
     // Check if user is authenticated
     let authenticatedUserId = null;
     if (userToken) {
@@ -41,7 +39,7 @@ export const GET = async (req: NextRequest) => {
         } catch {
           parsedToken = userToken;
         }
-        
+
         if (await verifyJWT(parsedToken)) {
           const decodedToken = await decodeJWT(parsedToken);
           authenticatedUserId = decodedToken._id;
@@ -67,7 +65,8 @@ export const GET = async (req: NextRequest) => {
 
     // Get purchased courses for authenticated user
     const purchasedCourses = authenticatedUserId
-      ? (await User.findOne({ _id: authenticatedUserId }))?.purchasedCourses || []
+      ? (await User.findOne({ _id: authenticatedUserId }))?.purchasedCourses ||
+        []
       : [];
 
     // If excluding purchased courses, filter them out
@@ -84,9 +83,12 @@ export const GET = async (req: NextRequest) => {
       sort: sortObj,
       populate: "courseVideos",
       computeFields: {
-        isPurchased: (course: { _id: { toString: () => string } }) => 
-          authenticatedUserId 
-            ? purchasedCourses.some((pc: { toString: () => string }) => pc.toString() === course._id.toString())
+        isPurchased: (course: { _id: { toString: () => string } }) =>
+          authenticatedUserId
+            ? purchasedCourses.some(
+                (pc: { toString: () => string }) =>
+                  pc.toString() === course._id.toString()
+              )
             : false,
       },
     });
@@ -113,31 +115,15 @@ export const GET = async (req: NextRequest) => {
 
 export const POST = async (req: NextRequest) => {
   try {
-    const formData = await req.formData();
-    const json = formDataToJson(formData);
+    const json = await req.json();
 
     validateSchema(courseValidations, json);
 
-    const fileUploadResults = await processFilesAndReturnUpdatedResults(
-      ["thumbnail", "previewVideo"],
-      json,
-      "courses"
-    );
-
+    // No need to process files - they're already uploaded to Cloudinary
+    // Just use the data as is
     const finalResults = {
-      ...fileUploadResults,
-      courseVideos: json.courseVideos
-        ? await Promise.all(
-            json.courseVideos.map(async (video: CourseVideoFormData) => {
-              const uploadResult = await processFilesAndReturnUpdatedResults(
-                ["thumbnail", "video"],
-                video,
-                "course_videos"
-              );
-              return uploadResult;
-            })
-          )
-        : [],
+      ...json,
+      courseVideos: json.courseVideos || [],
     };
 
     await connect();
@@ -162,22 +148,6 @@ export const POST = async (req: NextRequest) => {
           message: "Validation failed",
           status: false,
           errors: error.message,
-        },
-        { status: 400 }
-      );
-    }
-
-    if (
-      error instanceof Error &&
-      (error.message.includes("Invalid file type") ||
-        error.message.includes("too large") ||
-        error.message.includes("Failed to upload"))
-    ) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: error.message,
-          status: false,
         },
         { status: 400 }
       );

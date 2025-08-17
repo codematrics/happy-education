@@ -102,20 +102,21 @@ const CourseVideoManager = ({ form }: CourseVideoManagerProps) => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormFileUpload
-                control={control}
-                name={`courseVideos.${index}.video`}
-                label="Video File *"
-                accept=".mp4,.avi,.mov,.wmv,.flv,.webm"
-                type="video"
-                placeholder="https://example.com/video.mp4"
-              />
-              <FormFileUpload
-                control={control}
                 name={`courseVideos.${index}.thumbnail`}
                 label="Video Thumbnail *"
-                accept=".jpg,.jpeg,.png,.gif,.webp"
+                accept=".jpg,.jpeg,.png,.webp"
                 type="image"
-                placeholder="https://example.com/thumbnail.jpg"
+                control={form.control}
+                folder="course-video-thumbnails"
+              />
+
+              <FormFileUpload
+                name={`courseVideos.${index}.video`}
+                label="Video File *"
+                accept=".mp4,.avi,.mov,.mkv"
+                type="video"
+                control={form.control}
+                folder="course-videos"
               />
             </div>
 

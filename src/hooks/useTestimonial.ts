@@ -1,5 +1,4 @@
 import { fetcher } from "@/lib/fetch";
-import { jsonToFormData } from "@/lib/formDataParser";
 import { PaginationResult } from "@/lib/pagination";
 import { Toast } from "@/lib/toast";
 import { CourseFormData, TestimonialFormData } from "@/types/schema";
@@ -66,11 +65,9 @@ export const useCreateTestimonial = () => {
 
   return useMutation({
     mutationFn: async (data: TestimonialFormData) => {
-      const formData = jsonToFormData(data);
-
       const response = await fetcher("/api/v1/testimonial", {
         method: "POST",
-        body: formData,
+        body: data,
       });
 
       return response;
@@ -94,12 +91,11 @@ export const useUpdateTestimonial = () => {
     { testimonialId: string; data: TestimonialFormData }
   >({
     mutationFn: async ({ testimonialId, data }) => {
-      const formData = jsonToFormData(data);
       const response = await fetcher<ResponseInterface<TestimonialFormData>>(
         `/api/v1/testimonial/${testimonialId}`,
         {
           method: "PUT",
-          body: formData,
+          body: data,
         }
       );
       return response;

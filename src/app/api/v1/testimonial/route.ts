@@ -1,6 +1,4 @@
-import { processFilesAndReturnUpdatedResults } from "@/lib/cloudinary";
 import connect from "@/lib/db";
-import { formDataToJson } from "@/lib/formDataParser";
 import {
   createPaginationResponse,
   getPaginationOptions,
@@ -14,8 +12,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
   try {
-    const formData = await req.formData();
-    const json = formDataToJson(formData);
+    const json = await req.json();
 
     validateSchema(testimonialCreateSchema, json);
 
@@ -36,13 +33,8 @@ export const POST = async (req: NextRequest) => {
       }
     }
 
-    const finalResults = await processFilesAndReturnUpdatedResults(
-      ["thumbnail", "video"],
-      json,
-      "courses"
-    );
-
-    const testimonial = await Testimonial.create(finalResults);
+    // No need to process files - they're already uploaded to Cloudinary
+    const testimonial = await Testimonial.create(json);
 
     return NextResponse.json(
       {
@@ -62,22 +54,6 @@ export const POST = async (req: NextRequest) => {
           message: "Validation failed",
           status: false,
           errors: error.message,
-        },
-        { status: 400 }
-      );
-    }
-
-    if (
-      error instanceof Error &&
-      (error.message.includes("Invalid file type") ||
-        error.message.includes("too large") ||
-        error.message.includes("Failed to upload"))
-    ) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: error.message,
-          status: false,
         },
         { status: 400 }
       );

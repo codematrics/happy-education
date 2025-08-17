@@ -8,7 +8,6 @@ import {
   useCreateCourse,
   useUpdateCourse,
 } from "@/hooks/useCourses";
-import { transformCourseDataForForm } from "@/lib/courseDataTransformer";
 import { CourseCurrency, currencyOptions } from "@/types/constants";
 import {
   CourseFormData,
@@ -57,7 +56,7 @@ const CourseForm = ({ courseId }: CourseFormProps) => {
       course?.data ? courseUpdateValidations : courseValidations
     ),
     defaultValues: course?.data
-      ? transformCourseDataForForm(course.data)
+      ? (course.data as CourseFormData)
       : defaultValues,
   });
 
@@ -67,12 +66,12 @@ const CourseForm = ({ courseId }: CourseFormProps) => {
     } else {
       await createCourse(values as CourseFormData);
     }
-    router.back();
+    router.push("/admin/courses");
   };
 
   useEffect(() => {
     if (course?.data) {
-      form.reset(transformCourseDataForForm(course.data));
+      form.reset(course.data as CourseFormData);
     }
   }, [course, form]);
 
@@ -164,6 +163,7 @@ const CourseForm = ({ courseId }: CourseFormProps) => {
                   control={form.control}
                   placeholder="Upload Image"
                   type="image"
+                  folder="course-thumbnails"
                 />
 
                 <FormFileUpload
@@ -171,8 +171,9 @@ const CourseForm = ({ courseId }: CourseFormProps) => {
                   label="Preview Video"
                   accept="video/*"
                   control={form.control}
-                  placeholder="https://example.com/video.mp4"
+                  placeholder="Upload Video"
                   type="video"
+                  folder="course-preview-videos"
                 />
               </div>
             </section>

@@ -1,13 +1,11 @@
-import { processFilesAndReturnUpdatedResults } from "@/lib/cloudinary";
 import connect from "@/lib/db";
-import { formDataToJson } from "@/lib/formDataParser";
 import { decodeJWT, verifyJWT } from "@/lib/jwt";
 import { validateSchema } from "@/lib/schemaValidator";
 import "@/models/Course";
 import { Course } from "@/models/Course";
 import { Testimonial } from "@/models/Testimonial";
 import { User } from "@/models/User";
-import { CourseVideoFormData, courseUpdateValidations } from "@/types/schema";
+import { courseUpdateValidations } from "@/types/schema";
 import { Course as TypeOfCourse } from "@/types/types";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
@@ -52,7 +50,7 @@ export const GET = async (
     let user = null;
     let authenticatedUserId = null;
     const userToken = (await cookies()).get("user_token")?.value;
-    
+
     if (userToken) {
       try {
         let parsedToken;
@@ -61,15 +59,16 @@ export const GET = async (
         } catch {
           parsedToken = userToken;
         }
-        
+
         if (await verifyJWT(parsedToken)) {
           const decodedToken = await decodeJWT(parsedToken);
           authenticatedUserId = decodedToken._id;
-          
+
           user = await User.findById(authenticatedUserId);
-          isPurchased = user?.purchasedCourses?.some((courseId: any) => 
-            courseId.toString() === id
-          ) || false;
+          isPurchased =
+            user?.purchasedCourses?.some(
+              (courseId: any) => courseId.toString() === id
+            ) || false;
         }
       } catch (error) {
         console.log("Token verification failed:", error);
@@ -87,18 +86,25 @@ export const GET = async (
     } as unknown as TypeOfCourse;
 
     if (relatedCourse) {
-      const relatedCoursesData = await Course.find({ _id: { $ne: id } }).limit(4);
-      
+      const relatedCoursesData = await Course.find({ _id: { $ne: id } }).limit(
+        4
+      );
+
       // Add isPurchased field to related courses
-      const relatedCoursesWithPurchaseStatus = relatedCoursesData.map((relatedCourse) => ({
-        ...relatedCourse.toObject(),
-        isPurchased: userToken && authenticatedUserId
-          ? user?.purchasedCourses?.some((courseId: { toString: () => string }) => 
-              courseId.toString() === (relatedCourse._id as { toString: () => string }).toString()
-            ) || false
-          : false,
-      }));
-      
+      const relatedCoursesWithPurchaseStatus = relatedCoursesData.map(
+        (relatedCourse) => ({
+          ...relatedCourse.toObject(),
+          isPurchased:
+            userToken && authenticatedUserId
+              ? user?.purchasedCourses?.some(
+                  (courseId: { toString: () => string }) =>
+                    courseId.toString() ===
+                    (relatedCourse._id as { toString: () => string }).toString()
+                ) || false
+              : false,
+        })
+      );
+
       result = {
         ...result,
         relatedCourse: relatedCoursesWithPurchaseStatus,
@@ -143,8 +149,7 @@ export const PUT = async (
         { status: 400 }
       );
     }
-    const formData = await req.formData();
-    const json = formDataToJson(formData);
+    const json = await req.json();
 
     validateSchema(courseUpdateValidations, json);
 
@@ -165,36 +170,10 @@ export const PUT = async (
       );
     }
 
-    const fileUploadResults = await processFilesAndReturnUpdatedResults(
-      ["thumbnail", "previewVideo"],
-      json,
-      "courses",
-      existingCourse
-    );
-
+    // No need to process files - they're already uploaded to Cloudinary
     const finalResults = {
-      ...fileUploadResults,
-      courseVideos: json.courseVideos
-        ? await Promise.all(
-            json.courseVideos.map(
-              async (video: CourseVideoFormData, index: number) => {
-                const existingVideos =
-                  (existingCourse.courseVideos as any[]) || [];
-                const existingVideo = video._id
-                  ? existingVideos.find((v) => v._id.toString() === video._id)
-                  : null;
-
-                const uploadResult = await processFilesAndReturnUpdatedResults(
-                  ["thumbnail", "video"],
-                  video,
-                  "course_videos",
-                  existingVideo
-                );
-                return uploadResult;
-              }
-            )
-          )
-        : [],
+      ...json,
+      courseVideos: json.courseVideos || [],
     };
 
     const updatedCourse = await Course.updateWithVideos(id, finalResults);

@@ -93,63 +93,41 @@ export const paginationValidations = z.object({
   limit: z.number().min(1, "limit number is invalid"),
 });
 
-const requiredFileOrUrlValidation = (allowedExtensions: string[]) =>
-  z
-    .any()
-    .refine((value) => value instanceof File || typeof value === "string", {
-      message: "File or URL is required",
-    })
-    .refine(
-      (value) => {
-        if (!value) return false; // value is null or undefined
-        if (typeof value === "string") return true; // URL is fine
-        if (value instanceof File) {
-          return allowedExtensions.some((ext) =>
-            value.name?.toLowerCase().endsWith(ext)
-          );
-        }
-        return false;
-      },
-      {
-        message: `Only ${allowedExtensions.join(", ")} files are allowed`,
-      }
-    );
+export const imageSchema = z.object({
+  publicId: z.string().min(1, "Public ID is required"),
+  url: z.string().url("Must be a valid URL"),
+});
 
-const optionalFileOrUrlValidation = (allowedExtensions: string[]) =>
-  z
-    .any()
-    .optional()
-    .nullable()
-    .refine(
-      (value) => !value || value instanceof File || typeof value === "string",
-      { message: "Invalid file or URL" }
-    )
-    .refine(
-      (value) =>
-        !value ||
-        typeof value === "string" ||
-        allowedExtensions.some((ext) =>
-          value.name?.toLowerCase().endsWith(ext)
-        ),
-      {
-        message: `Only ${allowedExtensions.join(", ")} files are allowed`,
-      }
-    );
+// Video schema (more details)
+export const videoSchema = z.object({
+  publicId: z.string().min(1, "Public ID is required"),
+  url: z.string().url("Must be a valid URL"),
+  format: z.string().min(1, "Format is required"),
+  duration: z.number().positive("Duration must be positive"),
+  width: z.number().optional(),
+  height: z.number().optional(),
+});
+
+export const requiredImage = imageSchema;
+export const optionalImage = imageSchema.optional().nullable();
+
+export const requiredVideo = videoSchema;
+export const optionalVideo = videoSchema.optional().nullable();
 
 export const courseVideoValidation = z.object({
   _id: z.string().optional(),
   name: z.string().min(1, "Video name is required"),
   description: z.string().min(1, "Video description is required"),
-  thumbnail: requiredFileOrUrlValidation([".jpg", ".jpeg", ".png", ".webp"]),
-  video: requiredFileOrUrlValidation([".mp4", ".avi", ".mov", ".mkv"]),
+  thumbnail: requiredImage,
+  video: requiredVideo,
 });
 
 export const courseValidations = z.object({
   name: z.string().min(1, "Course name is required"),
   description: z.string().min(1, "Course description is required"),
   benefits: z.array(z.string()).optional(),
-  thumbnail: requiredFileOrUrlValidation([".jpg", ".jpeg", ".png", ".webp"]),
-  previewVideo: optionalFileOrUrlValidation([".mp4", ".avi", ".mov", ".mkv"]),
+  thumbnail: requiredImage,
+  previewVideo: optionalVideo,
   price: z.number().positive("Price must be a positive number"),
   currency: z.nativeEnum(CourseCurrency),
   courseVideos: z.array(courseVideoValidation).optional(),
@@ -159,8 +137,8 @@ export const courseUpdateValidations = z.object({
   name: z.string().min(1).optional(),
   description: z.string().min(1).optional(),
   benefits: z.array(z.string()).optional(),
-  thumbnail: requiredFileOrUrlValidation([".jpg", ".jpeg", ".png", ".webp"]),
-  previewVideo: optionalFileOrUrlValidation([".mp4", ".avi", ".mov", ".mkv"]),
+  thumbnail: requiredImage,
+  previewVideo: optionalVideo,
   price: z.number().positive().optional(),
   currency: z.nativeEnum(CourseCurrency).optional(),
   courseVideos: z.array(courseVideoValidation).optional(),
@@ -233,21 +211,21 @@ export const userCreateValidations = z
   });
 
 export const testimonialCreateSchema = z.object({
-  thumbnail: optionalFileOrUrlValidation([".jpg", ".jpeg", ".png", ".webp"]),
-  video: requiredFileOrUrlValidation([".mp4", ".avi", ".mov", ".mkv"]),
+  thumbnail: optionalImage,
+  video: requiredVideo,
   courseId: z.array(z.string()).min(1, "At least one course is required."),
   selectedCourse: z.any(),
 });
 
 export const testimonialApiUpdateSchema = z.object({
-  thumbnail: optionalFileOrUrlValidation([".jpg", ".jpeg", ".png", ".webp"]),
-  video: optionalFileOrUrlValidation([".mp4", ".avi", ".mov", ".mkv"]),
+  thumbnail: optionalImage,
+  video: optionalVideo,
   courseId: z.array(z.string()).optional(),
 });
 
 export const testimonialUpdateSchema = z.object({
-  thumbnail: optionalFileOrUrlValidation([".jpg", ".jpeg", ".png", ".webp"]),
-  video: requiredFileOrUrlValidation([".mp4", ".avi", ".mov", ".mkv"]),
+  thumbnail: optionalImage,
+  video: requiredVideo,
   courseId: z.array(z.string()).min(1, "At least one course is required."),
 });
 
