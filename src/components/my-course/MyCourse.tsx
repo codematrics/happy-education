@@ -21,6 +21,7 @@ const MyCourses = () => {
     data: myCoursesData,
     isLoading: myCoursesLoading,
     error: myCoursesError,
+    refetch,
   } = useMyCourses({
     page: 1,
     limit: 20,
@@ -43,13 +44,13 @@ const MyCourses = () => {
   const exploreCourses = exploreCoursesData?.data?.items || [];
 
   // Get progress data from API response
-  const getProgressForCourse = (course: { 
-    progress?: { 
-      progressPercentage: number; 
-      completedVideos: number; 
-      totalVideos: number; 
-    }; 
-    courseVideos?: any[]; 
+  const getProgressForCourse = (course: {
+    progress?: {
+      progressPercentage: number;
+      completedVideos: number;
+      totalVideos: number;
+    };
+    courseVideos?: any[];
   }) => {
     if (course.progress) {
       return {
@@ -90,7 +91,7 @@ const MyCourses = () => {
             <p className="text-muted-foreground mb-6">
               Failed to load courses. Please try again later.
             </p>
-            <Button onClick={() => window.location.reload()}>Try Again</Button>
+            <Button onClick={() => refetch()}>Try Again</Button>
           </div>
         </div>
       </div>

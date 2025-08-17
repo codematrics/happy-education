@@ -36,7 +36,11 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    const jwt = await assignJWT({ _id: process.env.ADMIN_USERNAME });
+    const jwt = await assignJWT({
+      _id: process.env.ADMIN_USERNAME,
+      isAdmin: true,
+      username: userName,
+    });
 
     if (!jwt) {
       return NextResponse.json(

@@ -1,8 +1,10 @@
 import { processFilesAndReturnUpdatedResults } from "@/lib/cloudinary";
 import connect from "@/lib/db";
+import { decodeJWT, verifyJWT } from "@/lib/jwt";
 import { validateSchema } from "@/lib/schemaValidator";
 import { Course } from "@/models/Course";
 import { Testimonial } from "@/models/Testimonial";
+import { User } from "@/models/User";
 import { testimonialApiUpdateSchema } from "@/types/schema";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -26,6 +28,32 @@ export const GET = async (
 
     await connect();
 
+    // Check if user is authenticated to determine isPurchased status
+    let authenticatedUserId = null;
+    let purchasedCourses: any[] = [];
+
+    const userToken = req.cookies.get("user_token")?.value;
+    if (userToken) {
+      try {
+        let parsedToken;
+        try {
+          parsedToken = JSON.parse(userToken);
+        } catch {
+          parsedToken = userToken;
+        }
+
+        if (await verifyJWT(parsedToken)) {
+          const decodedToken = await decodeJWT(parsedToken);
+          authenticatedUserId = decodedToken._id;
+
+          const user = await User.findById(authenticatedUserId);
+          purchasedCourses = user?.purchasedCourses || [];
+        }
+      } catch (error) {
+        console.log("Token verification failed:", error);
+      }
+    }
+
     const testimonial = await Testimonial.findById(id).populate("courseId");
     if (!testimonial) {
       return NextResponse.json(
@@ -38,9 +66,27 @@ export const GET = async (
       );
     }
 
+    // Add isPurchased field to course data if it exists
+    const testimonialData = testimonial.toObject();
+
+    if (Array.isArray(testimonialData.courseId)) {
+      testimonialData.courseId = testimonialData.courseId.map((course: any) => {
+        const isPurchased = authenticatedUserId
+          ? purchasedCourses.some(
+              (pc: any) => pc.courseId?.toString() === course._id?.toString()
+            )
+          : false;
+
+        return {
+          ...course,
+          isPurchased,
+        };
+      });
+    }
+
     return NextResponse.json(
       {
-        data: testimonial,
+        data: testimonialData,
         message: "Testimonial fetched successfully",
         status: true,
       },

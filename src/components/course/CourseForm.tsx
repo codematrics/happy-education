@@ -8,7 +8,12 @@ import {
   useCreateCourse,
   useUpdateCourse,
 } from "@/hooks/useCourses";
-import { CourseCurrency, currencyOptions } from "@/types/constants";
+import {
+  accessTypeOptions,
+  CourseAccessType,
+  CourseCurrency,
+  currencyOptions,
+} from "@/types/constants";
 import {
   CourseFormData,
   CourseUpdateData,
@@ -51,6 +56,7 @@ const defaultValues: CourseFormData = {
   price: 0,
   currency: CourseCurrency.dollar,
   courseVideos: [],
+  accessType: CourseAccessType.free,
 };
 
 const CourseForm = ({ courseId }: CourseFormProps) => {
@@ -89,8 +95,6 @@ const CourseForm = ({ courseId }: CourseFormProps) => {
     return <FormSpinner />;
   }
 
-  console.log(form.getValues(), form.formState.errors);
-
   return (
     <div className="p-6 space-y-6">
       <Form {...form}>
@@ -126,33 +130,35 @@ const CourseForm = ({ courseId }: CourseFormProps) => {
           <div className="space-y-6 pb-6">
             <section className="space-y-4">
               <h3 className="text-lg font-semibold">Basic Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormInput
+                name="name"
+                control={form.control}
+                label="Course Name *"
+                placeholder="course name"
+              />
+              <div className="grid grid-cols-3 items-end gap-4">
                 <FormInput
-                  name="name"
+                  label="Price *"
+                  name="price"
+                  type="number"
                   control={form.control}
-                  label="Course Name *"
-                  placeholder="course name"
+                  min="0"
+                  step="0.01"
+                  placeholder="0"
                 />
 
-                <div className="grid grid-cols-2 items-end gap-4">
-                  <FormInput
-                    label="Price *"
-                    name="price"
-                    type="number"
-                    control={form.control}
-                    min="0"
-                    step="0.01"
-                    placeholder="0"
-                  />
+                <FormSelect
+                  name="currency"
+                  control={form.control}
+                  options={currencyOptions}
+                />
 
-                  <FormSelect
-                    name="currency"
-                    control={form.control}
-                    options={currencyOptions}
-                  />
-                </div>
+                <FormSelect
+                  name="accessType"
+                  control={form.control}
+                  options={accessTypeOptions}
+                />
               </div>
-
               <FormTextarea
                 name="description"
                 label="Description *"

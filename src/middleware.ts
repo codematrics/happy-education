@@ -25,6 +25,8 @@ export function middleware(request: NextRequest) {
     ? verifyJWT(userForgotPassToken)
     : false;
 
+  console.log(hasValidAdminToken, hasValidOtpToken, userOtpToken, isOtpPage);
+
   if (isAdminLogin && hasValidAdminToken) {
     return NextResponse.redirect(new URL("/admin", request.url));
   }

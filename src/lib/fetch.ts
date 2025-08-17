@@ -6,6 +6,7 @@ interface FetcherOptions<TBody = unknown> {
   headers?: HeadersInit;
   credentials?: RequestCredentials;
   signal?: AbortSignal;
+  timeout?: number;
 }
 
 function normalizeHeaders(headers: HeadersInit): Record<string, string> {
@@ -30,7 +31,18 @@ export async function fetcher<TResponse = unknown, TBody = unknown>(
     headers = {},
     credentials = "include",
     signal,
+    timeout = 30000, // 30 second default timeout
   } = options;
+
+  // Create timeout controller
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  // Merge with existing signal if provided
+  let finalSignal = controller.signal;
+  if (signal) {
+    signal.addEventListener("abort", () => controller.abort());
+  }
 
   const isFormData = body instanceof FormData;
   const isJson = typeof body === "object" && body !== null && !isFormData;
@@ -42,26 +54,39 @@ export async function fetcher<TResponse = unknown, TBody = unknown>(
     finalHeaders["Content-Type"] = "application/json";
   }
 
-  const response = await fetch(url, {
-    method,
-    headers: finalHeaders,
-    credentials,
-    signal,
-    body: body ? (isJson ? JSON.stringify(body) : (body as any)) : undefined,
-  });
+  try {
+    const response = await fetch(url, {
+      method,
+      headers: finalHeaders,
+      credentials,
+      signal: finalSignal,
+      body: body ? (isJson ? JSON.stringify(body) : (body as any)) : undefined,
+    });
 
-  const contentType = response.headers.get("Content-Type") || "";
-  const isJsonResponse = contentType.includes("application/json");
+    clearTimeout(timeoutId);
 
-  const data = isJsonResponse ? await response.json() : await response.text();
+    const contentType = response.headers.get("Content-Type") || "";
+    const isJsonResponse = contentType.includes("application/json");
 
-  if (!response.ok) {
-    const errorMessage =
-      typeof data === "string"
-        ? data
-        : (data as any)?.message || "An error occurred";
-    throw new Error(errorMessage);
+    const data = isJsonResponse ? await response.json() : await response.text();
+
+    if (!response.ok) {
+      const errorMessage =
+        typeof data === "string"
+          ? data
+          : (data as any)?.message || "An error occurred";
+      throw new Error(errorMessage);
+    }
+
+    return data as TResponse;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error) {
+      if (error.name === "AbortError") {
+        throw new Error("Request timeout - please try again");
+      }
+      throw error;
+    }
+    throw new Error("Network error - please check your connection");
   }
-
-  return data as TResponse;
 }

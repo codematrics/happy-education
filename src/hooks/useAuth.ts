@@ -9,11 +9,24 @@ import {
   OtpFormData,
   SignUpUserFormData,
 } from "@/types/schema";
-import { useMutation } from "@tanstack/react-query";
+import { ResponseInterface } from "@/types/types";
+import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query";
 
 const postAdminAPI = async (data: LoginAdminFormData) => {
   const res = await fetcher("/api/v1/admin/login", {
     body: data,
+    method: "POST",
+  });
+  return res;
+};
+
+const checkAuth = async () => {
+  const res = await fetcher<
+    ResponseInterface<null | {
+      isLoggedIn: boolean;
+      role: "user" | "both" | "admin" | null;
+    }>
+  >("/api/v1/user/check", {
     method: "POST",
   });
   return res;
@@ -81,6 +94,24 @@ export const useLogin = () => {
 export const useVerifyOtp = () => {
   return useMutation<unknown, Error, OtpFormData>({
     mutationFn: (data: OtpFormData) => postUserVerifyOtpAPI(data),
+  });
+};
+
+export const useAuthCheck = (): UseQueryResult<
+  ResponseInterface<null | {
+    isLoggedIn: boolean;
+    role: "user" | "both" | "admin" | null;
+  }>
+> => {
+  return useQuery<
+    ResponseInterface<null | {
+      isLoggedIn: boolean;
+      role: "user" | "both" | "admin" | null;
+    }>
+  >({
+    queryKey: ["auth-check"],
+    queryFn: () => checkAuth(),
+    staleTime: 1000 * 60 * 5,
   });
 };
 

@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  BadgeIndianRupee,
   BookCopy,
   BookOpen,
   Calendar,
@@ -12,7 +13,7 @@ import {
 export const sidebarItems = [
   {
     title: "Dashboard",
-    url: "#",
+    url: "/admin",
     icon: Home,
   },
   {
@@ -39,6 +40,11 @@ export const sidebarItems = [
     title: "Inquiry",
     url: "/admin/inquiries",
     icon: UserRoundSearch,
+  },
+  {
+    title: "Revenue",
+    url: "/admin/revenue",
+    icon: BadgeIndianRupee,
   },
 ];
 

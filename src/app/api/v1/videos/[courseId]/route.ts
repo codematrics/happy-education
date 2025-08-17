@@ -1,8 +1,6 @@
 import connect from "@/lib/db";
-import { decodeJWT, verifyJWT } from "@/lib/jwt";
-import { ICourse } from "@/models/Course";
-import { User } from "@/models/User";
-import { cookies } from "next/headers";
+import { validateCourseAccess } from "@/lib/courseAccessMiddleware";
+import { Course } from "@/models/Course";
 import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (
@@ -11,55 +9,50 @@ export const GET = async (
 ) => {
   try {
     const { courseId } = await params;
-    const userToken = (await cookies()).get("user_token")?.value;
-
-    if (!userToken) {
-      return NextResponse.json(
-        { data: null, message: "Login first", status: false },
-        { status: 401 }
-      );
-    }
-
-    let parsedToken;
-    try {
-      parsedToken = JSON.parse(userToken);
-    } catch {
-      parsedToken = userToken;
-    }
-
-    const isTokenValid = await verifyJWT(parsedToken);
-    if (!isTokenValid) {
-      return NextResponse.json(
-        { data: null, message: "Invalid token", status: false },
-        { status: 401 }
-      );
-    }
-
-    const decodedToken = await decodeJWT(parsedToken);
-    const userId = decodedToken._id;
 
     await connect();
 
-    const user = await User.findOne({
-      _id: userId,
-      purchasedCourses: courseId,
-    }).populate({
-      path: "purchasedCourses",
-      match: { _id: courseId },
-      populate: { path: "courseVideos" },
-    });
+    // Validate course access using middleware
+    const accessValidation = await validateCourseAccess(req, courseId);
 
-    if (!user || !user.purchasedCourses.length) {
+    if (!accessValidation.isValid) {
+      return accessValidation.response!;
+    }
+
+    // Get course with videos
+    const course = await Course.findById(courseId).populate("courseVideos");
+
+    if (!course) {
       return NextResponse.json(
-        { data: null, message: "Course not purchased", status: false },
-        { status: 403 }
+        { data: null, message: "Course not found", status: false },
+        { status: 404 }
       );
     }
 
-    const course = user.purchasedCourses[0] as ICourse;
+    // Return course data with access information
     return NextResponse.json(
       {
-        data: course,
+        data: {
+          course: {
+            id: course._id,
+            name: course.name,
+            description: course.description,
+            benefits: course.benefits,
+            thumbnail: course.thumbnail,
+            previewVideo: course.previewVideo,
+            price: course.price,
+            currency: course.currency,
+            accessType: course.accessType,
+            courseVideos: course.courseVideos,
+            createdAt: course.createdAt,
+            isPurchased: accessValidation.accessResult?.hasAccess || false,
+          },
+          accessInfo: {
+            hasAccess: accessValidation.accessResult?.hasAccess,
+            accessType: accessValidation.accessResult?.accessType,
+            expiryDate: accessValidation.accessResult?.expiryDate,
+          },
+        },
         message: "Course videos fetched successfully",
         status: true,
       },

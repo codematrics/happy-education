@@ -23,6 +23,7 @@ export interface ICourse extends Document {
   };
   price: number;
   currency: CourseCurrency;
+  accessType: "free" | "lifetime" | "monthly" | "yearly";
   createdAt: Date;
   courseVideos?: Types.ObjectId[] | ICourseVideo[];
 }
@@ -59,6 +60,12 @@ const CourseSchema: Schema<ICourse> = new Schema({
     type: String,
     enum: CourseCurrency,
     required: true,
+  },
+  accessType: {
+    type: String,
+    enum: ["free", "lifetime", "monthly", "yearly"],
+    required: true,
+    default: "lifetime",
   },
   createdAt: { type: Date, default: Date.now },
   courseVideos: [

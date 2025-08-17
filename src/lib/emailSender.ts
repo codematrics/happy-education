@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
 export interface EmailConfig {
   host: string;
@@ -21,16 +21,16 @@ export interface EmailOptions {
 // Create reusable transporter object using environment variables
 const createTransporter = () => {
   const config: EmailConfig = {
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
+    host: process.env.SMTP_HOST || "smtp.gmail.com",
+    port: parseInt(process.env.SMTP_PORT || "587"),
+    secure: process.env.SMTP_SECURE === "true", // true for 465, false for other ports
     auth: {
-      user: process.env.SMTP_USER || '',
-      pass: process.env.SMTP_PASS || '',
+      user: process.env.SMTP_USER || "",
+      pass: process.env.SMTP_PASS || "",
     },
   };
 
-  return nodemailer.createTransporter(config);
+  return nodemailer.createTransport(config);
 };
 
 /**
@@ -39,7 +39,7 @@ const createTransporter = () => {
 export async function sendEmail(options: EmailOptions): Promise<boolean> {
   try {
     const transporter = createTransporter();
-    
+
     const mailOptions = {
       from: options.from || process.env.FROM_EMAIL || process.env.SMTP_USER,
       to: options.to,
@@ -49,10 +49,10 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully:', info.messageId);
+    console.log("Email sent successfully:", info.messageId);
     return true;
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error("Error sending email:", error);
     return false;
   }
 }
@@ -65,8 +65,8 @@ export async function sendNewUserPassword(
   password: string,
   courseName: string
 ): Promise<boolean> {
-  const subject = 'Welcome! Your account has been created';
-  
+  const subject = "Welcome! Your account has been created";
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -191,7 +191,9 @@ export async function sendNewUserPassword(
             <p>You can now access your course and start learning immediately!</p>
             
             <div style="text-align: center;">
-                <a href="${process.env.FRONTEND_URL || 'https://yourdomain.com'}/signin" class="button">
+                <a href="${
+                  process.env.FRONTEND_URL || "https://yourdomain.com"
+                }/signin" class="button">
                     Login to Your Account
                 </a>
             </div>
@@ -217,7 +219,7 @@ export async function sendNewUserPassword(
     
     IMPORTANT: Please change your password after your first login for security.
     
-    Login at: ${process.env.FRONTEND_URL || 'https://yourdomain.com'}/signin
+    Login at: ${process.env.FRONTEND_URL || "https://yourdomain.com"}/signin
     
     Thank you for choosing Happy Education!
   `;
@@ -240,8 +242,8 @@ export async function sendPurchaseConfirmation(
   currency: string,
   orderId: string
 ): Promise<boolean> {
-  const subject = 'Purchase Confirmation - Course Access Granted';
-  
+  const subject = "Purchase Confirmation - Course Access Granted";
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -332,7 +334,9 @@ export async function sendPurchaseConfirmation(
             <p>You now have access to your course and can start learning immediately!</p>
             
             <div style="text-align: center;">
-                <a href="${process.env.FRONTEND_URL || 'https://yourdomain.com'}/my-courses" class="button">
+                <a href="${
+                  process.env.FRONTEND_URL || "https://yourdomain.com"
+                }/my-courses" class="button">
                     Access Your Course
                 </a>
             </div>
@@ -356,7 +360,9 @@ export async function sendPurchaseConfirmation(
     Order ID: ${orderId}
     Date: ${new Date().toLocaleDateString()}
     
-    Access your course: ${process.env.FRONTEND_URL || 'https://yourdomain.com'}/my-courses
+    Access your course: ${
+      process.env.FRONTEND_URL || "https://yourdomain.com"
+    }/my-courses
     
     Thank you for choosing Happy Education!
   `;
@@ -375,16 +381,16 @@ export async function sendPurchaseConfirmation(
 export async function sendOTPEmail(
   email: string,
   otp: string,
-  purpose: 'signup' | 'forgot-password' | 'verification' = 'verification'
+  purpose: "signup" | "forgot-password" | "verification" = "verification"
 ): Promise<boolean> {
   const subjects = {
-    signup: 'Complete Your Registration',
-    'forgot-password': 'Reset Your Password',
-    verification: 'Verify Your Account',
+    signup: "Complete Your Registration",
+    "forgot-password": "Reset Your Password",
+    verification: "Verify Your Account",
   };
 
   const subject = subjects[purpose];
-  
+
   const html = `
     <!DOCTYPE html>
     <html>

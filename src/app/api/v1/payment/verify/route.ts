@@ -1,10 +1,16 @@
-import { NextRequest, NextResponse } from "next/server";
-import connect from "@/lib/db";
-import { Course } from "@/models/Course";
-import { User } from "@/models/User";
-import { Transaction } from "@/models/Transaction";
 import { calculateExpiryDate } from "@/lib/courseAccessMiddleware";
+import connect from "@/lib/db";
+import { assignJWT } from "@/lib/jwt";
 import { generateUserPassword } from "@/lib/passwordGenerator";
+import {
+  createReceiptData,
+  generateReceiptHTML,
+  saveReceiptToCloudinary,
+} from "@/lib/pdfGenerator";
+import { Course } from "@/models/Course";
+import { Transaction } from "@/models/Transaction";
+import { User } from "@/models/User";
+import { NextRequest, NextResponse } from "next/server";
 // import { sendNewUserPassword, sendPurchaseConfirmation } from "@/lib/emailSender";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
@@ -13,7 +19,7 @@ import crypto from "crypto";
 export const POST = async (req: NextRequest) => {
   try {
     await connect();
-    
+
     const {
       razorpay_payment_id,
       razorpay_order_id,
@@ -91,7 +97,7 @@ export const POST = async (req: NextRequest) => {
       }
 
       user = await User.findOne({ email });
-      
+
       if (!user) {
         // Create new user
         isNewUser = true;
@@ -99,8 +105,8 @@ export const POST = async (req: NextRequest) => {
         const hashedPassword = await bcrypt.hash(password, 12);
 
         user = await User.create({
-          firstName: email.split('@')[0], // Use part of email as firstName
-          lastName: 'User',
+          firstName: email.split("@")[0], // Use part of email as firstName
+          lastName: "User",
           email: email,
           password: hashedPassword,
           isVerified: true, // Auto-verify users created via payment
@@ -118,7 +124,7 @@ export const POST = async (req: NextRequest) => {
           // Don't fail the transaction for email issues
         }
         */
-        
+
         console.log(`New user created: ${email}, password: ${password}`);
       }
     }
@@ -133,25 +139,25 @@ export const POST = async (req: NextRequest) => {
 
     // Add course to user's purchased courses
     const purchaseExists = user.purchasedCourses.some(
-      (pc) => pc.courseId.toString() === course._id.toString()
+      (pc) => pc.courseId.toString() === course?._id?.toString()
     );
 
-    if (!purchaseExists) {
+    if (!purchaseExists && course?._id) {
       user.purchasedCourses.push({
-        courseId: course._id,
+        courseId: course?._id as any,
         purchaseDate,
         expiryDate,
       });
     }
 
     // Add transaction to user's transactions
-    user.transactions.push(transaction._id);
+    user.transactions.push(transaction?._id as any);
     await user.save();
 
     // Update transaction status
     transaction.status = "success";
     transaction.paymentId = razorpay_payment_id;
-    transaction.userId = user._id; // Ensure userId is set for guest checkouts
+    transaction.userId = user?._id as any; // Ensure userId is set for guest checkouts
     transaction.metadata = {
       ...transaction.metadata,
       paymentVerifiedAt: new Date(),
@@ -159,6 +165,33 @@ export const POST = async (req: NextRequest) => {
       expiryDate,
     };
     await transaction.save();
+
+    // Generate and save receipt to Cloudinary
+    try {
+      const receiptData = createReceiptData(transaction, course, user);
+      const receiptHTML = generateReceiptHTML(receiptData);
+      const cloudinaryResult = await saveReceiptToCloudinary(
+        receiptHTML,
+        transaction.orderId
+      );
+
+      if (cloudinaryResult) {
+        transaction.receipt = {
+          publicId: cloudinaryResult.publicId,
+          url: cloudinaryResult.url,
+          generatedAt: new Date(),
+        };
+        await transaction.save();
+        console.log(`Receipt saved to Cloudinary: ${cloudinaryResult.url}`);
+      } else {
+        console.warn(
+          `Failed to save receipt to Cloudinary for transaction ${transaction._id}`
+        );
+      }
+    } catch (receiptError) {
+      console.error("Error generating/saving receipt:", receiptError);
+      // Don't fail the transaction if receipt generation fails
+    }
 
     // Send purchase confirmation email
     // Uncomment when email functionality is available:
@@ -179,42 +212,76 @@ export const POST = async (req: NextRequest) => {
 
     console.log(`Purchase confirmed: ${user.email} bought ${course.name}`);
 
-    return NextResponse.json(
+    // Create login token for new users or if user wasn't logged in
+    let userToken = null;
+    const wasGuestCheckout = !transaction.metadata?.isLoggedIn;
+
+    if (wasGuestCheckout || isNewUser) {
+      // Create JWT token for auto-login
+      userToken = await assignJWT({
+        _id: user._id?.toString(),
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        isVerified: user.isVerified,
+      });
+    }
+
+    const response = NextResponse.json(
       {
         data: {
           transactionId: transaction._id,
           paymentId: razorpay_payment_id,
           orderId: razorpay_order_id,
           course: {
-            id: course._id,
+            id: course?._id,
             name: course.name,
             accessType: course.accessType,
           },
           user: {
-            id: user._id,
+            id: user?._id,
             email: user.email,
             isNewUser,
+            wasGuestCheckout,
           },
           access: {
             purchaseDate,
             expiryDate,
             hasLifetimeAccess: course.accessType === "lifetime",
           },
+          autoLogin: wasGuestCheckout || isNewUser,
         },
-        message: isNewUser 
-          ? "Payment successful! Account created and course access granted. Check your email for login credentials."
+        message: isNewUser
+          ? "Payment successful! Account created and course access granted. You have been automatically logged in."
+          : wasGuestCheckout
+          ? "Payment successful! Course access granted. You have been automatically logged in."
           : "Payment successful! Course access granted.",
         status: true,
       },
       { status: 200 }
     );
+
+    // Set authentication cookie if auto-login is needed
+    if (userToken && (wasGuestCheckout || isNewUser)) {
+      response.cookies.set("user_token", JSON.stringify(userToken), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 30 * 24 * 60 * 60, // 30 days
+        path: "/",
+      });
+    }
+
+    return response;
   } catch (error) {
     console.error("Error verifying payment:", error);
 
     // Try to update transaction status to failed
     try {
-      if (req.body && req.body.razorpay_order_id) {
-        const failedTransaction = await Transaction.findByOrderId(req.body.razorpay_order_id);
+      if (req.body && (req.body as any).razorpay_order_id) {
+        const failedTransaction = await Transaction.findByOrderId(
+          (req.body as any).razorpay_order_id
+        );
         if (failedTransaction) {
           failedTransaction.status = "failed";
           failedTransaction.metadata = {
@@ -273,16 +340,13 @@ export const PATCH = async (req: NextRequest) => {
   try {
     const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
     const signature = req.headers.get("x-razorpay-signature");
-    
+
     if (!webhookSecret || !signature) {
-      return NextResponse.json(
-        { message: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.text();
-    
+
     // Verify webhook signature
     const expectedSignature = crypto
       .createHmac("sha256", webhookSecret)
@@ -297,20 +361,20 @@ export const PATCH = async (req: NextRequest) => {
     }
 
     const event = JSON.parse(body);
-    
+
     // Handle different webhook events
     switch (event.event) {
       case "payment.captured":
         // Payment was successful
         console.log("Payment captured:", event.payload.payment.entity);
         break;
-      
+
       case "payment.failed":
         // Payment failed
         console.log("Payment failed:", event.payload.payment.entity);
         await handleFailedPayment(event.payload.payment.entity);
         break;
-      
+
       default:
         console.log("Unhandled webhook event:", event.event);
     }
@@ -328,7 +392,7 @@ export const PATCH = async (req: NextRequest) => {
 async function handleFailedPayment(paymentEntity: any) {
   try {
     await connect();
-    
+
     const transaction = await Transaction.findByOrderId(paymentEntity.order_id);
     if (transaction) {
       transaction.status = "failed";

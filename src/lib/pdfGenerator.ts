@@ -33,34 +33,35 @@ export function generateReceiptHTML(
   companyInfo?: CompanyInfo
 ): string {
   const company = companyInfo || {
-    name: 'Happy Education',
-    address: '123 Education Street, Learning City, LC 12345',
-    phone: '+1 (555) 123-4567',
-    email: 'support@happyeducation.com',
-    website: 'www.happyeducation.com',
+    name: "Happy Education",
+    address: "123 Education Street, Learning City, LC 12345",
+    phone: "+1 (555) 123-4567",
+    email: "support@happyeducation.com",
+    website: "www.happyeducation.com",
   };
 
   const formatCurrency = (amount: number, currency: string) => {
     const currencySymbols: Record<string, string> = {
-      usd: '$',
-      eur: '€',
-      gbp: '£',
-      inr: '₹',
-      dollar: '$',
-      rupee: '₹',
+      usd: "$",
+      eur: "€",
+      gbp: "£",
+      inr: "₹",
+      dollar: "$",
+      rupee: "₹",
     };
-    
-    const symbol = currencySymbols[currency.toLowerCase()] || currency.toUpperCase();
+
+    const symbol =
+      currencySymbols[currency.toLowerCase()] || currency.toUpperCase();
     return `${symbol}${amount.toFixed(2)}`;
   };
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -336,9 +337,15 @@ export function generateReceiptHTML(
                 </div>
                 <div class="receipt-info">
                     <h2>RECEIPT</h2>
-                    <p><strong>Receipt ID:</strong> ${receiptData.transactionId}</p>
-                    <p><strong>Date:</strong> ${formatDate(receiptData.date)}</p>
-                    <p><strong>Status:</strong> <span class="status ${receiptData.status}">${receiptData.status}</span></p>
+                    <p><strong>Receipt ID:</strong> ${
+                      receiptData.transactionId
+                    }</p>
+                    <p><strong>Date:</strong> ${formatDate(
+                      receiptData.date
+                    )}</p>
+                    <p><strong>Status:</strong> <span class="status ${
+                      receiptData.status
+                    }">${receiptData.status}</span></p>
                 </div>
             </div>
             
@@ -364,17 +371,23 @@ export function generateReceiptHTML(
                     <div>
                         <div class="detail-item">
                             <span class="detail-label">Order ID:</span>
-                            <span class="detail-value">${receiptData.orderId}</span>
+                            <span class="detail-value">${
+                              receiptData.orderId
+                            }</span>
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Payment Method:</span>
-                            <span class="detail-value">${receiptData.paymentMethod}</span>
+                            <span class="detail-value">${
+                              receiptData.paymentMethod
+                            }</span>
                         </div>
                     </div>
                     <div>
                         <div class="detail-item">
                             <span class="detail-label">Transaction ID:</span>
-                            <span class="detail-value">${receiptData.transactionId}</span>
+                            <span class="detail-value">${
+                              receiptData.transactionId
+                            }</span>
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Currency:</span>
@@ -386,7 +399,10 @@ export function generateReceiptHTML(
             
             <div class="amount-section">
                 <h3>💰 Amount Paid</h3>
-                <div class="total-amount">${formatCurrency(receiptData.amount, receiptData.currency)}</div>
+                <div class="total-amount">${formatCurrency(
+                  receiptData.amount,
+                  receiptData.currency
+                )}</div>
                 <p>Payment completed successfully</p>
             </div>
             
@@ -398,12 +414,16 @@ export function generateReceiptHTML(
             <div class="footer">
                 <h4>Need Help?</h4>
                 <p>If you have any questions about your purchase or need technical support,</p>
-                <p>please contact us at ${company.email} or call ${company.phone}</p>
+                <p>please contact us at ${company.email} or call ${
+    company.phone
+  }</p>
                 <p style="margin-top: 20px; font-size: 12px;">
                     This is a computer-generated receipt. No signature required.
                 </p>
                 <p style="font-size: 12px;">
-                    &copy; ${new Date().getFullYear()} ${company.name}. All rights reserved.
+                    &copy; ${new Date().getFullYear()} ${
+    company.name
+  }. All rights reserved.
                 </p>
             </div>
         </div>
@@ -436,7 +456,7 @@ export function createReceiptData(
     courseName: course.name,
     amount: transaction.amount,
     currency: transaction.currency,
-    paymentMethod: transaction.paymentMethod || 'Online Payment',
+    paymentMethod: transaction.paymentMethod || "Online Payment",
     status: transaction.status,
   };
 }
@@ -445,25 +465,27 @@ export function createReceiptData(
  * Generate simple text receipt for email
  */
 export function generateTextReceipt(receiptData: ReceiptData): string {
-  const formatDate = (date: Date) => date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const formatDate = (date: Date) =>
+    date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
   const formatCurrency = (amount: number, currency: string) => {
     const currencySymbols: Record<string, string> = {
-      usd: '$',
-      eur: '€',
-      gbp: '£',
-      inr: '₹',
-      dollar: '$',
-      rupee: '₹',
+      usd: "$",
+      eur: "€",
+      gbp: "£",
+      inr: "₹",
+      dollar: "$",
+      rupee: "₹",
     };
-    
-    const symbol = currencySymbols[currency.toLowerCase()] || currency.toUpperCase();
+
+    const symbol =
+      currencySymbols[currency.toLowerCase()] || currency.toUpperCase();
     return `${symbol}${amount.toFixed(2)}`;
   };
 
@@ -505,9 +527,79 @@ This is a computer-generated receipt.
   `;
 }
 
+/**
+ * Save receipt HTML to Cloudinary as a raw file
+ */
+export async function saveReceiptToCloudinary(
+  receiptHTML: string,
+  orderId: string
+): Promise<{ publicId: string; url: string } | null> {
+  try {
+    // Convert HTML string into a Blob
+    const blob = new Blob([receiptHTML], { type: "text/html" });
+
+    // Cloudinary upload API expects FormData
+    const formData = new FormData();
+    formData.append("file", blob, `receipt-${orderId}.html`);
+    formData.append(
+      "upload_preset",
+      process.env.NEXT_PUBLIC_CLOUDINARY_PRESET!
+    );
+    formData.append("folder", "receipts");
+    formData.append("public_id", `receipt-${orderId}`);
+
+    // Direct upload to Cloudinary unsigned endpoint
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/raw/upload`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    const result = await response.json();
+
+    if (result.secure_url) {
+      return {
+        publicId: result.public_id,
+        url: result.secure_url,
+      };
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error saving receipt to Cloudinary:", error);
+    return null;
+  }
+}
+
+/**
+ * Get receipt from Cloudinary
+ */
+export async function getReceiptFromCloudinary(
+  publicId: string
+): Promise<string | null> {
+  try {
+    const response = await fetch(
+      `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/raw/upload/${publicId}`
+    );
+
+    if (response.ok) {
+      return await response.text();
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error fetching receipt from Cloudinary:", error);
+    return null;
+  }
+}
+
 export default {
   generateReceiptHTML,
   generateReceiptForDownload,
   createReceiptData,
   generateTextReceipt,
+  saveReceiptToCloudinary,
+  getReceiptFromCloudinary,
 };

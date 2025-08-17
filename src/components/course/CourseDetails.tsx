@@ -9,7 +9,6 @@ import {
   CheckCircle,
   DollarSign,
   IndianRupee,
-  Play,
   Star,
   Users,
 } from "lucide-react";
@@ -19,6 +18,7 @@ import CustomCarousel from "../common/CustomCarousel";
 import CustomImage from "../common/CustomImage";
 import CustomVideo from "../common/CustomVideo";
 import LoadingError from "../common/LoadingError";
+import BuyButton from "../payment/BuyButton";
 import CourseDetailsSkeleton from "../skeleton/CourseDetails";
 import TestimonialCard from "../testimonal/TestimonialCard";
 import { Button } from "../ui/button";
@@ -158,29 +158,14 @@ const CourseDetails = ({ courseId }: { courseId: string }) => {
                   </div>
 
                   <div className="p-6 space-y-4">
-                    {data?.data?.isPurchased ? (
-                      <Button
+                    {data?.data && (
+                      <BuyButton
                         ref={enrollBtnRef}
+                        course={data.data}
                         size="lg"
-                        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-medium hover:shadow-strong transition-smooth"
-                        onClick={() => router.push(`/videos/${courseId}`)}
-                      >
-                        <Play className="w-5 h-5 mr-2" />
-                        Continue Learning
-                      </Button>
-                    ) : (
-                      <Button
-                        ref={enrollBtnRef}
-                        size="lg"
-                        className="w-full gradient-primary text-white border-0 shadow-medium hover:shadow-strong transition-smooth"
-                        // onClick={handlePurchase}
-                      >
-                        Enroll Now -{" "}
-                        {data?.data?.currency === CourseCurrency.dollar
-                          ? "$"
-                          : "₹"}
-                        {data?.data.price}
-                      </Button>
+                        fullWidth
+                        showPrice
+                      />
                     )}
 
                     {!data?.data?.isPurchased && (
@@ -345,28 +330,15 @@ const CourseDetails = ({ courseId }: { courseId: string }) => {
           </div>
         </section>
 
-        {showFixedEnroll && (
+        {showFixedEnroll && data?.data && (
           <div className="fixed bottom-0 left-0 w-full bg-card shadow-strong border-t border-border z-50">
             <div className="container mx-auto px-4 py-3 flex justify-end items-center">
-              {data?.data?.isPurchased ? (
-                <Button
-                  size="lg"
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-medium hover:shadow-strong transition-smooth w-full md:w-auto"
-                  onClick={() => router.push(`/videos/${courseId}`)}
-                >
-                  <Play className="w-5 h-5 mr-2" />
-                  Continue Learning
-                </Button>
-              ) : (
-                <Button
-                  size="lg"
-                  className="gradient-primary text-white border-0 shadow-medium hover:shadow-strong transition-smooth w-full md:w-auto"
-                >
-                  Enroll Now For{" "}
-                  {data?.data?.currency === CourseCurrency.dollar ? "$" : "₹"}
-                  {data?.data.price}
-                </Button>
-              )}
+              <BuyButton
+                course={data.data}
+                size="lg"
+                showPrice
+                className="w-full md:w-auto"
+              />
             </div>
           </div>
         )}

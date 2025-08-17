@@ -5,6 +5,13 @@ export enum CourseCurrency {
   rupee = "rupee",
 }
 
+export enum CourseAccessType {
+  free = "free",
+  lifetime = "lifetime",
+  monthly = "monthly",
+  yearly = "yearly",
+}
+
 export enum TransactionStatus {
   pending = "pending",
   completed = "completed",
@@ -27,6 +34,13 @@ export const coursesSortOptions = [
 export const currencyOptions = [
   { label: "Dollar ($)", value: CourseCurrency.dollar },
   { label: "Rupee (₹)", value: CourseCurrency.rupee },
+];
+
+export const accessTypeOptions = [
+  { label: "Free", value: CourseAccessType.free },
+  { label: "Lifetime Access", value: CourseAccessType.lifetime },
+  { label: "Monthly Access", value: CourseAccessType.monthly },
+  { label: "Yearly Access", value: CourseAccessType.yearly },
 ];
 
 export const OTPExpiryTime = 5 * 60 * 1000;

@@ -2,6 +2,7 @@
 
 import CustomImage from "@/components/common/CustomImage";
 import LoadingError from "@/components/common/LoadingError";
+import ProfileTransactions from "@/components/transactions/ProfileTransactions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -453,6 +454,9 @@ const ProfilePage = () => {
               )}
             </CardContent>
           </Card>
+
+          {/* Recent Transactions */}
+          <ProfileTransactions />
         </div>
       </LoadingError>
     </div>

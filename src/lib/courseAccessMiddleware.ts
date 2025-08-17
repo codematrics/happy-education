@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import { decodeJWT, verifyJWT } from "@/lib/jwt";
-import { User } from "@/models/User";
-import { Course } from "@/models/Course";
 import connect from "@/lib/db";
+import { decodeJWT, verifyJWT } from "@/lib/jwt";
+import { Course } from "@/models/Course";
+import { User } from "@/models/User";
+import { NextRequest, NextResponse } from "next/server";
 
 export interface CourseAccessResult {
   hasAccess: boolean;
@@ -21,7 +21,7 @@ export async function checkCourseAccess(
 ): Promise<CourseAccessResult> {
   try {
     await connect();
-    
+
     // Get course details
     const course = await Course.findById(courseId);
     if (!course) {
@@ -131,7 +131,7 @@ export async function validateCourseAccess(
   try {
     // Get user token from cookies
     const userToken = request.cookies.get("user_token")?.value;
-    
+
     if (!userToken) {
       return {
         isValid: false,
@@ -176,9 +176,13 @@ export async function validateCourseAccess(
     const accessResult = await checkCourseAccess(userId, courseId);
 
     if (!accessResult.hasAccess) {
-      const statusCode = accessResult.reason === "Course not purchased" ? 403 : 
-                        accessResult.isExpired ? 402 : 403;
-      
+      const statusCode =
+        accessResult.reason === "Course not purchased"
+          ? 403
+          : accessResult.isExpired
+          ? 402
+          : 403;
+
       return {
         isValid: false,
         userId,
@@ -273,7 +277,9 @@ export function getRemainingAccessTime(expiryDate: Date | null): {
   }
 
   const remainingDays = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-  const remainingHours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const remainingHours = Math.floor(
+    (timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+  );
 
   let timeLeft = "";
   if (remainingDays > 0) {
@@ -348,15 +354,15 @@ export async function getCourseAccessStatus(
     };
   }
 
-  const timeInfo = getRemainingAccessTime(accessResult.expiryDate);
-  
+  const timeInfo = getRemainingAccessTime(accessResult.expiryDate || null);
+
   return {
     hasAccess: true,
     accessType: accessResult.accessType || "unknown",
     status: "active",
     expiryDate: accessResult.expiryDate,
     timeRemaining: timeInfo.timeLeft,
-    isExpiringSoon: isAccessExpiringSoon(accessResult.expiryDate),
+    isExpiringSoon: isAccessExpiringSoon(accessResult.expiryDate || null),
   };
 }
 

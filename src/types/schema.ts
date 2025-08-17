@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { AuthIdentifiers, CourseCurrency } from "./constants";
+import { AuthIdentifiers, CourseAccessType, CourseCurrency } from "./constants";
 
 export const loginAdminValidations = z.object({
   userName: z
@@ -130,6 +130,7 @@ export const courseValidations = z.object({
   previewVideo: optionalVideo,
   price: z.number().positive("Price must be a positive number"),
   currency: z.nativeEnum(CourseCurrency),
+  accessType: z.nativeEnum(CourseAccessType),
   courseVideos: z.array(courseVideoValidation).optional(),
 });
 
@@ -141,6 +142,7 @@ export const courseUpdateValidations = z.object({
   previewVideo: optionalVideo,
   price: z.number().positive().optional(),
   currency: z.nativeEnum(CourseCurrency).optional(),
+  accessType: z.nativeEnum(CourseAccessType).optional(),
   courseVideos: z.array(courseVideoValidation).optional(),
 });
 

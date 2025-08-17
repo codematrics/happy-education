@@ -37,6 +37,16 @@ export const getMyCourses = (
   );
 };
 
+export const getAdminRevenue = (
+  page: number = 1,
+  limit: number = 10,
+  search: string = ""
+) => {
+  return fetcher(
+    `/api/v1/revenue?page=${page}&limit=${limit}&search=${search}`
+  );
+};
+
 export const getMyVideos = (
   courseId: string
 ): Promise<ResponseInterface<Course>> => {

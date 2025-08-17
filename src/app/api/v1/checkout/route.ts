@@ -1,16 +1,18 @@
-import { NextRequest, NextResponse } from "next/server";
+import { hashValue } from "@/lib/bcrypt";
 import connect from "@/lib/db";
-import { Course } from "@/models/Course";
-import { User } from "@/models/User";
-import { Transaction } from "@/models/Transaction";
+import emailSender from "@/lib/emailSender";
 import { decodeJWT, verifyJWT } from "@/lib/jwt";
-import { calculateExpiryDate } from "@/lib/courseAccessMiddleware";
-// import Razorpay from "razorpay"; // Install with: npm install razorpay
+import { generateSecurePassword } from "@/lib/passwordGenerator";
+import { Course } from "@/models/Course";
+import { Transaction } from "@/models/Transaction";
+import { User } from "@/models/User";
+import { NextRequest, NextResponse } from "next/server";
+import Razorpay from "razorpay"; // Install with: npm install razorpay
 
 export const POST = async (req: NextRequest) => {
   try {
     await connect();
-    
+
     const { courseId, userEmail } = await req.json();
 
     if (!courseId) {
@@ -72,7 +74,7 @@ export const POST = async (req: NextRequest) => {
           const user = await User.findById(userId);
           if (user) {
             const alreadyPurchased = user.purchasedCourses.some(
-              (pc) => pc.courseId.toString() === courseId
+              (pc) => pc.courseId && pc.courseId.toString() === courseId
             );
 
             if (alreadyPurchased) {
@@ -104,87 +106,147 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    // If not logged in, check if user with email exists
+    // If not logged in, check if user with email exists or create new user
     let existingUser = null;
+    let isNewUser = false;
+
     if (!isLoggedIn && userEmail) {
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(userEmail)) {
+        return NextResponse.json(
+          {
+            data: null,
+            message: "Please provide a valid email address",
+            status: false,
+          },
+          { status: 400 }
+        );
+      }
+
       existingUser = await User.findOne({ email: userEmail });
+
       if (existingUser) {
-        userId = existingUser._id.toString();
-        
-        // Check if existing user already purchased this course
+        // User exists, check if course already purchased
+        userId = (existingUser._id as any).toString();
         const alreadyPurchased = existingUser.purchasedCourses.some(
-          (pc) => pc.courseId.toString() === courseId
+          (pc) => pc.courseId && pc.courseId?.toString() === courseId
         );
 
         if (alreadyPurchased) {
           return NextResponse.json(
             {
               data: null,
-              message: "This email has already purchased this course",
+              message:
+                "This email has already purchased this course. Please login to access it.",
               status: false,
             },
             { status: 400 }
           );
         }
+      } else {
+        // Create new user account for guest checkout
+        isNewUser = true;
+
+        const generatedPassword = generateSecurePassword();
+        const hashedPassword = await hashValue(generatedPassword);
+
+        // Extract name from email or use default
+        const emailPrefix = userEmail.split("@")[0];
+        const firstName =
+          emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
+
+        existingUser = await User.create({
+          firstName: firstName,
+          lastName: "User",
+          email: userEmail,
+          password: hashedPassword,
+          isVerified: false, // Will be verified after successful purchase
+          purchasedCourses: [], // Initialize empty array
+        });
+
+        userId = (existingUser._id as any).toString();
+
+        // Send welcome email with credentials (don't await to avoid blocking)
+        emailSender
+          .sendNewUserPassword(userEmail, generatedPassword, course.name)
+          .catch((error: any) => {
+            console.error("Failed to send welcome email:", error);
+            // Don't fail the checkout if email fails
+          });
       }
     }
 
     // Initialize Razorpay
-    // const razorpay = new Razorpay({
-    //   key_id: process.env.RAZORPAY_KEY_ID!,
-    //   key_secret: process.env.RAZORPAY_KEY_SECRET!,
-    // });
+    const razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID!,
+      key_secret: process.env.RAZORPAY_KEY_SECRET!,
+    });
 
     // Create Razorpay order
     const amountInPaise = Math.round(course.price * 100); // Convert to paise
-    const orderId = `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const orderId = `order_${Date.now()}_${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
 
     // For now, simulate Razorpay order creation
     // In real implementation, uncomment below:
-    /*
     const orderOptions = {
       amount: amountInPaise,
-      currency: course.currency.toUpperCase() === 'DOLLAR' ? 'USD' : 
-               course.currency.toUpperCase() === 'RUPEE' ? 'INR' : 'USD',
+      currency:
+        course.currency.toUpperCase() === "DOLLAR"
+          ? "USD"
+          : course.currency.toUpperCase() === "RUPEE"
+          ? "INR"
+          : "USD",
       receipt: orderId,
       notes: {
         courseId: courseId,
         courseName: course.name,
-        userEmail: userEmail || existingUser?.email || '',
-        userId: userId || 'guest',
+        userEmail: userEmail || existingUser?.email || "",
+        userId: userId || "guest",
         accessType: course.accessType,
       },
     };
 
     const razorpayOrder = await razorpay.orders.create(orderOptions);
-    */
 
     // Simulated Razorpay order response
-    const razorpayOrder = {
-      id: orderId,
-      amount: amountInPaise,
-      currency: course.currency.toUpperCase() === 'DOLLAR' ? 'USD' : 
-               course.currency.toUpperCase() === 'RUPEE' ? 'INR' : 'USD',
-      receipt: orderId,
-      status: 'created',
-    };
+    // const razorpayOrder = {
+    //   id: orderId,
+    //   amount: amountInPaise,
+    //   currency:
+    //     course.currency.toUpperCase() === "DOLLAR"
+    //       ? "USD"
+    //       : course.currency.toUpperCase() === "RUPEE"
+    //       ? "INR"
+    //       : "USD",
+    //   receipt: orderId,
+    //   status: "created",
+    // };
 
     // Create pending transaction record
+    const paymentId = `payment_${Date.now()}_${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
+
     const transactionData = {
-      userId: userId || null,
+      paymentId: paymentId, // Ensure a valid paymentId is generated
+      userId: userId, // We now always have a userId (either logged in or created)
       courseId: courseId,
       amount: course.price,
       currency: course.currency,
-      paymentId: 'pending',
       orderId: razorpayOrder.id,
-      status: 'pending' as const,
-      paymentGateway: 'razorpay' as const,
+      status: "pending" as const,
+      paymentGateway: "razorpay" as const,
       metadata: {
         courseId: courseId,
         courseName: course.name,
-        userEmail: userEmail || existingUser?.email || '',
+        userEmail: userEmail || existingUser?.email || "",
         isGuestCheckout: !isLoggedIn,
+        isLoggedIn: isLoggedIn,
         accessType: course.accessType,
+        isNewUser: isNewUser, // Track if this was a newly created user
       },
     };
 
@@ -206,7 +268,7 @@ export const POST = async (req: NextRequest) => {
           },
           razorpayKeyId: process.env.RAZORPAY_KEY_ID,
           transactionId: transaction._id,
-          userEmail: userEmail || existingUser?.email || '',
+          userEmail: userEmail || existingUser?.email || "",
           isLoggedIn,
         },
         message: "Order created successfully",

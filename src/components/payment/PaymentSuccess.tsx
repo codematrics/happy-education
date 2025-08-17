@@ -1,0 +1,142 @@
+"use client";
+
+import { CheckCircle, Download, Eye, Play } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Button } from "../ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
+
+interface PaymentSuccessProps {
+  transactionId?: string;
+  courseId?: string;
+  courseName?: string;
+  isNewUser?: boolean;
+  userEmail?: string;
+}
+
+const PaymentSuccess = ({
+  transactionId,
+  courseId,
+  courseName,
+  isNewUser = false,
+  userEmail,
+}: PaymentSuccessProps) => {
+  const router = useRouter();
+
+  const handleStartLearning = () => {
+    if (courseId) {
+      router.push(`/videos/${courseId}`);
+    }
+  };
+
+  const handleViewCourse = () => {
+    if (courseId) {
+      router.push(`/course/${courseId}`);
+    }
+  };
+
+  const handleDownloadReceipt = () => {
+    if (transactionId) {
+      window.open(`/api/v1/user/transactions/${transactionId}/receipt`, "_blank");
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mb-4">
+            <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
+          </div>
+          <CardTitle className="text-2xl text-green-700 dark:text-green-400">
+            Payment Successful!
+          </CardTitle>
+          <CardDescription>
+            {isNewUser
+              ? "Your account has been created and course access granted"
+              : "Your course purchase was completed successfully"}
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="space-y-6">
+          {/* Course Info */}
+          {courseName && (
+            <div className="bg-muted/50 rounded-lg p-4 text-center">
+              <h3 className="font-semibold mb-2">Course Purchased</h3>
+              <p className="text-sm text-muted-foreground">{courseName}</p>
+            </div>
+          )}
+
+          {/* New User Info */}
+          {isNewUser && userEmail && (
+            <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg">
+              <h4 className="font-semibold text-blue-700 dark:text-blue-300 mb-2">
+                Account Created
+              </h4>
+              <p className="text-sm text-blue-600 dark:text-blue-400">
+                We've created an account for you and sent login credentials to{" "}
+                <span className="font-semibold">{userEmail}</span>
+              </p>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="space-y-3">
+            {courseId && (
+              <Button
+                onClick={handleStartLearning}
+                className="w-full gradient-primary text-white"
+                size="lg"
+              >
+                <Play className="w-4 h-4 mr-2" />
+                Start Learning Now
+              </Button>
+            )}
+
+            <div className="grid grid-cols-2 gap-3">
+              {courseId && (
+                <Button variant="outline" onClick={handleViewCourse}>
+                  <Eye className="w-4 h-4 mr-2" />
+                  View Course
+                </Button>
+              )}
+
+              {transactionId && (
+                <Button variant="outline" onClick={handleDownloadReceipt}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Receipt
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* Footer Links */}
+          <div className="text-center space-y-2 pt-4 border-t">
+            <Button
+              variant="link"
+              onClick={() => router.push("/my-courses")}
+              className="text-sm"
+            >
+              View All My Courses
+            </Button>
+            <br />
+            <Button
+              variant="link"
+              onClick={() => router.push("/profile")}
+              className="text-sm"
+            >
+              Go to Profile
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default PaymentSuccess;

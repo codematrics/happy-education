@@ -9,6 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuthCheck } from "@/hooks/useAuth";
 import {
   BookOpen,
   CircleUser,
@@ -23,28 +24,22 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const AppNavbar = ({
-  isAuthenticated,
-  role,
-}: {
-  role: "both" | "user" | "admin" | null;
-  isAuthenticated: boolean;
-}) => {
+const AppNavbar = () => {
+  const { data, refetch, isLoading } = useAuthCheck();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
 
+  const role = data?.data?.role;
+  const isAuthenticated = data?.data?.isLoggedIn;
+
   const handleLogout = async () => {
     try {
-      // Call logout API
       await fetch("/signout", { method: "POST" });
-      // Redirect to home page
       router.push("/");
-      // Refresh the page to update auth state
-      window.location.reload();
+      refetch();
     } catch (error) {
       console.error("Logout failed:", error);
-      // Force refresh even if API call fails
-      window.location.href = "/";
+      refetch();
     }
   };
 
@@ -97,7 +92,12 @@ const AppNavbar = ({
 
         {/* Auth Buttons (Right) */}
         <div className="hidden md:flex items-center space-x-4">
-          {!isAuthenticated ? (
+          {isLoading ? (
+            // Show loading indicator while checking auth
+            <span className="text-sm text-muted-foreground animate-pulse">
+              Checking...
+            </span>
+          ) : !isAuthenticated ? (
             <>
               <Link href="/signin">
                 <Button variant="ghost">Sign In</Button>
@@ -173,6 +173,7 @@ const AppNavbar = ({
         </Button>
       </div>
 
+      {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden mt-4 px-4 pb-4 border-t border-border">
           <nav className="flex flex-col space-y-4 mt-4">
@@ -210,7 +211,11 @@ const AppNavbar = ({
                 </Link>
               ))}
             <div className="flex flex-col space-y-2 pt-4">
-              {!isAuthenticated ? (
+              {isLoading ? (
+                <span className="text-sm text-muted-foreground animate-pulse">
+                  Checking...
+                </span>
+              ) : !isAuthenticated ? (
                 <>
                   <Link href="/signin" onClick={() => setIsMenuOpen(false)}>
                     <Button variant="ghost" className="w-full justify-center">

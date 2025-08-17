@@ -22,6 +22,7 @@ import {
 import Link from "next/link";
 import CustomDropdown from "../common/CustomDropdown";
 import CustomImage from "../common/CustomImage";
+import BuyButton from "../payment/BuyButton";
 
 interface CourseCardProps {
   course: Course;
@@ -224,7 +225,7 @@ const CourseCard = ({
             )}
 
             {/* Regular Buy/View Buttons for Non-Purchased Courses */}
-            {shouldShowBuyButton && onBuy && (
+            {shouldShowBuyButton && (
               <>
                 <Button
                   asChild
@@ -234,13 +235,12 @@ const CourseCard = ({
                 >
                   <Link href={`/course/${course._id}`}>View Details</Link>
                 </Button>
-                <Button
+                <BuyButton
+                  course={course}
                   size="sm"
-                  onClick={() => onBuy(course._id)}
+                  showPrice={false}
                   className="hover:bg-primary hover:text-primary-foreground transition-colors"
-                >
-                  Buy Course
-                </Button>
+                />
               </>
             )}
 

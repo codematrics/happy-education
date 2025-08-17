@@ -1,6 +1,11 @@
 import mongoose, { Document, Model, Schema, Types } from "mongoose";
-import { ICourse } from "./Course";
 import { ITransaction } from "./Transaction";
+
+export interface IPurchasedCourse {
+  courseId: Types.ObjectId;
+  purchaseDate: Date;
+  expiryDate: Date | null;
+}
 
 export interface IUser extends Document {
   firstName: string;
@@ -17,7 +22,7 @@ export interface IUser extends Document {
     url: string | null;
   };
   createdAt: Date;
-  purchasedCourses: Types.ObjectId[] | ICourse[];
+  purchasedCourses: IPurchasedCourse[];
   transactions: Types.ObjectId[] | ITransaction[];
 }
 const UserSchema: Schema<IUser> = new Schema({
@@ -45,7 +50,13 @@ const UserSchema: Schema<IUser> = new Schema({
     default: null,
   },
   isBlocked: { type: Boolean, default: false },
-  purchasedCourses: [{ type: Schema.Types.ObjectId, ref: "Course" }],
+  purchasedCourses: [
+    {
+      courseId: { type: Schema.Types.ObjectId, ref: "Course", required: true },
+      purchaseDate: { type: Date, required: true },
+      expiryDate: { type: Date, default: null },
+    },
+  ],
   transactions: [{ type: Schema.Types.ObjectId, ref: "Transaction" }],
   createdAt: { type: Date, default: Date.now },
 });

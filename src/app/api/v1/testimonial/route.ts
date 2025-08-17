@@ -1,4 +1,5 @@
 import connect from "@/lib/db";
+import { decodeJWT, verifyJWT } from "@/lib/jwt";
 import {
   createPaginationResponse,
   getPaginationOptions,
@@ -7,6 +8,7 @@ import {
 import { validateSchema } from "@/lib/schemaValidator";
 import { Course } from "@/models/Course";
 import { Testimonial } from "@/models/Testimonial";
+import { User } from "@/models/User";
 import { testimonialCreateSchema } from "@/types/schema";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -78,6 +80,32 @@ export const GET = async (req: NextRequest) => {
     const courseId = searchParams.get("courseId") || "";
     await connect();
 
+    // Check if user is authenticated to determine isPurchased status
+    let authenticatedUserId = null;
+    let purchasedCourses: any[] = [];
+    
+    const userToken = req.cookies.get("user_token")?.value;
+    if (userToken) {
+      try {
+        let parsedToken;
+        try {
+          parsedToken = JSON.parse(userToken);
+        } catch {
+          parsedToken = userToken;
+        }
+
+        if (await verifyJWT(parsedToken)) {
+          const decodedToken = await decodeJWT(parsedToken);
+          authenticatedUserId = decodedToken._id;
+          
+          const user = await User.findById(authenticatedUserId);
+          purchasedCourses = user?.purchasedCourses || [];
+        }
+      } catch (error) {
+        console.log("Token verification failed:", error);
+      }
+    }
+
     if (courseId) {
       const course = await Course.findOne({ _id: courseId });
 
@@ -99,6 +127,14 @@ export const GET = async (req: NextRequest) => {
       const result = await paginate(Testimonial, filter, {
         ...options,
         populate: "courseId",
+        computeFields: {
+          isPurchased: (testimonial: any) => {
+            if (!authenticatedUserId || !testimonial.courseId) return false;
+            return purchasedCourses.some(
+              (pc: any) => pc.courseId?.toString() === testimonial.courseId._id?.toString()
+            );
+          }
+        }
       });
 
       const data = createPaginationResponse(
@@ -116,6 +152,14 @@ export const GET = async (req: NextRequest) => {
       {
         ...options,
         populate: "courseId",
+        computeFields: {
+          isPurchased: (testimonial: any) => {
+            if (!authenticatedUserId || !testimonial.courseId) return false;
+            return purchasedCourses.some(
+              (pc: any) => pc.courseId?.toString() === testimonial.courseId._id?.toString()
+            );
+          }
+        }
       }
     );
 
