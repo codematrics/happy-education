@@ -30,8 +30,18 @@ interface ModalProps {
 }
 
 const defaultValues: TestimonialFormData = {
-  thumbnail: null,
-  video: null,
+  thumbnail: {
+    publicId: "",
+    url: "",
+  },
+  video: {
+    publicId: "",
+    format: "",
+    width: 0,
+    height: 0,
+    url: "",
+    duration: 0,
+  },
   courseId: [],
   selectedCourse: [],
 };
@@ -228,7 +238,6 @@ const UpdateModal: React.FC<ModalProps> = ({
               label="Video Thumbnail"
               accept=".jpg,.jpeg,.png,.gif,.webp"
               type="image"
-              placeholder="Upload Thumbnail"
               control={form.control}
               folder="testimonial-thumbnails"
             />

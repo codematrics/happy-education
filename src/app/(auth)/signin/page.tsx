@@ -56,7 +56,7 @@ const SignIn = () => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-6">
           <FormInput
-            label="Email or Mobile"
+            label="Email"
             name="identifier"
             type="email"
             placeholder="Enter your email"
@@ -85,12 +85,19 @@ const SignIn = () => {
           </div>
 
           <Button
+            disabled={isPending}
             type="submit"
             size="lg"
             className="w-full gradient-primary text-white border-0 shadow-medium hover:shadow-strong transition-smooth group"
           >
-            Sign In
-            <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-smooth" />
+            {isPending ? (
+              "Signing in..."
+            ) : (
+              <>
+                Sign In
+                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-smooth" />
+              </>
+            )}
           </Button>
         </form>
       </Form>

@@ -15,8 +15,6 @@ interface FormTextareaProps<T extends FieldValues> {
   label?: string;
   className?: string;
   placeholder?: string;
-  helperText?: string;
-  variant?: "default" | "outline";
   rows?: number;
 }
 
@@ -26,8 +24,6 @@ export function FormTextarea<T extends FieldValues>({
   label,
   className = "",
   placeholder,
-  helperText,
-  variant = "default",
   rows = 4,
 }: FormTextareaProps<T>) {
   return (

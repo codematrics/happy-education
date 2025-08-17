@@ -26,8 +26,18 @@ const CourseVideoManager = ({ form }: CourseVideoManagerProps) => {
     append({
       name: "",
       description: "",
-      thumbnail: "",
-      video: "",
+      thumbnail: {
+        publicId: "",
+        url: "",
+      },
+      video: {
+        publicId: "",
+        format: "",
+        width: 0,
+        height: 0,
+        url: "",
+        duration: 0,
+      },
     });
   };
 

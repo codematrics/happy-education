@@ -21,7 +21,7 @@ export default async function Testimonials({
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="p-6 space-y-6">
-        <AllTestimonial initialPage={page} initialSearch="" />
+        <AllTestimonial initialPage={page} />
       </div>
     </HydrationBoundary>
   );

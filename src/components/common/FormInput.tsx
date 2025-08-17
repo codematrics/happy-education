@@ -18,8 +18,6 @@ interface FormInputProps<T extends FieldValues> {
   type?: string;
   className?: string;
   placeholder?: string;
-  helperText?: string;
-  variant?: "default" | "outline";
   [key: string]: any;
 }
 
@@ -30,8 +28,6 @@ export function FormInput<T extends FieldValues>({
   type = "text",
   className = "",
   placeholder,
-  helperText,
-  variant = "default",
   ...props
 }: FormInputProps<T>) {
   const [showPassword, setShowPassword] = useState(false);

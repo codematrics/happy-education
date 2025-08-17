@@ -25,7 +25,7 @@ export const POST = async (req: NextRequest) => {
     let parsedToken;
     try {
       parsedToken = JSON.parse(userToken);
-    } catch (parseError) {
+    } catch {
       parsedToken = userToken;
     }
 
@@ -116,7 +116,7 @@ export const GET = async (req: NextRequest) => {
     let parsedToken;
     try {
       parsedToken = JSON.parse(userToken);
-    } catch (parseError) {
+    } catch {
       parsedToken = userToken;
     }
 
@@ -166,11 +166,14 @@ export const GET = async (req: NextRequest) => {
       }
 
       const totalVideos = course.courseVideos ? course.courseVideos.length : 0;
-      
+
       // Get user's progress for this course
       const videoProgresses = await VideoProgress.find({ userId, courseId });
-      const completedVideos = videoProgresses.filter((p) => p.isCompleted).length;
-      const progressPercentage = totalVideos > 0 ? Math.round((completedVideos / totalVideos) * 100) : 0;
+      const completedVideos = videoProgresses.filter(
+        (p) => p.isCompleted
+      ).length;
+      const progressPercentage =
+        totalVideos > 0 ? Math.round((completedVideos / totalVideos) * 100) : 0;
 
       const courseProgress = {
         totalVideos,
@@ -183,7 +186,7 @@ export const GET = async (req: NextRequest) => {
         totalVideos,
         completedVideos,
         progressPercentage,
-        videoProgressRecords: videoProgresses.length
+        videoProgressRecords: videoProgresses.length,
       });
 
       return NextResponse.json(

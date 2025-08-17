@@ -16,14 +16,8 @@ export const POST = async (req: NextRequest) => {
 
     validateSchema(signupUserValidations, body);
 
-    const {
-      email,
-      mobile,
-      password,
-      firstName,
-      lastName,
-      identifier,
-    }: SignUpUserFormData = body;
+    const { email, mobile, password, firstName, lastName }: SignUpUserFormData =
+      body;
 
     await connect();
 

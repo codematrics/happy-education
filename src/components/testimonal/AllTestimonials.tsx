@@ -9,11 +9,10 @@ import CourseCardSkeleton from "../skeleton/CourseCard";
 import TestimonialCard from "./TestimonialCard";
 
 interface Props {
-  initialSearch: string;
   initialPage: number;
 }
 
-const AllTestimonial: React.FC<Props> = ({ initialSearch, initialPage }) => {
+const AllTestimonial: React.FC<Props> = ({ initialPage }) => {
   const [page, setPage] = useState(initialPage);
   const [testimonials, setTestimonials] = useState<any[]>([]);
 

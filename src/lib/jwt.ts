@@ -9,7 +9,7 @@ export const verifyJWT = async (token: string): Promise<boolean> => {
   try {
     await jwt.verify(token, SECRET);
     return true;
-  } catch (err) {
+  } catch {
     return false;
   }
 };
@@ -19,7 +19,7 @@ export const assignJWT = async (
 ): Promise<string | null> => {
   try {
     return jwt.sign(payload, SECRET, { expiresIn: EXPIRES_IN });
-  } catch (err) {
+  } catch {
     return null;
   }
 };
@@ -28,7 +28,7 @@ export const decodeJWT = async <T = any>(token: string): Promise<T | null> => {
   try {
     const decoded = jwt.decode(token) as T | null;
     return decoded;
-  } catch (err) {
+  } catch {
     return null;
   }
 };

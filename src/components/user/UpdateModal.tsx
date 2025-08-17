@@ -54,7 +54,6 @@ const AddCourse = ({
   userId?: string | null;
 }) => {
   const [page, setPage] = useState(1);
-  const [allCourses, setAllCourses] = useState<Course[]>([]);
   const { data: courses, isLoading } = useCourses({
     page,
     limit: 10,
@@ -65,18 +64,6 @@ const AddCourse = ({
   const totalPages = courses?.data?.pagination?.totalPages || 1;
   const purchasedCourses: string[] = form.watch("purchasedCourses") || [];
   const selectedCourse: string[] = form.watch("selectedCourse") || [];
-
-  useEffect(() => {
-    if (courses?.data?.items) {
-      setAllCourses((prev) => {
-        const existingIds = new Set(prev.map((c) => c._id));
-        const newItems = courses.data.items.filter(
-          (c) => !existingIds.has(c._id)
-        );
-        return [...prev, ...newItems];
-      });
-    }
-  }, [courses]);
 
   const toggleCourse = (course: Course) => {
     const current = purchasedCourses || [];

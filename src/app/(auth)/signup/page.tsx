@@ -91,14 +91,14 @@ const SignUp = () => {
               label="First Name"
               name="firstName"
               type="text"
-              placeholder="Enter your first name"
+              placeholder="first name"
               control={form.control}
             />
             <FormInput
               label="Last Name"
               name="lastName"
               type="text"
-              placeholder="Enter your last name"
+              placeholder="last name"
               control={form.control}
             />
           </div>
@@ -133,8 +133,14 @@ const SignUp = () => {
             size="lg"
             className="w-full gradient-primary text-white border-0 shadow-medium hover:shadow-strong transition-smooth group"
           >
-            Continue with Email
-            <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-smooth" />
+            {isPending ? (
+              "Creating Account..."
+            ) : (
+              <>
+                Continue with Email
+                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-smooth" />
+              </>
+            )}
           </Button>
         </form>
       </Form>

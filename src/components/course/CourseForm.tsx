@@ -36,8 +36,18 @@ const defaultValues: CourseFormData = {
   name: "",
   description: "",
   benefits: [],
-  thumbnail: null,
-  previewVideo: null,
+  thumbnail: {
+    publicId: "",
+    url: "",
+  },
+  previewVideo: {
+    publicId: "",
+    format: "",
+    width: 0,
+    height: 0,
+    url: "",
+    duration: 0,
+  },
   price: 0,
   currency: CourseCurrency.dollar,
   courseVideos: [],
@@ -161,7 +171,6 @@ const CourseForm = ({ courseId }: CourseFormProps) => {
                   label="Course Thumbnail *"
                   accept="image/*"
                   control={form.control}
-                  placeholder="Upload Image"
                   type="image"
                   folder="course-thumbnails"
                 />
@@ -171,7 +180,6 @@ const CourseForm = ({ courseId }: CourseFormProps) => {
                   label="Preview Video"
                   accept="video/*"
                   control={form.control}
-                  placeholder="Upload Video"
                   type="video"
                   folder="course-preview-videos"
                 />

@@ -8,7 +8,6 @@ import { formatDate } from "@/utils/date";
 import { ColumnDef } from "@tanstack/react-table";
 import { Phone, Search } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { CustomPagination } from "../common/CustomPagination";
 import { CustomTable } from "../common/CustomTable";
@@ -82,7 +81,6 @@ const InquiryTable: React.FC<Props> = ({ initialSearch, initialPage }) => {
     sortBy: sortParams.sortBy,
     sortOrder: sortParams.sortOrder,
   });
-  const router = useRouter();
 
   const handleSearch = (value: string) => {
     setSearch(value);

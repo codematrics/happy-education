@@ -30,7 +30,6 @@ interface CourseCardProps {
   onViewVideos?: (courseId: string) => void;
   showMore?: boolean;
   onBuy?: (courseId: string) => void;
-  onContinue?: (courseId: string) => void;
   showBuy?: boolean;
   showContinue?: boolean;
   showBenefits?: boolean;
@@ -47,7 +46,6 @@ const CourseCard = ({
   onDelete,
   onViewVideos,
   onBuy,
-  onContinue,
   showBuy = true,
   showContinue = false,
   showMore = false,
@@ -57,7 +55,8 @@ const CourseCard = ({
   // Auto-determine button states based on isPurchased
   const isCoursePurchased = course.isPurchased;
   const shouldShowBuyButton = showBuy && !isCoursePurchased && !showMore;
-  const shouldShowContinueButton = (showContinue || isCoursePurchased) && !showMore;
+  const shouldShowContinueButton =
+    (showContinue || isCoursePurchased) && !showMore;
   const courseDropdownData: DropdownProps = {
     label: <MoreHorizontal className="h-4 w-4" />,
     options: [
