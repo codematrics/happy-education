@@ -43,7 +43,14 @@ const MyCourses = () => {
   const exploreCourses = exploreCoursesData?.data?.items || [];
 
   // Get progress data from API response
-  const getProgressForCourse = (course: any) => {
+  const getProgressForCourse = (course: { 
+    progress?: { 
+      progressPercentage: number; 
+      completedVideos: number; 
+      totalVideos: number; 
+    }; 
+    courseVideos?: any[]; 
+  }) => {
     if (course.progress) {
       return {
         percentage: course.progress.progressPercentage,
@@ -58,16 +65,7 @@ const MyCourses = () => {
     };
   };
 
-  const handleCourseView = (id: string) => {
-    router.push(`/course/${id}`);
-  };
-
   const handleCoursePurchase = (id: string) => {
-    router.push(`/course/${id}`);
-  };
-
-  const handleCourseAccess = (id: string) => {
-    // Navigate to video player for purchased courses
     router.push(`/course/${id}`);
   };
 

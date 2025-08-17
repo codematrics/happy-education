@@ -26,7 +26,7 @@ export const GET = async (req: NextRequest) => {
     const sortOrder = searchParams.get("sortOrder") || "desc";
 
     let userId = searchParams.get("userId");
-    const isIncludePurchased = searchParams.get("isIncludePurchased");
+    // const isIncludePurchased = searchParams.get("isIncludePurchased");
 
     const userToken = (await cookies()).get("user_token")?.value;
     const excludePurchased = searchParams.get("excludePurchased");
@@ -38,7 +38,7 @@ export const GET = async (req: NextRequest) => {
         let parsedToken;
         try {
           parsedToken = JSON.parse(userToken);
-        } catch (parseError) {
+        } catch {
           parsedToken = userToken;
         }
         
@@ -79,14 +79,14 @@ export const GET = async (req: NextRequest) => {
     }
 
     // Always include isPurchased field for consistency
-    let result = await paginate(Course, filter, {
+    const result = await paginate(Course, filter, {
       ...options,
       sort: sortObj,
       populate: "courseVideos",
       computeFields: {
-        isPurchased: (course) => 
+        isPurchased: (course: { _id: { toString: () => string } }) => 
           authenticatedUserId 
-            ? purchasedCourses.some((pc: any) => pc.toString() === course._id.toString())
+            ? purchasedCourses.some((pc: { toString: () => string }) => pc.toString() === course._id.toString())
             : false,
       },
     });

@@ -183,6 +183,7 @@ const ProfilePage = () => {
       <LoadingError
         isLoading={isLoading}
         error={error?.message}
+        errorTitle="Failed to load profile"
         onRetry={refetch}
         skeleton={
           <Card>
@@ -399,7 +400,7 @@ const ProfilePage = () => {
                     <div>
                       <h4 className="font-medium text-sm mb-2">Verify Your Account</h4>
                       <p className="text-sm text-muted-foreground mb-4">
-                        We'll send a verification code to <strong>{profile?.email}</strong>
+                        We&apos;ll send a verification code to <strong>{profile?.email}</strong>
                       </p>
                     </div>
 

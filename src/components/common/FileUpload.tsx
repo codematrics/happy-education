@@ -165,3 +165,122 @@ export function FormFileUpload<T extends FieldValues>({
     />
   );
 }
+
+// Simple file upload component for non-form usage
+interface FileUploadProps {
+  label: string;
+  accept: string;
+  type?: "image" | "video" | "file";
+  placeholder?: string;
+  onChange: (file: File | null, url?: string) => void;
+  value?: string;
+  className?: string;
+}
+
+export default function FileUpload({
+  label,
+  accept,
+  type = "file",
+  placeholder,
+  onChange,
+  value,
+  className,
+}: FileUploadProps) {
+  const [isDragging, setIsDragging] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = (file: File) => {
+    setUploadedFile(file);
+    const fileUrl = URL.createObjectURL(file);
+    onChange(file, fileUrl);
+  };
+
+  const clearFile = () => {
+    setUploadedFile(null);
+    onChange(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const getIcon = () => {
+    switch (type) {
+      case "image":
+        return <Image className="h-8 w-8 text-muted-foreground" />;
+      case "video":
+        return <Video className="h-8 w-8 text-muted-foreground" />;
+      default:
+        return <File className="h-8 w-8 text-muted-foreground" />;
+    }
+  };
+
+  return (
+    <div className={cn("space-y-2", className)}>
+      {label && <label className="text-sm font-medium">{label}</label>}
+      <div
+        className={cn(
+          "border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer",
+          isDragging
+            ? "border-primary bg-primary/5"
+            : "border-border hover:border-primary/50 hover:bg-muted/50"
+        )}
+        onDrop={(e) => {
+          e.preventDefault();
+          setIsDragging(false);
+          const files = e.dataTransfer.files;
+          if (files.length > 0) {
+            handleFileSelect(files[0]);
+          }
+        }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDragging(true);
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          setIsDragging(false);
+        }}
+        onClick={() => fileInputRef.current?.click()}
+      >
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={accept}
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              handleFileSelect(file);
+            }
+          }}
+        />
+
+        {uploadedFile || value ? (
+          <div className="flex items-center justify-center space-x-2">
+            {getIcon()}
+            <span>{uploadedFile?.name || "File selected"}</span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                clearFile();
+              }}
+              className="h-6 w-6 p-0"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center space-y-2 text-sm">
+            {getIcon()}
+            <span>Drop files here or click to upload</span>
+            {placeholder && (
+              <span className="text-xs text-muted-foreground">{placeholder}</span>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -77,10 +77,10 @@ VideoProgressSchema.statics.getCourseProgress = async function (
 ) {
   try {
     // Import mongoose to get the Course model
-    const mongoose = require("mongoose");
+    const mongoose = await import("mongoose");
     
     // Get the actual course to count total videos
-    const course = await mongoose.model("Course").findById(courseId).populate("courseVideos");
+    const course = await mongoose.default.model("Course").findById(courseId).populate("courseVideos");
     
     console.log("Course found:", !!course);
     console.log("Course videos:", course?.courseVideos?.length);
@@ -108,7 +108,7 @@ VideoProgressSchema.statics.getCourseProgress = async function (
 
     // Get user's progress for this course
     const progress = await this.find({ userId, courseId });
-    const completedVideos = progress.filter((p) => p.isCompleted).length;
+    const completedVideos = progress.filter((p: IVideoProgress) => p.isCompleted).length;
     const progressPercentage = Math.round((completedVideos / totalVideos) * 100);
 
     console.log("Progress calculation:", {

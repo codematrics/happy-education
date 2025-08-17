@@ -58,7 +58,7 @@ export const GET = async (
         let parsedToken;
         try {
           parsedToken = JSON.parse(userToken);
-        } catch (parseError) {
+        } catch {
           parsedToken = userToken;
         }
         
@@ -93,8 +93,8 @@ export const GET = async (
       const relatedCoursesWithPurchaseStatus = relatedCoursesData.map((relatedCourse) => ({
         ...relatedCourse.toObject(),
         isPurchased: userToken && authenticatedUserId
-          ? user?.purchasedCourses?.some((courseId: any) => 
-              courseId.toString() === relatedCourse._id.toString()
+          ? user?.purchasedCourses?.some((courseId: { toString: () => string }) => 
+              courseId.toString() === (relatedCourse._id as { toString: () => string }).toString()
             ) || false
           : false,
       }));

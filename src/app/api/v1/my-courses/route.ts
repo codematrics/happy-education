@@ -86,7 +86,7 @@ export const GET = async (req: NextRequest) => {
       const purchasedCourseIds = purchasedCourses.map((course: any) => course._id);
       console.log("Purchased course IDs:", purchasedCourseIds);
 
-      let filter: any = {
+      let filter: Record<string, any> = {
         _id: { $in: purchasedCourseIds }
       };
       console.log("Filter:", filter);
@@ -105,7 +105,7 @@ export const GET = async (req: NextRequest) => {
         };
       }
 
-      let result = await paginate(Course, filter, {
+      const result = await paginate(Course, filter, {
         ...options,
         sort: sortObj,
         populate: "courseVideos",

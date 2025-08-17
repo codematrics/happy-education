@@ -1,5 +1,6 @@
 "use client";
 
+import CustomImage from "@/components/common/CustomImage";
 import CustomVideo from "@/components/common/CustomVideo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -35,7 +36,7 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
   const selectedVideo = videos[selectedVideoIndex];
   
   // Fetch course progress from API
-  const { data: progressData, isLoading: progressLoading } = useCourseProgress(courseId);
+  const { data: progressData } = useCourseProgress(courseId);
   const updateProgressMutation = useUpdateVideoProgress();
 
   const courseProgress = progressData?.data?.courseProgress;
@@ -92,7 +93,7 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
     // Save progress every 10 seconds
     const interval = setInterval(saveProgress, 10000);
     return () => clearInterval(interval);
-  }, [selectedVideo, watchTime, courseId]);
+  }, [selectedVideo, watchTime, courseId, updateProgressMutation]);
 
   const handleVideoSelect = (index: number) => {
     setSelectedVideoIndex(index);
@@ -139,7 +140,7 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
         <div className="text-center">
           <PlayCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
           <h2 className="text-2xl font-semibold mb-2">No videos available</h2>
-          <p className="text-muted-foreground mb-4">This course doesn't have any videos yet.</p>
+          <p className="text-muted-foreground mb-4">This course doesn&apos;t have any videos yet.</p>
           <Button onClick={() => window.history.back()}>Go Back</Button>
         </div>
       </div>
@@ -287,7 +288,7 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
                       {/* Video Thumbnail */}
                       <div className="relative w-20 h-12 bg-muted rounded overflow-hidden flex-shrink-0">
                         {video.thumbnail && (
-                          <img
+                          <CustomImage
                             src={getAssetUrl(video.thumbnail)}
                             alt={video.name}
                             className="w-full h-full object-cover"
