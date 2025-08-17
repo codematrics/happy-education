@@ -15,6 +15,7 @@ export interface Course extends ICourse {
   _id: string;
   testimonials?: Testimonial[];
   relatedCourse?: Course[];
+  isPurchased?: boolean;
 }
 
 export interface User extends IUser {

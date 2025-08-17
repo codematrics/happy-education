@@ -1,12 +1,15 @@
 import { processFilesAndReturnUpdatedResults } from "@/lib/cloudinary";
 import connect from "@/lib/db";
 import { formDataToJson } from "@/lib/formDataParser";
+import { decodeJWT, verifyJWT } from "@/lib/jwt";
 import { validateSchema } from "@/lib/schemaValidator";
 import "@/models/Course";
 import { Course } from "@/models/Course";
 import { Testimonial } from "@/models/Testimonial";
+import { User } from "@/models/User";
 import { CourseVideoFormData, courseUpdateValidations } from "@/types/schema";
 import { Course as TypeOfCourse } from "@/types/types";
+import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (
@@ -43,6 +46,36 @@ export const GET = async (
         { status: 404 }
       );
     }
+
+    // Check if user is authenticated and has purchased this course
+    let isPurchased = false;
+    let user = null;
+    let authenticatedUserId = null;
+    const userToken = (await cookies()).get("user_token")?.value;
+    
+    if (userToken) {
+      try {
+        let parsedToken;
+        try {
+          parsedToken = JSON.parse(userToken);
+        } catch (parseError) {
+          parsedToken = userToken;
+        }
+        
+        if (await verifyJWT(parsedToken)) {
+          const decodedToken = await decodeJWT(parsedToken);
+          authenticatedUserId = decodedToken._id;
+          
+          user = await User.findById(authenticatedUserId);
+          isPurchased = user?.purchasedCourses?.some((courseId: any) => 
+            courseId.toString() === id
+          ) || false;
+        }
+      } catch (error) {
+        console.log("Token verification failed:", error);
+      }
+    }
+
     const testimonials = await Testimonial.find({
       courseId: { $in: [id] },
     }).populate("courseId");
@@ -50,13 +83,25 @@ export const GET = async (
     let result: TypeOfCourse = {
       ...course,
       testimonials: testimonials,
+      isPurchased: isPurchased,
     } as unknown as TypeOfCourse;
 
     if (relatedCourse) {
-      const relatedCourse = await Course.find({ _id: { $ne: id } }).limit(4);
+      const relatedCoursesData = await Course.find({ _id: { $ne: id } }).limit(4);
+      
+      // Add isPurchased field to related courses
+      const relatedCoursesWithPurchaseStatus = relatedCoursesData.map((relatedCourse) => ({
+        ...relatedCourse.toObject(),
+        isPurchased: userToken && authenticatedUserId
+          ? user?.purchasedCourses?.some((courseId: any) => 
+              courseId.toString() === relatedCourse._id.toString()
+            ) || false
+          : false,
+      }));
+      
       result = {
         ...result,
-        relatedCourse: relatedCourse,
+        relatedCourse: relatedCoursesWithPurchaseStatus,
       } as unknown as TypeOfCourse;
     }
 

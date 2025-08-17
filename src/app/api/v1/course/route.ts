@@ -30,9 +30,26 @@ export const GET = async (req: NextRequest) => {
 
     const userToken = (await cookies()).get("user_token")?.value;
     const excludePurchased = searchParams.get("excludePurchased");
-    if (userToken && (await verifyJWT(JSON.parse(userToken)))) {
-      const decodedToken = await decodeJWT(JSON.parse(userToken));
-      userId = decodedToken._id;
+    
+    // Check if user is authenticated
+    let authenticatedUserId = null;
+    if (userToken) {
+      try {
+        let parsedToken;
+        try {
+          parsedToken = JSON.parse(userToken);
+        } catch (parseError) {
+          parsedToken = userToken;
+        }
+        
+        if (await verifyJWT(parsedToken)) {
+          const decodedToken = await decodeJWT(parsedToken);
+          authenticatedUserId = decodedToken._id;
+          if (!userId) userId = authenticatedUserId;
+        }
+      } catch (error) {
+        console.log("Token verification failed:", error);
+      }
     }
 
     let filter = {};
@@ -48,27 +65,30 @@ export const GET = async (req: NextRequest) => {
     const sortObj: Record<string, 1 | -1> = {};
     sortObj[sortBy] = sortOrder === "asc" ? 1 : -1;
 
-    const purchasedCourses = userId
-      ? (await User.findOne({ _id: userId }))?.purchasedCourses || []
+    // Get purchased courses for authenticated user
+    const purchasedCourses = authenticatedUserId
+      ? (await User.findOne({ _id: authenticatedUserId }))?.purchasedCourses || []
       : [];
 
-    if (userId && excludePurchased) {
+    // If excluding purchased courses, filter them out
+    if (authenticatedUserId && excludePurchased) {
       filter = {
         ...filter,
         _id: { $nin: purchasedCourses?.map((c: any) => c._id) || [] },
       };
     }
 
+    // Always include isPurchased field for consistency
     let result = await paginate(Course, filter, {
       ...options,
       sort: sortObj,
       populate: "courseVideos",
-      computeFields:
-        isIncludePurchased || userId
-          ? {
-              isPurchased: (course) => purchasedCourses.includes(course._id),
-            }
-          : {},
+      computeFields: {
+        isPurchased: (course) => 
+          authenticatedUserId 
+            ? purchasedCourses.some((pc: any) => pc.toString() === course._id.toString())
+            : false,
+      },
     });
 
     const data = createPaginationResponse(

@@ -26,15 +26,16 @@ const Hero = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/courses">
-                <Button
-                  size="lg"
-                  className="gradient-primary text-white border-0 shadow-medium hover:shadow-strong transition-smooth group"
-                >
+              <Button
+                size="lg"
+                className="gradient-primary text-white border-0 shadow-medium hover:shadow-strong transition-smooth group"
+                asChild
+              >
+                <Link href="/courses">
                   View Trending Courses
                   <TrendingUp className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-smooth" />
-                </Button>
-              </Link>
+                </Link>
+              </Button>
               <Button
                 size="lg"
                 variant="outline"

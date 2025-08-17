@@ -30,6 +30,7 @@ interface CourseCardProps {
   onViewVideos?: (courseId: string) => void;
   showMore?: boolean;
   onBuy?: (courseId: string) => void;
+  onContinue?: (courseId: string) => void;
   showBuy?: boolean;
   showContinue?: boolean;
   showBenefits?: boolean;
@@ -46,12 +47,17 @@ const CourseCard = ({
   onDelete,
   onViewVideos,
   onBuy,
+  onContinue,
   showBuy = true,
   showContinue = false,
   showMore = false,
   showBenefits = true,
   progress,
 }: CourseCardProps) => {
+  // Auto-determine button states based on isPurchased
+  const isCoursePurchased = course.isPurchased;
+  const shouldShowBuyButton = showBuy && !isCoursePurchased && !showMore;
+  const shouldShowContinueButton = (showContinue || isCoursePurchased) && !showMore;
   const courseDropdownData: DropdownProps = {
     label: <MoreHorizontal className="h-4 w-4" />,
     options: [
@@ -184,18 +190,18 @@ const CourseCard = ({
 
       <CardFooter className="p-4 pt-0 justify-self-end">
         <div className="flex items-center justify-between w-full gap-2">
-          {!showContinue && (
+          {!shouldShowContinueButton && (
             <span className="text-xl font-bold text-primary">
               {formatPrice(course.price, course.currency)}
             </span>
           )}
           <div
             className={`flex items-center gap-2 ${
-              showContinue ? "w-full" : ""
+              shouldShowContinueButton ? "w-full" : ""
             }`}
           >
-            {/* Continue Learning Buttons for My Courses */}
-            {showContinue && (
+            {/* Continue Learning Buttons for Purchased Courses */}
+            {shouldShowContinueButton && (
               <>
                 <Button
                   className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
@@ -218,8 +224,8 @@ const CourseCard = ({
               </>
             )}
 
-            {/* Regular Buy/View Buttons for Course Catalog */}
-            {showBuy && onBuy && !showContinue && (
+            {/* Regular Buy/View Buttons for Non-Purchased Courses */}
+            {shouldShowBuyButton && onBuy && (
               <>
                 <Button
                   asChild
