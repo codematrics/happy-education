@@ -33,9 +33,7 @@ const UserSchema: Schema<IUser> = new Schema({
   otpGenerationTime: { type: Date, default: null },
   mobileNumber: {
     type: String,
-    unique: true,
-    sparse: true,
-    set: (v: string) => (v?.trim() === "" ? null : v),
+    default: null,
   },
   isVerified: { type: Boolean, default: false },
   password: { type: String, required: true },

@@ -22,6 +22,21 @@ export const getCourses = (
   return fetcher(`/api/v1/course?page=${page}&limit=${limit}&search=${search}`);
 };
 
+export const getMyCourses = (
+  page: number = 1,
+  limit: number = 10,
+  search: string = ""
+): Promise<
+  ResponseInterface<{
+    items: Course[];
+    pagination: PaginationResult<CourseFormData>["pagination"];
+  }>
+> => {
+  return fetcher(
+    `/api/v1/my-courses?page=${page}&limit=${limit}&search=${search}`
+  );
+};
+
 export const getTestimonial = (
   page: number = 1,
   limit: number = 10

@@ -23,6 +23,7 @@ interface FetchCoursesParams {
   sortOrder?: "asc" | "desc";
   userId?: string | null;
   isIncludePurchased?: boolean;
+  excludePurchased?: boolean;
 }
 
 export const useCourses = (
@@ -45,6 +46,7 @@ export const useCourses = (
       params.sortOrder || "desc",
       params.userId || "",
       params.isIncludePurchased || false,
+      params.excludePurchased || false,
     ],
     [
       params.page,
@@ -54,6 +56,7 @@ export const useCourses = (
       params.sortOrder,
       params.userId,
       params.isIncludePurchased,
+      params.excludePurchased,
     ]
   );
 
@@ -77,6 +80,8 @@ export const useCourses = (
           String(params.isIncludePurchased)
         );
       if (params.userId) searchParams.set("userId", params.userId);
+      if (params.excludePurchased)
+        searchParams.set("excludePurchased", String(params.excludePurchased));
 
       return fetcher<
         ResponseInterface<{

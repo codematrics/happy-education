@@ -29,6 +29,7 @@ export const GET = async (req: NextRequest) => {
     const isIncludePurchased = searchParams.get("isIncludePurchased");
 
     const userToken = (await cookies()).get("user_token")?.value;
+    const excludePurchased = searchParams.get("excludePurchased");
     if (userToken && (await verifyJWT(JSON.parse(userToken)))) {
       const decodedToken = await decodeJWT(JSON.parse(userToken));
       userId = decodedToken._id;
@@ -50,6 +51,13 @@ export const GET = async (req: NextRequest) => {
     const purchasedCourses = userId
       ? (await User.findOne({ _id: userId }))?.purchasedCourses || []
       : [];
+
+    if (userId && excludePurchased) {
+      filter = {
+        ...filter,
+        _id: { $nin: purchasedCourses?.map((c: any) => c._id) || [] },
+      };
+    }
 
     let result = await paginate(Course, filter, {
       ...options,

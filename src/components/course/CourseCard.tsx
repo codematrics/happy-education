@@ -7,6 +7,7 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { getAssetUrl } from "@/lib/assetUtils";
 import { Course, DropdownProps } from "@/types/types";
 import {
@@ -14,6 +15,7 @@ import {
   Edit,
   Eye,
   MoreHorizontal,
+  Play,
   Trash2,
   Video,
 } from "lucide-react";
@@ -28,8 +30,15 @@ interface CourseCardProps {
   onViewVideos?: (courseId: string) => void;
   showMore?: boolean;
   onBuy?: (courseId: string) => void;
+  onContinue?: (courseId: string) => void;
   showBuy?: boolean;
+  showContinue?: boolean;
   showBenefits?: boolean;
+  progress?: {
+    percentage: number;
+    completedLessons: number;
+    totalLessons: number;
+  };
 }
 
 const CourseCard = ({
@@ -38,9 +47,12 @@ const CourseCard = ({
   onDelete,
   onViewVideos,
   onBuy,
+  onContinue,
   showBuy = true,
+  showContinue = false,
   showMore = false,
   showBenefits = true,
+  progress,
 }: CourseCardProps) => {
   const courseDropdownData: DropdownProps = {
     label: <MoreHorizontal className="h-4 w-4" />,
@@ -141,6 +153,26 @@ const CourseCard = ({
             </div>
           )}
 
+          {/* Progress Section for My Courses */}
+          {progress && showContinue && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Progress</span>
+                <span className="font-medium">{progress.percentage}%</span>
+              </div>
+              <Progress value={progress.percentage} className="h-2" />
+              <div className="flex items-center justify-between text-sm text-muted-foreground">
+                <span>
+                  {progress.completedLessons}/{progress.totalLessons} lessons
+                </span>
+                <div className="flex items-center space-x-1">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <span>{progress.completedLessons} completed</span>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="flex items-center justify-between">
             <Badge variant="secondary" className="text-xs">
               {getVideoCount()} videos
@@ -154,30 +186,56 @@ const CourseCard = ({
 
       <CardFooter className="p-4 pt-0 justify-self-end">
         <div className="flex items-center justify-between w-full gap-2">
-          <span className="text-xl font-bold text-primary">
-            {formatPrice(course.price, course.currency)}
-          </span>
-          <div className="flex items-center gap-2">
-            {showBuy && onBuy && (
-              <Button
-                asChild
-                variant="outline"
-                size="sm"
-                onClick={() => onBuy(course._id)}
-                className="hover:bg-primary hover:text-primary-foreground transition-colors"
-              >
-                <Link href={`/course/${course._id}`}>View Details</Link>
-              </Button>
+          {!showContinue && (
+            <span className="text-xl font-bold text-primary">
+              {formatPrice(course.price, course.currency)}
+            </span>
+          )}
+          <div className={`flex items-center gap-2 ${showContinue ? 'w-full' : ''}`}>
+            {/* Continue Learning Buttons for My Courses */}
+            {showContinue && onContinue && (
+              <>
+                <Button
+                  onClick={() => onContinue(course._id)}
+                  className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+                  size="sm"
+                >
+                  <Play className="w-4 h-4 mr-2" />
+                  Continue
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="hover:bg-primary hover:text-primary-foreground transition-colors"
+                >
+                  <Link href={`/course/${course._id}`}>Details</Link>
+                </Button>
+              </>
             )}
-            {showBuy && onBuy && (
-              <Button
-                size="sm"
-                onClick={() => onBuy(course._id)}
-                className="hover:bg-primary hover:text-primary-foreground transition-colors"
-              >
-                Buy Course
-              </Button>
+            
+            {/* Regular Buy/View Buttons for Course Catalog */}
+            {showBuy && onBuy && !showContinue && (
+              <>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="hover:bg-primary hover:text-primary-foreground transition-colors"
+                >
+                  <Link href={`/course/${course._id}`}>View Details</Link>
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => onBuy(course._id)}
+                  className="hover:bg-primary hover:text-primary-foreground transition-colors"
+                >
+                  Buy Course
+                </Button>
+              </>
             )}
+            
+            {/* Admin Edit Button */}
             {showMore && onEdit && (
               <Button
                 variant="outline"

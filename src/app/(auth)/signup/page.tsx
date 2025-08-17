@@ -47,8 +47,6 @@ const SignUp = () => {
     });
   };
 
-  console.log("Form values:", form.getValues(), form.formState.errors);
-
   return (
     <>
       <div className="text-center mb-8">
