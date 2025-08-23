@@ -8,6 +8,7 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { useResendOtp, useVerifyOtp } from "@/hooks/useAuth";
+import { getCookie } from "@/lib/cookie";
 import { Toast } from "@/lib/toast";
 import { OtpFormData, otpValidations } from "@/types/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -39,11 +40,9 @@ const OTPVerification = () => {
 
   // Determine OTP type from cookies on client side
   useEffect(() => {
-    const checkOtpType = () => {
-      const hasSignupToken = document.cookie.includes("user_otp_token");
-      const hasForgotPassToken = document.cookie.includes(
-        "user_forgot_pass_token"
-      );
+    const checkOtpType = async () => {
+      const hasSignupToken = await getCookie("user_otp_token");
+      const hasForgotPassToken = await getCookie("user_forgot_pass_token");
 
       if (hasSignupToken) {
         setOtpType("signup");
