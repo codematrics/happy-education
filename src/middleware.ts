@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { verifyJWT } from "./lib/jwt";
+import { verifyEdgeJWT } from "./lib/edgeJwt";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -11,10 +11,11 @@ export async function middleware(request: NextRequest) {
   const isAdminLogin = pathname === "/admin/login";
   const isAdminRoute = pathname.startsWith("/admin") && !isAdminLogin;
 
-  const adminToken = request.cookies.get("admin_token")?.value;
-  const hasValidAdminToken = adminToken ? await verifyJWT(adminToken) : false;
+  const adminTokenRaw = request.cookies.get("admin_token")?.value;
+  const adminToken = adminTokenRaw ? JSON.parse(adminTokenRaw) : null;
+  const hasValidAdminToken = adminToken ? await verifyEdgeJWT(adminToken, true) : false;
 
-  if (adminToken && !hasValidAdminToken) {
+  if (adminTokenRaw && !hasValidAdminToken) {
     response.cookies.delete("admin_token");
   }
 
@@ -30,18 +31,16 @@ export async function middleware(request: NextRequest) {
   const isOtpPage = pathname === "/otp";
   const isNewPasswordPage = pathname === "/new-password";
 
-  const otpTokenRaw = request.cookies.get("user_otp_token")?.value;
+  const userOtpToken = request.cookies.get("user_otp_token")?.value;
   const forgotPassToken = request.cookies.get("user_forgot_pass_token")?.value;
 
-  const userOtpToken = otpTokenRaw ? await JSON.parse(otpTokenRaw) : null;
-
-  const hasValidOtpToken = userOtpToken ? await verifyJWT(userOtpToken) : false;
+  const hasValidOtpToken = userOtpToken ? await verifyEdgeJWT(userOtpToken) : false;
   const hasValidForgotPassToken = forgotPassToken
-    ? await verifyJWT(forgotPassToken)
+    ? await verifyEdgeJWT(forgotPassToken)
     : false;
-  console.log(userOtpToken, hasValidOtpToken, await verifyJWT(userOtpToken));
+  console.log(userOtpToken, hasValidOtpToken, await verifyEdgeJWT(userOtpToken));
 
-  if (otpTokenRaw && !hasValidOtpToken) {
+  if (userOtpToken && !hasValidOtpToken) {
     response.cookies.delete("user_otp_token");
   }
 
@@ -50,11 +49,11 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isOtpPage && !hasValidOtpToken && !hasValidForgotPassToken) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(new URL("/signin", request.url));
   }
 
   if (isNewPasswordPage && !hasValidForgotPassToken) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(new URL("/signin", request.url));
   }
 
   return response;

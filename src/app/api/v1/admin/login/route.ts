@@ -40,7 +40,7 @@ export const POST = async (req: NextRequest) => {
       _id: process.env.ADMIN_USERNAME,
       isAdmin: true,
       username: userName,
-    });
+    }, true);
 
     if (!jwt) {
       return NextResponse.json(

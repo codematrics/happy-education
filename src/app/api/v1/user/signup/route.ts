@@ -68,7 +68,7 @@ const postController = async (req: NextRequest) => {
       return response.error("Something Went wrong. Please Try Again!", 500);
     }
 
-    (await cookies()).set("user_otp_token", JSON.stringify(jwt), {
+    (await cookies()).set("user_otp_token", jwt, {
       httpOnly: process.env.NODE_ENV === "production",
       expires: new Date(Date.now() + 5 * 60 * 1000),
     });
