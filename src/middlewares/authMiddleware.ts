@@ -1,10 +1,14 @@
-import { Roles } from "@/types/constants";
-import { NextRequest, NextResponse } from "next/server";
+import {
+  getAdminDataFromTokenJose,
+  getUserDataFromTokenJose,
+} from "@/lib/jose";
 import { getAdminDataFromToken, getUserDataFromToken } from "@/lib/jwt";
 import { IUser, User } from "@/models/User";
+import { Roles } from "@/types/constants";
+import { Admin } from "@/types/types";
 import { response } from "@/utils/response";
 import { cookies } from "next/headers";
-import { Admin } from "@/types/types";
+import { NextRequest, NextResponse } from "next/server";
 export const authMiddleware = async (
   req: NextRequest,
   requiredRoles: Roles[] = [],
@@ -15,8 +19,8 @@ export const authMiddleware = async (
   optional: boolean = false
 ) => {
   try {
-    const userToken = await getUserDataFromToken(req);
-    const adminToken = await getAdminDataFromToken(req);
+    const userToken = await getUserDataFromTokenJose(req);
+    const adminToken = await getAdminDataFromTokenJose(req);
 
     const needsUser = requiredRoles.includes(Roles.user);
     const needsAdmin = requiredRoles.includes(Roles.admin);
