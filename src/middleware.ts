@@ -39,6 +39,7 @@ export function middleware(request: NextRequest) {
   const hasValidForgotPassToken = forgotPassToken
     ? verifyJWT(forgotPassToken)
     : false;
+  console.log(userOtpToken, hasValidOtpToken);
 
   if (otpTokenRaw && !hasValidOtpToken) {
     response.cookies.delete("user_otp_token");
