@@ -7,9 +7,9 @@ import { emailTemplate } from "@/utils/email";
 import { generate4DigitOTP } from "@/utils/otp";
 import { response } from "@/utils/response";
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
-export const postController = async (req: NextRequest) => {
+const postController = async (req: NextRequest) => {
   try {
     // Check for both signup and forgot password tokens
     const signupToken = JSON.parse(

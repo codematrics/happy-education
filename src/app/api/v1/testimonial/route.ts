@@ -8,14 +8,14 @@ import { validateSchema } from "@/lib/schemaValidator";
 import { authMiddleware } from "@/middlewares/authMiddleware";
 import { Course } from "@/models/Course";
 import { Testimonial } from "@/models/Testimonial";
-import { IPurchasedCourse, IUser, User } from "@/models/User";
+import { IPurchasedCourse, IUser } from "@/models/User";
 import { Roles } from "@/types/constants";
 import { testimonialCreateSchema } from "@/types/schema";
 import { Admin } from "@/types/types";
 import { response } from "@/utils/response";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
-export const postController = async (req: NextRequest) => {
+const postController = async (req: NextRequest) => {
   try {
     const json = await req.json();
 
@@ -43,7 +43,7 @@ export const postController = async (req: NextRequest) => {
   }
 };
 
-export const getController = async (
+const getController = async (
   req: NextRequest,
   { admin, user }: { user?: IUser; admin?: Admin }
 ) => {

@@ -291,7 +291,9 @@ const CourseVideoLine = ({
                 {showPlaylist ? "Hide" : "Show"}
               </Button>
             </div>
-            <div className="text-sm text-muted-foreground">{course.name}</div>
+            <div className="text-sm text-muted-foreground">
+              {course?.course?.name}
+            </div>
           </div>
 
           <div className="overflow-y-auto max-h-[calc(100vh-200px)]">

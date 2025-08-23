@@ -12,7 +12,7 @@ import { response } from "@/utils/response";
 import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 
-export const getController = async (
+const getController = async (
   req: NextRequest,
   {
     transactionId,
@@ -69,7 +69,11 @@ export const getController = async (
       : null;
 
     if (!receiptHTML) {
-      const receiptData = createReceiptData(transaction, course, transactionUser);
+      const receiptData = createReceiptData(
+        transaction,
+        course,
+        transactionUser
+      );
       receiptHTML = generateReceiptHTML(receiptData);
     }
 
@@ -126,7 +130,6 @@ function generateReceiptToken(transactionId: string, orderId: string): string {
     .digest("hex")
     .substring(0, 32);
 }
-
 
 export const GET = (
   req: NextRequest,

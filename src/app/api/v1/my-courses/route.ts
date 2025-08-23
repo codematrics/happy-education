@@ -14,7 +14,7 @@ import { response } from "@/utils/response";
 import { Types } from "mongoose";
 import { NextRequest } from "next/server";
 
-export const getController = async (
+const getController = async (
   req: NextRequest,
   { admin, user }: { admin?: Admin; user?: IUser }
 ) => {

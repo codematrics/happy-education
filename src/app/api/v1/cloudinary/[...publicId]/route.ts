@@ -12,7 +12,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export async function deleteController(
+async function deleteController(
   req: NextRequest,
   { fullSlug, admin }: { fullSlug: string; admin?: Admin }
 ) {

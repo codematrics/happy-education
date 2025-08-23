@@ -1,19 +1,17 @@
 import connect from "@/lib/db";
-import { decodeJWT, verifyJWT } from "@/lib/jwt";
 import { validateSchema } from "@/lib/schemaValidator";
 import { authMiddleware } from "@/middlewares/authMiddleware";
 import "@/models/Course";
 import { Course } from "@/models/Course";
 import { Testimonial } from "@/models/Testimonial";
-import { IPurchasedCourse, IUser, User } from "@/models/User";
+import { IPurchasedCourse, IUser } from "@/models/User";
 import { Roles } from "@/types/constants";
 import { courseUpdateValidations } from "@/types/schema";
 import { Admin, Course as TypeOfCourse } from "@/types/types";
 import { response } from "@/utils/response";
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-export const getController = async (
+const getController = async (
   req: NextRequest,
   { id, admin, user }: { id: string; admin?: Admin; user?: IUser }
 ) => {
@@ -79,7 +77,7 @@ export const getController = async (
   }
 };
 
-export const putController = async (
+const putController = async (
   req: NextRequest,
   { id, admin, user }: { id: string; admin?: Admin; user?: IUser }
 ) => {
@@ -116,7 +114,7 @@ export const putController = async (
   }
 };
 
-export const deleteController = async (
+const deleteController = async (
   req: NextRequest,
   { id, admin, user }: { id: string; admin?: Admin; user?: IUser }
 ) => {

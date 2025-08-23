@@ -1,5 +1,4 @@
 import connect from "@/lib/db";
-import { decodeJWT, verifyJWT } from "@/lib/jwt";
 import { authMiddleware } from "@/middlewares/authMiddleware";
 import "@/models/Course";
 import { Transaction } from "@/models/Transaction";
@@ -8,7 +7,7 @@ import { Roles } from "@/types/constants";
 import { response } from "@/utils/response";
 import { NextRequest, NextResponse } from "next/server";
 
-export const getController = async (req: NextRequest) => {
+const getController = async (req: NextRequest) => {
   try {
     await connect();
 
@@ -178,7 +177,7 @@ export const getController = async (req: NextRequest) => {
   }
 };
 
-export const postController = async (req: NextRequest) => {
+const postController = async (req: NextRequest) => {
   try {
     await connect();
 

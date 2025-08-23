@@ -1,18 +1,17 @@
 import { calculateExpiryDate } from "@/lib/courseAccessMiddleware";
 import connect from "@/lib/db";
-import { assignUserToken } from "@/lib/jwt";
 import {
   createReceiptData,
   generateReceiptHTML,
   saveReceiptToCloudinary,
 } from "@/lib/pdfGenerator";
 import { Course } from "@/models/Course";
-import { ITransaction, Transaction } from "@/models/Transaction";
+import { Transaction } from "@/models/Transaction";
 import { User } from "@/models/User";
-import { NextRequest, NextResponse } from "next/server";
-import crypto from "crypto";
 import { response } from "@/utils/response";
+import crypto from "crypto";
 import { Types } from "mongoose";
+import { NextRequest, NextResponse } from "next/server";
 
 /* -------------------- Razorpay Signature Verification -------------------- */
 function verifyRazorpaySignature(
@@ -34,9 +33,7 @@ function verifyRazorpaySignature(
 }
 
 /* -------------------- Main Payment Verification -------------------- */
-export const postController = async (
-  req: NextRequest
-): Promise<NextResponse> => {
+const postController = async (req: NextRequest): Promise<NextResponse> => {
   try {
     await connect();
 
@@ -61,9 +58,7 @@ export const postController = async (
       return response.error("Invalid payment signature", 400);
     }
 
-    const transaction = await Transaction.findByOrderId(
-      razorpay_order_id
-    );
+    const transaction = await Transaction.findByOrderId(razorpay_order_id);
     if (!transaction) return response.error("Transaction not found", 404);
 
     const course = await Course.findById(transaction.courseId);

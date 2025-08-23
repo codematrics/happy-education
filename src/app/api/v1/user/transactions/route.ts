@@ -1,16 +1,12 @@
 import connect from "@/lib/db";
-import { decodeJWT, verifyJWT } from "@/lib/jwt";
 import { authMiddleware } from "@/middlewares/authMiddleware";
 import { Transaction } from "@/models/Transaction";
 import { IUser } from "@/models/User";
 import { Roles } from "@/types/constants";
 import { response } from "@/utils/response";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
-export const getController = async (
-  req: NextRequest,
-  { user }: { user?: IUser }
-) => {
+const getController = async (req: NextRequest, { user }: { user?: IUser }) => {
   try {
     await connect();
 

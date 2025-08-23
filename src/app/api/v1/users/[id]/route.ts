@@ -4,13 +4,12 @@ import { validateSchema } from "@/lib/schemaValidator";
 import { authMiddleware } from "@/middlewares/authMiddleware";
 import "@/models/CourseVideo";
 import { IUser, User } from "@/models/User";
-import { Roles } from "@/types/constants";
 import { userUpdateValidations } from "@/types/schema";
 import { Admin } from "@/types/types";
 import { response } from "@/utils/response";
 import { NextRequest, NextResponse } from "next/server";
 
-export const putController = async (
+const putController = async (
   req: NextRequest,
   { id, admin, user }: { id: string; user?: IUser; admin?: Admin }
 ) => {

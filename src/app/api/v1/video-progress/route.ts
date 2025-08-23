@@ -1,18 +1,13 @@
 import connect from "@/lib/db";
-import { decodeJWT, verifyJWT } from "@/lib/jwt";
 import { authMiddleware } from "@/middlewares/authMiddleware";
 import { Course } from "@/models/Course";
 import { IUser } from "@/models/User";
 import { VideoProgress } from "@/models/VideoProgress";
 import { Roles } from "@/types/constants";
 import { response } from "@/utils/response";
-import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
-export const postController = async (
-  req: NextRequest,
-  { user }: { user?: IUser }
-) => {
+const postController = async (req: NextRequest, { user }: { user?: IUser }) => {
   try {
     await connect();
 
@@ -53,10 +48,7 @@ export const postController = async (
   }
 };
 
-export const getController = async (
-  req: NextRequest,
-  { user }: { user?: IUser }
-) => {
+const getController = async (req: NextRequest, { user }: { user?: IUser }) => {
   try {
     await connect();
 

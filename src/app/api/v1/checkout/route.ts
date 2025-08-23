@@ -13,7 +13,7 @@ import { Types } from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 import Razorpay from "razorpay";
 
-export const postController = async (
+const postController = async (
   req: NextRequest,
   { user, admin }: { user?: IUser; admin?: Admin }
 ): Promise<NextResponse> => {
@@ -28,7 +28,10 @@ export const postController = async (
 
     const course = await Course.findById(courseId);
     if (!course) {
-      return response.error("There is no course related to your selection!", 404);
+      return response.error(
+        "There is no course related to your selection!",
+        404
+      );
     }
 
     if (course.accessType === "free") {
@@ -47,7 +50,10 @@ export const postController = async (
       }
     } else {
       if (!userEmail) {
-        return response.error("Please provide your email to purchase this course", 400);
+        return response.error(
+          "Please provide your email to purchase this course",
+          400
+        );
       }
 
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -74,7 +80,8 @@ export const postController = async (
         const hashedPassword = await hashValue(generatedPassword);
 
         const emailPrefix = userEmail.split("@")[0];
-        const firstName = emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
+        const firstName =
+          emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
 
         purchasingUser = await User.create({
           firstName,
@@ -101,7 +108,9 @@ export const postController = async (
     });
 
     const amountInPaise = Math.round(course.price * 100);
-    const orderId = `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const orderId = `order_${Date.now()}_${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
 
     const orderOptions = {
       amount: amountInPaise,
@@ -123,7 +132,9 @@ export const postController = async (
 
     const razorpayOrder = await razorpay.orders.create(orderOptions);
 
-    const paymentId = `payment_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const paymentId = `payment_${Date.now()}_${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
 
     const transactionData = {
       paymentId,

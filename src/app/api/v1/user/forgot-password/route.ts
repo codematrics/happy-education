@@ -1,18 +1,17 @@
 import connect from "@/lib/db";
 import { assignJWT } from "@/lib/jwt";
 import { validateSchema } from "@/lib/schemaValidator";
-import { authMiddleware, noAuthMiddleware } from "@/middlewares/authMiddleware";
+import { noAuthMiddleware } from "@/middlewares/authMiddleware";
 import { User } from "@/models/User";
 import { sendMail } from "@/services/email";
-import { Roles } from "@/types/constants";
 import { forgotPasswordValidations } from "@/types/schema";
 import { emailTemplate } from "@/utils/email";
 import { generate4DigitOTP } from "@/utils/otp";
 import { response } from "@/utils/response";
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
-export const postController = async (req: NextRequest) => {
+const postController = async (req: NextRequest) => {
   try {
     const json = await req.json();
 

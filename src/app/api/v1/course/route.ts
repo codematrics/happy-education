@@ -14,10 +14,7 @@ import { Admin } from "@/types/types";
 import { response } from "@/utils/response";
 import { NextRequest } from "next/server";
 
-export const getController = async (
-  req: NextRequest,
-  { user }: { user?: IUser }
-) => {
+const getController = async (req: NextRequest, { user }: { user?: IUser }) => {
   try {
     await connect();
 
@@ -79,7 +76,7 @@ export const getController = async (
   }
 };
 
-export const postController = async (
+const postController = async (
   req: NextRequest,
   { admin }: { admin?: Admin }
 ) => {

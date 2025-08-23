@@ -1,6 +1,5 @@
 import { hashValue } from "@/lib/bcrypt";
 import connect from "@/lib/db";
-import { formDataToJson } from "@/lib/formDataParser";
 import {
   createPaginationResponse,
   getPaginationOptions,
@@ -12,9 +11,9 @@ import { User } from "@/models/User";
 import { Roles } from "@/types/constants";
 import { userCreateValidations } from "@/types/schema";
 import { response } from "@/utils/response";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
-export const getController = async (req: NextRequest) => {
+const getController = async (req: NextRequest) => {
   try {
     await connect();
 
@@ -73,7 +72,7 @@ export const getController = async (req: NextRequest) => {
   }
 };
 
-export const postController = async (req: NextRequest) => {
+const postController = async (req: NextRequest) => {
   try {
     const json = await req.json();
 

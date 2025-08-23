@@ -1,9 +1,9 @@
 import { noAuthMiddleware } from "@/middlewares/authMiddleware";
 import { response } from "@/utils/response";
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
-export const postController = async () => {
+const postController = async () => {
   try {
     // Clear user authentication cookies
     const cookieStore = await cookies();

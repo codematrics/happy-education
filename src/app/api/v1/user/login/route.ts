@@ -7,9 +7,9 @@ import { User } from "@/models/User";
 import { LoginUserFormData, loginUserValidations } from "@/types/schema";
 import { response } from "@/utils/response";
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
-export const postController = async (req: NextRequest) => {
+const postController = async (req: NextRequest) => {
   try {
     const body = await req.json();
 

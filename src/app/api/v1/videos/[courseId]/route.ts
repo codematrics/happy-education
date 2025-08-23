@@ -7,7 +7,7 @@ import { Admin } from "@/types/types";
 import { response } from "@/utils/response";
 import { NextRequest, NextResponse } from "next/server";
 
-export const getController = async (
+const getController = async (
   req: NextRequest,
   { course, user }: { course: ICourse; user?: IUser }
 ) => {
