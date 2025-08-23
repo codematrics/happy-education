@@ -11,7 +11,8 @@ const EXPIRES_IN = "7d";
 
 export const verifyJWT = async (token: string): Promise<boolean> => {
   try {
-    await jwt.verify(token, SECRET);
+    const result = await jwt.verify(token, SECRET);
+    console.log("result", result);
     return true;
   } catch {
     return false;
