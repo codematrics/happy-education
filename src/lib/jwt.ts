@@ -6,14 +6,19 @@ import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
-const ADMIN_SECRET = process.env.ADMIN_JWT_SECRET as string;
-const USER_SECRET = process.env.USER_JWT_SECRET as string;
+const JWT_SECRET = process.env.JWT_SECRET as string;
 const EXPIRES_IN = "7d";
 
-export const verifyJWT = async (token: string, isAdmin: boolean = false): Promise<boolean> => {
+export const verifyJWT = async (
+  token: string,
+  isAdmin: boolean = false
+): Promise<boolean> => {
   try {
-    const secret = isAdmin ? ADMIN_SECRET : USER_SECRET;
-    console.log("Verifying JWT:", { isAdmin, hasAdminSecret: !!ADMIN_SECRET, hasUserSecret: !!USER_SECRET, tokenLength: token?.length });
+    const secret = JWT_SECRET;
+    console.log("Verifying JWT:", {
+      isAdmin,
+      tokenLength: token?.length,
+    });
     const result = await jwt.verify(token, secret);
     console.log("JWT verification result:", result);
     return true;
@@ -28,8 +33,11 @@ export const assignJWT = async (
   isAdmin: boolean = false
 ): Promise<string | null> => {
   try {
-    const secret = isAdmin ? ADMIN_SECRET : USER_SECRET;
-    return jwt.sign(payload, secret, { expiresIn: EXPIRES_IN });
+    const secret = JWT_SECRET;
+    return jwt.sign(payload, secret, {
+      expiresIn: EXPIRES_IN,
+      algorithm: "HS256",
+    });
   } catch {
     return null;
   }

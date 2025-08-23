@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { verifyEdgeJWT } from "./lib/edgeJwt";
+import { verifyJWTJose } from "./lib/jose";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -12,9 +12,9 @@ export async function middleware(request: NextRequest) {
   const isAdminRoute = pathname.startsWith("/admin") && !isAdminLogin;
 
   const adminTokenRaw = request.cookies.get("admin_token")?.value;
-  const adminToken = adminTokenRaw ? JSON.parse(adminTokenRaw) : null;
+  const adminToken = adminTokenRaw ? adminTokenRaw : null;
   const hasValidAdminToken = adminToken
-    ? await verifyEdgeJWT(adminToken, true)
+    ? await verifyJWTJose(adminToken, true)
     : false;
 
   if (adminTokenRaw && !hasValidAdminToken) {
@@ -37,10 +37,10 @@ export async function middleware(request: NextRequest) {
   const forgotPassToken = request.cookies.get("user_forgot_pass_token")?.value;
 
   const hasValidOtpToken = userOtpToken
-    ? await verifyEdgeJWT(userOtpToken)
+    ? await verifyJWTJose(userOtpToken)
     : false;
   const hasValidForgotPassToken = forgotPassToken
-    ? await verifyEdgeJWT(forgotPassToken)
+    ? await verifyJWTJose(forgotPassToken)
     : false;
 
   if (userOtpToken && !hasValidOtpToken) {
