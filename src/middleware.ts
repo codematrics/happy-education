@@ -13,7 +13,9 @@ export async function middleware(request: NextRequest) {
 
   const adminTokenRaw = request.cookies.get("admin_token")?.value;
   const adminToken = adminTokenRaw ? JSON.parse(adminTokenRaw) : null;
-  const hasValidAdminToken = adminToken ? await verifyEdgeJWT(adminToken, true) : false;
+  const hasValidAdminToken = adminToken
+    ? await verifyEdgeJWT(adminToken, true)
+    : false;
 
   if (adminTokenRaw && !hasValidAdminToken) {
     response.cookies.delete("admin_token");
@@ -34,11 +36,12 @@ export async function middleware(request: NextRequest) {
   const userOtpToken = request.cookies.get("user_otp_token")?.value;
   const forgotPassToken = request.cookies.get("user_forgot_pass_token")?.value;
 
-  const hasValidOtpToken = userOtpToken ? await verifyEdgeJWT(userOtpToken) : false;
+  const hasValidOtpToken = userOtpToken
+    ? await verifyEdgeJWT(userOtpToken)
+    : false;
   const hasValidForgotPassToken = forgotPassToken
     ? await verifyEdgeJWT(forgotPassToken)
     : false;
-  console.log(userOtpToken, hasValidOtpToken, await verifyEdgeJWT(userOtpToken));
 
   if (userOtpToken && !hasValidOtpToken) {
     response.cookies.delete("user_otp_token");
