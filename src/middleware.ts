@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { verifyJWT } from "./lib/jwt";
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const response = NextResponse.next(); // default response for continuation
@@ -12,7 +12,7 @@ export function middleware(request: NextRequest) {
   const isAdminRoute = pathname.startsWith("/admin") && !isAdminLogin;
 
   const adminToken = request.cookies.get("admin_token")?.value;
-  const hasValidAdminToken = adminToken ? verifyJWT(adminToken) : false;
+  const hasValidAdminToken = adminToken ? await verifyJWT(adminToken) : false;
 
   if (adminToken && !hasValidAdminToken) {
     response.cookies.delete("admin_token");
@@ -33,11 +33,11 @@ export function middleware(request: NextRequest) {
   const otpTokenRaw = request.cookies.get("user_otp_token")?.value;
   const forgotPassToken = request.cookies.get("user_forgot_pass_token")?.value;
 
-  const userOtpToken = otpTokenRaw ? JSON.parse(otpTokenRaw) : null;
+  const userOtpToken = otpTokenRaw ? await JSON.parse(otpTokenRaw) : null;
 
-  const hasValidOtpToken = userOtpToken ? verifyJWT(userOtpToken) : false;
+  const hasValidOtpToken = userOtpToken ? await verifyJWT(userOtpToken) : false;
   const hasValidForgotPassToken = forgotPassToken
-    ? verifyJWT(forgotPassToken)
+    ? await verifyJWT(forgotPassToken)
     : false;
   console.log(userOtpToken, hasValidOtpToken);
 
