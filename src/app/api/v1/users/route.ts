@@ -7,23 +7,24 @@ import {
   paginate,
 } from "@/lib/pagination";
 import { validateSchema } from "@/lib/schemaValidator";
+import { authMiddleware } from "@/middlewares/authMiddleware";
 import { User } from "@/models/User";
+import { Roles } from "@/types/constants";
 import { userCreateValidations } from "@/types/schema";
+import { response } from "@/utils/response";
 import { NextRequest, NextResponse } from "next/server";
 
-export const GET = async (req: NextRequest) => {
+export const getController = async (req: NextRequest) => {
   try {
     await connect();
 
     const searchParams = req.nextUrl.searchParams;
     const options = getPaginationOptions(searchParams);
 
-    // Get search and sort parameters
     const search = searchParams.get("search") || "";
     const sortBy = searchParams.get("sortBy") || "createdAt";
     const sortOrder = searchParams.get("sortOrder") || "desc";
 
-    // Build search filter
     let filter = {};
     if (search) {
       filter = {
@@ -65,24 +66,16 @@ export const GET = async (req: NextRequest) => {
       "Users fetched successfully"
     );
 
-    return NextResponse.json(data, { status: 200 });
+    return response.paginatedResponse(data, 200);
   } catch (error) {
     console.error("Error fetching users:", error);
-    return NextResponse.json(
-      {
-        data: null,
-        message: "Internal Server Error",
-        status: false,
-      },
-      { status: 500 }
-    );
+    return response.error("Internal Server Error", 500);
   }
 };
 
-export const POST = async (req: NextRequest) => {
+export const postController = async (req: NextRequest) => {
   try {
-    const formData = await req.formData();
-    const json = formDataToJson(formData);
+    const json = await req.json();
 
     validateSchema(userCreateValidations, json);
 
@@ -100,23 +93,15 @@ export const POST = async (req: NextRequest) => {
       isBlocked,
     });
 
-    return NextResponse.json(
-      {
-        data: user,
-        message: "User created successfully",
-        status: true,
-      },
-      { status: 201 }
-    );
+    return response.success(user, "User Created Successfully", 201);
   } catch (error) {
     console.error("Error creating user:", error);
-    return NextResponse.json(
-      {
-        data: null,
-        message: "Internal Server Error",
-        status: false,
-      },
-      { status: 500 }
-    );
+    return response.error("Internal Server Error", 500);
   }
 };
+
+export const POST = async (req: NextRequest) =>
+  authMiddleware(req, [Roles.admin], postController);
+
+export const GET = async (req: NextRequest) =>
+  authMiddleware(req, [Roles.admin], getController);

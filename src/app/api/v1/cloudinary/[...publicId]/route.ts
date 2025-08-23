@@ -1,3 +1,8 @@
+import { authMiddleware } from "@/middlewares/authMiddleware";
+import { IUser } from "@/models/User";
+import { Roles } from "@/types/constants";
+import { Admin } from "@/types/types";
+import { response } from "@/utils/response";
 import { v2 as cloudinary } from "cloudinary";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -7,17 +12,11 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export async function DELETE(
+export async function deleteController(
   req: NextRequest,
-  { params }: { params: Promise<{ publicId: string }> }
+  { fullSlug, admin }: { fullSlug: string; admin?: Admin }
 ) {
   try {
-    const { publicId } = await params;
-    const fullSlug = Array.isArray(publicId) ? publicId.join("/") : publicId;
-    if (!fullSlug) {
-      return NextResponse.json({ error: "Missing publicId" }, { status: 400 });
-    }
-
     let resourceType = "image";
     if (fullSlug.match(/\.(mp4|avi|mov|mkv)$/i)) {
       resourceType = "video";
@@ -27,11 +26,37 @@ export async function DELETE(
       resource_type: resourceType,
     });
 
-    return NextResponse.json(result);
+    return response.success(result, "File has been deleted successfully", 200);
   } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message || "Failed to delete file" },
-      { status: 500 }
-    );
+    return response.error(error.message || "Something went wrong", 501);
   }
 }
+
+export const DELETE = async (
+  req: NextRequest,
+  { params }: { params: Promise<{ publicId: string | string[] }> }
+) =>
+  await authMiddleware(
+    req,
+    [Roles.admin],
+    async (
+      r: NextRequest,
+      context: {
+        user?: IUser;
+        admin?: Admin;
+      }
+    ) => {
+      const { publicId } = await params;
+      const fullSlug = Array.isArray(publicId) ? publicId.join("/") : publicId;
+      if (!fullSlug) {
+        return NextResponse.json(
+          { error: "Please provide a valid publicId" },
+          { status: 400 }
+        );
+      }
+      return await deleteController(r, {
+        fullSlug,
+        admin: context?.admin,
+      });
+    }
+  );

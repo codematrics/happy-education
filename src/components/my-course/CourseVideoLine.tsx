@@ -7,36 +7,37 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import useMyCourseVideos from "@/hooks/useCourseVideo";
-import { useCourseProgress, useUpdateVideoProgress } from "@/hooks/useVideoProgress";
+import {
+  useCourseProgress,
+  useUpdateVideoProgress,
+} from "@/hooks/useVideoProgress";
 import { getAssetUrl } from "@/lib/assetUtils";
 import { CourseVideo } from "@/types/types";
-import {
-  CheckCircle,
-  Clock,
-  List,
-  Play,
-  PlayCircle,
-} from "lucide-react";
+import { CheckCircle, Clock, List, Play, PlayCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 interface CourseVideoLineProps {
   courseId: string;
+  isAuthenticated: boolean;
 }
 
-const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
+const CourseVideoLine = ({
+  courseId,
+  isAuthenticated,
+}: CourseVideoLineProps) => {
   const { data, isLoading, error } = useMyCourseVideos(courseId);
   const course = data?.data;
-  const videos = (data?.data?.courseVideos as CourseVideo[]) || [];
-  
+  const videos = (data?.data?.course?.courseVideos as CourseVideo[]) || [];
+
   const [selectedVideoIndex, setSelectedVideoIndex] = useState(0);
   const [showPlaylist, setShowPlaylist] = useState(true);
   const [watchTime, setWatchTime] = useState(0);
 
   const selectedVideo = videos[selectedVideoIndex];
-  
+
   // Fetch course progress from API
-  const { data: progressData } = useCourseProgress(courseId);
+  const { data: progressData } = useCourseProgress(courseId, isAuthenticated);
   const updateProgressMutation = useUpdateVideoProgress();
 
   const courseProgress = progressData?.data?.courseProgress;
@@ -44,7 +45,7 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
 
   // Get completed video IDs from API
   const completedVideoIds = new Set(
-    videoProgresses.filter(p => p.isCompleted).map(p => p.videoId)
+    videoProgresses.filter((p) => p.isCompleted).map((p) => p.videoId)
   );
 
   const completionPercentage = courseProgress?.progressPercentage || 0;
@@ -52,28 +53,31 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
   const handleVideoComplete = (videoId: string) => {
-    const video = videos.find(v => v._id === videoId);
+    const video = videos.find((v) => v._id === videoId);
     if (!video) return;
 
-    updateProgressMutation.mutate({
-      courseId,
-      videoId,
-      watchTime: video.video.duration, // Mark as fully watched
-      totalDuration: video.video.duration,
-      isCompleted: true,
-    }, {
-      onSuccess: () => {
-        toast.success("Video marked as complete!");
+    updateProgressMutation.mutate(
+      {
+        courseId,
+        videoId,
+        watchTime: video.video.duration, // Mark as fully watched
+        totalDuration: video.video.duration,
+        isCompleted: true,
       },
-      onError: (error) => {
-        toast.error("Failed to update progress");
-        console.error("Progress update error:", error);
-      },
-    });
+      {
+        onSuccess: () => {
+          toast.success("Video marked as complete!");
+        },
+        onError: (error) => {
+          toast.error("Failed to update progress");
+          console.error("Progress update error:", error);
+        },
+      }
+    );
   };
 
   // Auto-save progress periodically during video playback
@@ -127,7 +131,9 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-semibold mb-2">Course not found</h2>
-          <p className="text-muted-foreground mb-4">Unable to load course videos.</p>
+          <p className="text-muted-foreground mb-4">
+            Unable to load course videos.
+          </p>
           <Button onClick={() => window.history.back()}>Go Back</Button>
         </div>
       </div>
@@ -140,7 +146,9 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
         <div className="text-center">
           <PlayCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
           <h2 className="text-2xl font-semibold mb-2">No videos available</h2>
-          <p className="text-muted-foreground mb-4">This course doesn&apos;t have any videos yet.</p>
+          <p className="text-muted-foreground mb-4">
+            This course doesn&apos;t have any videos yet.
+          </p>
           <Button onClick={() => window.history.back()}>Go Back</Button>
         </div>
       </div>
@@ -151,9 +159,13 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
     <div className="min-h-screen bg-background">
       <div className="flex flex-col lg:flex-row relative">
         {/* Main Video Player Area */}
-        <div className={`flex-1 p-4 lg:p-6 transition-all duration-300 ${showPlaylist ? 'lg:mr-0' : 'lg:mr-0'}`}>
+        <div
+          className={`flex-1 p-4 lg:p-6 transition-all duration-300 ${
+            showPlaylist ? "lg:mr-0" : "lg:mr-0"
+          }`}
+        >
           {/* Video Player */}
-          <div className="aspect-video bg-black rounded-xl overflow-hidden mb-6">
+          <div className="aspect-video bg-black rounded-xl overflow-hidden mb-6 ">
             {selectedVideo && (
               <CustomVideo
                 src={getAssetUrl(selectedVideo.video)}
@@ -174,9 +186,12 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
               <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
                 <span className="flex items-center gap-1">
                   <Clock className="h-4 w-4" />
-                  {selectedVideo && formatDuration(selectedVideo.video.duration)}
+                  {selectedVideo &&
+                    formatDuration(selectedVideo.video.duration)}
                 </span>
-                <span>Video {selectedVideoIndex + 1} of {videos.length}</span>
+                <span>
+                  Video {selectedVideoIndex + 1} of {videos.length}
+                </span>
               </div>
             </div>
 
@@ -186,7 +201,8 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-semibold">Course Progress</h3>
                   <span className="text-sm text-muted-foreground">
-                    {courseProgress?.completedVideos || 0} of {courseProgress?.totalVideos || videos.length} completed
+                    {courseProgress?.completedVideos || 0} of{" "}
+                    {courseProgress?.totalVideos || videos.length} completed
                   </span>
                 </div>
                 <Progress value={completionPercentage} className="mb-2" />
@@ -216,22 +232,27 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
               >
                 Previous Video
               </Button>
-              <Button
-                onClick={() => handleVideoComplete(selectedVideo?._id || '')}
-                disabled={completedVideoIds.has(selectedVideo?._id || '') || updateProgressMutation.isPending}
-                className="flex-1"
-              >
-                {completedVideoIds.has(selectedVideo?._id || '') ? (
-                  <>
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Completed
-                  </>
-                ) : updateProgressMutation.isPending ? (
-                  'Updating...'
-                ) : (
-                  'Mark as Complete'
-                )}
-              </Button>
+              {isAuthenticated && (
+                <Button
+                  onClick={() => handleVideoComplete(selectedVideo?._id || "")}
+                  disabled={
+                    completedVideoIds.has(selectedVideo?._id || "") ||
+                    updateProgressMutation.isPending
+                  }
+                  className="flex-1"
+                >
+                  {completedVideoIds.has(selectedVideo?._id || "") ? (
+                    <>
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Completed
+                    </>
+                  ) : updateProgressMutation.isPending ? (
+                    "Updating..."
+                  ) : (
+                    "Mark as Complete"
+                  )}
+                </Button>
+              )}
               <Button
                 onClick={handleNextVideo}
                 disabled={selectedVideoIndex === videos.length - 1}
@@ -244,13 +265,17 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
         </div>
 
         {/* Video Playlist Sidebar */}
-        <div className={`
-          ${showPlaylist ? 'block' : 'hidden lg:block'} 
+        <div
+          className={`
+          ${showPlaylist ? "block" : "hidden lg:block"} 
           w-full lg:w-96 bg-card border-l 
           fixed lg:relative inset-y-0 right-0 z-50 lg:z-auto
           transition-transform duration-300 ease-in-out
-          ${showPlaylist ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
-        `}>
+          ${
+            showPlaylist ? "translate-x-0" : "translate-x-full lg:translate-x-0"
+          }
+        `}
+        >
           <div className="p-4 border-b">
             <div className="flex items-center justify-between mb-2">
               <h2 className="font-semibold flex items-center gap-2">
@@ -263,12 +288,10 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
                 onClick={() => setShowPlaylist(!showPlaylist)}
                 className="lg:hidden"
               >
-                {showPlaylist ? 'Hide' : 'Show'}
+                {showPlaylist ? "Hide" : "Show"}
               </Button>
             </div>
-            <div className="text-sm text-muted-foreground">
-              {course.name}
-            </div>
+            <div className="text-sm text-muted-foreground">{course.name}</div>
           </div>
 
           <div className="overflow-y-auto max-h-[calc(100vh-200px)]">
@@ -281,7 +304,9 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
                   <button
                     onClick={() => handleVideoSelect(index)}
                     className={`w-full p-4 text-left hover:bg-muted/50 transition-colors ${
-                      isSelected ? 'bg-primary/10 border-r-2 border-primary' : ''
+                      isSelected
+                        ? "bg-primary/10 border-r-2 border-primary"
+                        : ""
                     }`}
                   >
                     <div className="flex items-start gap-3">
@@ -294,7 +319,7 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
                             className="w-full h-full object-cover"
                           />
                         )}
-                        
+
                         {/* Status Overlay */}
                         <div className="absolute inset-0 flex items-center justify-center">
                           {isCompleted ? (
@@ -305,7 +330,7 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
                             <PlayCircle className="h-4 w-4 text-muted-foreground" />
                           )}
                         </div>
-                        
+
                         {/* Duration */}
                         <div className="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1 rounded">
                           {formatDuration(video.video.duration)}
@@ -322,9 +347,11 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
                             <CheckCircle className="h-3 w-3 text-green-600" />
                           )}
                         </div>
-                        <h4 className={`font-medium text-sm line-clamp-2 mb-1 ${
-                          isSelected ? 'text-primary' : ''
-                        }`}>
+                        <h4
+                          className={`font-medium text-sm line-clamp-2 mb-1 ${
+                            isSelected ? "text-primary" : ""
+                          }`}
+                        >
                           {video.name}
                         </h4>
                         <p className="text-xs text-muted-foreground line-clamp-2">
@@ -343,7 +370,7 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
 
       {/* Mobile Backdrop */}
       {showPlaylist && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={() => setShowPlaylist(false)}
         />
@@ -357,7 +384,7 @@ const CourseVideoLine = ({ courseId }: CourseVideoLineProps) => {
         className="fixed bottom-4 right-4 lg:hidden z-50 shadow-lg"
       >
         <List className="h-4 w-4 mr-2" />
-        {showPlaylist ? 'Hide' : 'Show'} Playlist
+        {showPlaylist ? "Hide" : "Show"} Playlist
       </Button>
     </div>
   );

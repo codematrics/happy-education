@@ -2,15 +2,17 @@ import { hashValue } from "@/lib/bcrypt";
 import connect from "@/lib/db";
 import { assignJWT } from "@/lib/jwt";
 import { validateSchema } from "@/lib/schemaValidator";
+import { noAuthMiddleware } from "@/middlewares/authMiddleware";
 import { User } from "@/models/User";
 import { sendMail } from "@/services/email";
 import { SignUpUserFormData, signupUserValidations } from "@/types/schema";
 import { emailTemplate } from "@/utils/email";
 import { generate4DigitOTP } from "@/utils/otp";
+import { response } from "@/utils/response";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-export const POST = async (req: NextRequest) => {
+export const postController = async (req: NextRequest) => {
   try {
     const body = await req.json();
 
@@ -36,14 +38,7 @@ export const POST = async (req: NextRequest) => {
     });
 
     if (existingUser) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "You are already registered. Please Login!",
-          status: false,
-        },
-        { status: 404 }
-      );
+      return response.error("You are already registered. Please Login!", 404);
     }
 
     const otp = generate4DigitOTP();
@@ -70,14 +65,7 @@ export const POST = async (req: NextRequest) => {
     const jwt = await assignJWT({ _id: newUser._id });
 
     if (!jwt) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Something Went wrong. Please Try Again!",
-          status: false,
-        },
-        { status: 500 }
-      );
+      return response.error("Something Went wrong. Please Try Again!", 500);
     }
 
     (await cookies()).set("user_otp_token", JSON.stringify(jwt), {
@@ -90,23 +78,12 @@ export const POST = async (req: NextRequest) => {
       expires: new Date(Date.now() + 5 * 60 * 1000),
     });
 
-    return NextResponse.json(
-      {
-        data: null,
-        message: "You are Signed up successfully",
-        status: true,
-      },
-      { status: 200 }
-    );
+    return response.success(null, "You are Signed up successfully", 200);
   } catch (error) {
     console.error("SignUp error:", error);
-    return NextResponse.json(
-      {
-        data: null,
-        message: "Internal Server Error",
-        status: false,
-      },
-      { status: 500 }
-    );
+    return response.error("Internal Server Error", 500);
   }
 };
+
+export const POST = async (req: NextRequest) =>
+  noAuthMiddleware(req, postController);

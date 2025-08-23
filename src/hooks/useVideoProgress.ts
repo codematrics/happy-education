@@ -32,12 +32,16 @@ interface CourseProgressResponse {
 export const useVideoProgress = (courseId?: string, videoId?: string) => {
   return useQuery({
     queryKey: ["videoProgress", courseId, videoId],
-    queryFn: async (): Promise<{ data: VideoProgressResponse | CourseProgressResponse }> => {
+    queryFn: async (): Promise<{
+      data: VideoProgressResponse | CourseProgressResponse;
+    }> => {
       const params = new URLSearchParams();
       if (courseId) params.append("courseId", courseId);
       if (videoId) params.append("videoId", videoId);
-      
-      const response = await fetch(`/api/v1/video-progress?${params.toString()}`);
+
+      const response = await fetch(
+        `/api/v1/video-progress?${params.toString()}`
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch video progress");
       }
@@ -47,17 +51,22 @@ export const useVideoProgress = (courseId?: string, videoId?: string) => {
   });
 };
 
-export const useCourseProgress = (courseId: string) => {
+export const useCourseProgress = (
+  courseId: string,
+  isAuthenticated: boolean
+) => {
   return useQuery({
     queryKey: ["courseProgress", courseId],
     queryFn: async (): Promise<{ data: CourseProgressResponse }> => {
-      const response = await fetch(`/api/v1/video-progress?courseId=${courseId}`);
+      const response = await fetch(
+        `/api/v1/video-progress?courseId=${courseId}`
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch course progress");
       }
       return response.json();
     },
-    enabled: !!courseId,
+    enabled: !!courseId && isAuthenticated,
   });
 };
 

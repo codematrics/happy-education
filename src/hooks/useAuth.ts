@@ -10,7 +10,12 @@ import {
   SignUpUserFormData,
 } from "@/types/schema";
 import { ResponseInterface } from "@/types/types";
-import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  UseQueryResult,
+} from "@tanstack/react-query";
 
 const postAdminAPI = async (data: LoginAdminFormData) => {
   const res = await fetcher("/api/v1/admin/login", {
@@ -86,8 +91,15 @@ export const useAdminLogin = () => {
 };
 
 export const useLogin = () => {
+  const queryClient = useQueryClient();
   return useMutation<unknown, Error, LoginUserFormData>({
     mutationFn: (data: LoginUserFormData) => postUserAPI(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["auth-check"],
+        stale: false,
+      });
+    },
   });
 };
 
@@ -135,8 +147,15 @@ export const useResendOtp = () => {
 };
 
 export const useSignup = () => {
+  const queryClient = useQueryClient();
   return useMutation<unknown, Error, SignUpUserFormData>({
     mutationFn: (data: SignUpUserFormData) => postUserSignupAPI(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["auth-check"],
+        stale: false,
+      });
+    },
   });
 };
 

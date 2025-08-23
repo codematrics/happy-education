@@ -189,17 +189,13 @@ const CourseCard = ({
       </CardContent>
 
       <CardFooter className="p-4 pt-0 justify-self-end">
-        <div className="flex items-center justify-between w-full gap-2">
+        <div className="flex flex-col items-start justify-between w-full gap-2">
           {!shouldShowContinueButton && (
             <span className="text-xl font-bold text-primary">
               {formatPrice(course.price, course.currency)}
             </span>
           )}
-          <div
-            className={`flex items-center gap-2 ${
-              shouldShowContinueButton ? "w-full" : ""
-            }`}
-          >
+          <div className={`flex items-center gap-2 w-full`}>
             {/* Continue Learning Buttons for Purchased Courses */}
             {shouldShowContinueButton && (
               <>
@@ -227,6 +223,12 @@ const CourseCard = ({
             {/* Regular Buy/View Buttons for Non-Purchased Courses */}
             {shouldShowBuyButton && (
               <>
+                <BuyButton
+                  course={course}
+                  size="sm"
+                  showPrice={false}
+                  className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+                />
                 <Button
                   asChild
                   variant="outline"
@@ -235,12 +237,6 @@ const CourseCard = ({
                 >
                   <Link href={`/course/${course._id}`}>View Details</Link>
                 </Button>
-                <BuyButton
-                  course={course}
-                  size="sm"
-                  showPrice={false}
-                  className="hover:bg-primary hover:text-primary-foreground transition-colors"
-                />
               </>
             )}
 

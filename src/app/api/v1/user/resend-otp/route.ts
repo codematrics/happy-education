@@ -1,13 +1,15 @@
 import connect from "@/lib/db";
 import { assignJWT, decodeJWT, verifyJWT } from "@/lib/jwt";
+import { noAuthMiddleware } from "@/middlewares/authMiddleware";
 import { User } from "@/models/User";
 import { sendMail } from "@/services/email";
 import { emailTemplate } from "@/utils/email";
 import { generate4DigitOTP } from "@/utils/otp";
+import { response } from "@/utils/response";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-export const POST = async (req: NextRequest) => {
+export const postController = async (req: NextRequest) => {
   try {
     // Check for both signup and forgot password tokens
     const signupToken = JSON.parse(
@@ -37,26 +39,18 @@ export const POST = async (req: NextRequest) => {
     }
 
     if (!activeToken) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Invalid or expired session. Please restart the process.",
-          status: false,
-        },
-        { status: 401 }
+      return response.error(
+        "Invalid or expired session. Please restart the process.",
+        401
       );
     }
 
     const decodedJWT = await decodeJWT<{ _id: string }>(activeToken);
 
     if (!decodedJWT?._id) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Invalid or expired session",
-          status: false,
-        },
-        { status: 401 }
+      return response.error(
+        "Invalid or expired session. Please restart the process.",
+        401
       );
     }
 
@@ -65,14 +59,7 @@ export const POST = async (req: NextRequest) => {
     const user = await User.findOne({ _id: decodedJWT._id });
 
     if (!user) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "User not found",
-          status: false,
-        },
-        { status: 404 }
-      );
+      return response.error("User not found.", 404);
     }
 
     // Generate new OTP
@@ -87,14 +74,7 @@ export const POST = async (req: NextRequest) => {
     const newJwt = await assignJWT({ _id: user._id });
 
     if (!newJwt) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Something went wrong. Please try again!",
-          status: false,
-        },
-        { status: 500 }
-      );
+      return response.error("Something went wrong. Please try again!", 500);
     }
 
     // Update the appropriate cookie with new JWT
@@ -115,23 +95,12 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    return NextResponse.json(
-      {
-        data: null,
-        message: "OTP resent successfully",
-        status: true,
-      },
-      { status: 200 }
-    );
+    return response.success(null, "OTP resent successfully", 200);
   } catch (err) {
     console.error("Resend OTP error:", err);
-    return NextResponse.json(
-      {
-        data: null,
-        message: "Internal Server Error",
-        status: false,
-      },
-      { status: 500 }
-    );
+    return response.error("Internal Server Error", 500);
   }
 };
+
+export const POST = async (req: NextRequest) =>
+  noAuthMiddleware(req, postController);

@@ -24,6 +24,8 @@ interface CheckoutModalProps {
   onClose: () => void;
   course: Course;
   isLoggedIn: boolean;
+  onComplete: () => void;
+  onStart: () => void;
 }
 
 const CheckoutModal = ({
@@ -31,6 +33,8 @@ const CheckoutModal = ({
   onClose,
   course,
   isLoggedIn,
+  onComplete,
+  onStart,
 }: CheckoutModalProps) => {
   const [userEmail, setUserEmail] = useState("");
   const [step, setStep] = useState<"details" | "payment">("details");
@@ -250,6 +254,9 @@ const CheckoutModal = ({
                 setStep("details");
               }}
               onBack={() => setStep("details")}
+              onClose={onClose}
+              onComplete={onComplete}
+              onStart={onStart}
             />
           )}
         </div>

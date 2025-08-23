@@ -90,7 +90,7 @@ export const useCreateUser = () => {
         `/api/v1/users`,
         {
           method: "POST",
-          body: jsonToFormData(data),
+          body: data,
         }
       );
       return response;

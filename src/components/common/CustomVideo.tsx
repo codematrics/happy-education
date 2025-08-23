@@ -46,7 +46,7 @@ const CustomVideo: React.FC<Props> = ({
     const percent =
       (videoRef.current.currentTime / videoRef.current.duration) * 100;
     setProgress(percent);
-    
+
     // Call the onTimeUpdate callback if provided
     if (onTimeUpdate) {
       onTimeUpdate(videoRef.current.currentTime, videoRef.current.duration);

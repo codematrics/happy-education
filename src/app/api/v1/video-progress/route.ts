@@ -1,63 +1,30 @@
 import connect from "@/lib/db";
 import { decodeJWT, verifyJWT } from "@/lib/jwt";
+import { authMiddleware } from "@/middlewares/authMiddleware";
 import { Course } from "@/models/Course";
+import { IUser } from "@/models/User";
 import { VideoProgress } from "@/models/VideoProgress";
+import { Roles } from "@/types/constants";
+import { response } from "@/utils/response";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-export const POST = async (req: NextRequest) => {
+export const postController = async (
+  req: NextRequest,
+  { user }: { user?: IUser }
+) => {
   try {
     await connect();
 
-    const userToken = (await cookies()).get("user_token")?.value;
-
-    if (!userToken) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Unauthorized",
-          status: false,
-        },
-        { status: 401 }
-      );
-    }
-
-    let parsedToken;
-    try {
-      parsedToken = JSON.parse(userToken);
-    } catch {
-      parsedToken = userToken;
-    }
-
-    if (!(await verifyJWT(parsedToken))) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Invalid token",
-          status: false,
-        },
-        { status: 401 }
-      );
-    }
-
-    const decodedToken = await decodeJWT(parsedToken);
-    const userId = decodedToken._id;
+    const userId = user?._id;
 
     const body = await req.json();
     const { courseId, videoId, watchTime, totalDuration, isCompleted } = body;
 
     if (!courseId || !videoId || watchTime === undefined || !totalDuration) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Missing required fields",
-          status: false,
-        },
-        { status: 400 }
-      );
+      return response.error("Invalid request", 400);
     }
 
-    // Update or create video progress
     const progressData = {
       userId,
       courseId,
@@ -65,7 +32,7 @@ export const POST = async (req: NextRequest) => {
       watchTime,
       totalDuration,
       lastWatchedAt: new Date(),
-      isCompleted: isCompleted || watchTime >= totalDuration * 0.9, // Auto-complete at 90%
+      isCompleted: isCompleted || watchTime >= totalDuration * 0.9,
       ...(isCompleted && { completedAt: new Date() }),
     };
 
@@ -75,100 +42,53 @@ export const POST = async (req: NextRequest) => {
       { upsert: true, new: true }
     );
 
-    return NextResponse.json(
-      {
-        data: progress,
-        message: "Video progress updated successfully",
-        status: true,
-      },
-      { status: 200 }
+    return response.success(
+      progress,
+      "Video progress updated successfully",
+      200
     );
   } catch (error) {
     console.error("Error updating video progress:", error);
-    return NextResponse.json(
-      {
-        data: null,
-        message: "Internal Server Error",
-        status: false,
-      },
-      { status: 500 }
-    );
+    return response.error("Internal Server Error", 500);
   }
 };
 
-export const GET = async (req: NextRequest) => {
+export const getController = async (
+  req: NextRequest,
+  { user }: { user?: IUser }
+) => {
   try {
     await connect();
-
-    const userToken = (await cookies()).get("user_token")?.value;
-
-    if (!userToken) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Unauthorized",
-          status: false,
-        },
-        { status: 401 }
-      );
-    }
-
-    let parsedToken;
-    try {
-      parsedToken = JSON.parse(userToken);
-    } catch {
-      parsedToken = userToken;
-    }
-
-    if (!(await verifyJWT(parsedToken))) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Invalid token",
-          status: false,
-        },
-        { status: 401 }
-      );
-    }
-
-    const decodedToken = await decodeJWT(parsedToken);
-    const userId = decodedToken._id;
 
     const searchParams = req.nextUrl.searchParams;
     const courseId = searchParams.get("courseId");
     const videoId = searchParams.get("videoId");
 
     if (videoId) {
-      // Get specific video progress
-      const progress = await VideoProgress.findOne({ userId, videoId });
-      return NextResponse.json(
-        {
-          data: progress,
-          message: "Video progress fetched successfully",
-          status: true,
-        },
-        { status: 200 }
+      const progress = await VideoProgress.findOne({
+        userId: user?._id,
+        videoId,
+      });
+
+      return response.success(
+        progress,
+        "Video progress fetched successfully",
+        200
       );
     }
 
     if (courseId) {
-      // Get the course to count total videos
       const course = await Course.findById(courseId).populate("courseVideos");
       if (!course) {
-        return NextResponse.json(
-          {
-            data: null,
-            message: "Course not found",
-            status: false,
-          },
-          { status: 404 }
-        );
+        return response.error("Course not found", 404);
       }
 
       const totalVideos = course.courseVideos ? course.courseVideos.length : 0;
 
-      // Get user's progress for this course
-      const videoProgresses = await VideoProgress.find({ userId, courseId });
+      const videoProgresses = await VideoProgress.find({
+        userId: user?._id,
+        courseId,
+      });
       const completedVideos = videoProgresses.filter(
         (p) => p.isCompleted
       ).length;
@@ -180,50 +100,30 @@ export const GET = async (req: NextRequest) => {
         completedVideos,
         progressPercentage,
       };
-
-      console.log("Course progress calculation:", {
-        courseId,
-        totalVideos,
-        completedVideos,
-        progressPercentage,
-        videoProgressRecords: videoProgresses.length,
-      });
-
-      return NextResponse.json(
-        {
-          data: {
-            courseProgress,
-            videoProgresses,
-          },
-          message: "Course progress fetched successfully",
-          status: true,
-        },
-        { status: 200 }
+      return response.success(
+        { courseProgress, videoProgresses },
+        "Course Progress fetched successfully",
+        200
       );
     }
 
-    // Get all user progress
-    const allProgress = await VideoProgress.find({ userId })
+    const allProgress = await VideoProgress.find({ userId: user?._id })
       .populate("courseId", "name thumbnail")
       .populate("videoId", "title duration");
 
-    return NextResponse.json(
-      {
-        data: allProgress,
-        message: "User progress fetched successfully",
-        status: true,
-      },
-      { status: 200 }
+    return response.success(
+      allProgress,
+      "User Progrss fetched successfully",
+      200
     );
   } catch (error) {
     console.error("Error fetching video progress:", error);
-    return NextResponse.json(
-      {
-        data: null,
-        message: "Internal Server Error",
-        status: false,
-      },
-      { status: 500 }
-    );
+    return response.error("Internal Server Error", 404);
   }
 };
+
+export const GET = async (req: NextRequest) =>
+  await authMiddleware(req, [Roles.user], getController);
+
+export const POST = async (req: NextRequest) =>
+  await authMiddleware(req, [Roles.user], postController);

@@ -22,6 +22,10 @@ export interface User extends IUser {
   _id: string;
 }
 
+export interface Admin {
+  userName: string;
+}
+
 export interface Inquiry extends IInquiry {
   _id: string;
 }
@@ -47,3 +51,4 @@ export interface DropdownProps<T = any> {
     iconClassName?: HTMLProps<HTMLElement>["className"];
   }[];
 }
+

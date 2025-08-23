@@ -139,6 +139,9 @@ export const useVerifyPayment = () => {
       queryClient.invalidateQueries({ queryKey: ["courses"] });
       queryClient.invalidateQueries({ queryKey: ["user-transactions"] });
       queryClient.invalidateQueries({ queryKey: ["my-courses"] });
+      queryClient.invalidateQueries({
+        queryKey: [data.data.course.id, data.data.course.id, true],
+      });
 
       Toast.success(data.message || "Payment successful!");
 
@@ -149,7 +152,7 @@ export const useVerifyPayment = () => {
           transactionId: data.data.transactionId,
           courseId: data.data.course.id,
           courseName: data.data.course.name,
-          newUser: data.data.user.isNewUser.toString(),
+          newUser: data.data.user.isNewUser?.toString(),
           email: data.data.user.email,
         });
         router.replace(`/payment/success?${params.toString()}`);
@@ -159,7 +162,7 @@ export const useVerifyPayment = () => {
           transactionId: data.data.transactionId,
           courseId: data.data.course.id,
           courseName: data.data.course.name,
-          newUser: data.data.user.isNewUser.toString(),
+          newUser: data.data.user.isNewUser?.toString(),
           email: data.data.user.email,
         });
 

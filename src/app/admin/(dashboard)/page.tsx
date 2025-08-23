@@ -4,7 +4,7 @@ import { getQueryClient } from "@/lib/query";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Admin Dashboard - Happy Education",
+  title: "Admin Dashboard - multi lang website",
   description: "Overview of platform performance and key metrics",
 };
 

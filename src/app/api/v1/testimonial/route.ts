@@ -1,18 +1,21 @@
 import connect from "@/lib/db";
-import { decodeJWT, verifyJWT } from "@/lib/jwt";
 import {
   createPaginationResponse,
   getPaginationOptions,
   paginate,
 } from "@/lib/pagination";
 import { validateSchema } from "@/lib/schemaValidator";
+import { authMiddleware } from "@/middlewares/authMiddleware";
 import { Course } from "@/models/Course";
 import { Testimonial } from "@/models/Testimonial";
-import { User } from "@/models/User";
+import { IPurchasedCourse, IUser, User } from "@/models/User";
+import { Roles } from "@/types/constants";
 import { testimonialCreateSchema } from "@/types/schema";
+import { Admin } from "@/types/types";
+import { response } from "@/utils/response";
 import { NextRequest, NextResponse } from "next/server";
 
-export const POST = async (req: NextRequest) => {
+export const postController = async (req: NextRequest) => {
   try {
     const json = await req.json();
 
@@ -24,55 +27,26 @@ export const POST = async (req: NextRequest) => {
       const courses = await Course.find({ _id: { $in: json.courseId } });
 
       if (courses.length !== json.courseId.length) {
-        return NextResponse.json(
-          {
-            data: null,
-            message: "One or more courses not found",
-            status: false,
-          },
-          { status: 404 }
-        );
+        return response.error("Course Not Found", 404);
       }
     }
 
-    // No need to process files - they're already uploaded to Cloudinary
     const testimonial = await Testimonial.create(json);
-
-    return NextResponse.json(
-      {
-        data: testimonial,
-        message: "Testimonial created successfully",
-        status: true,
-      },
-      { status: 201 }
+    return response.success(
+      testimonial,
+      "Testimonial created successfully",
+      201
     );
   } catch (error) {
     console.error("Error creating testimonial:", error);
-
-    if (error instanceof Error && error.message.includes("Validation failed")) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Validation failed",
-          status: false,
-          errors: error.message,
-        },
-        { status: 400 }
-      );
-    }
-
-    return NextResponse.json(
-      {
-        data: null,
-        message: "Internal Server Error",
-        status: false,
-      },
-      { status: 500 }
-    );
+    return response.error("Internal Server error", 500);
   }
 };
 
-export const GET = async (req: NextRequest) => {
+export const getController = async (
+  req: NextRequest,
+  { admin, user }: { user?: IUser; admin?: Admin }
+) => {
   try {
     const searchParams = req.nextUrl.searchParams;
     const options = getPaginationOptions(searchParams);
@@ -80,44 +54,13 @@ export const GET = async (req: NextRequest) => {
     const courseId = searchParams.get("courseId") || "";
     await connect();
 
-    // Check if user is authenticated to determine isPurchased status
-    let authenticatedUserId = null;
-    let purchasedCourses: any[] = [];
-    
-    const userToken = req.cookies.get("user_token")?.value;
-    if (userToken) {
-      try {
-        let parsedToken;
-        try {
-          parsedToken = JSON.parse(userToken);
-        } catch {
-          parsedToken = userToken;
-        }
-
-        if (await verifyJWT(parsedToken)) {
-          const decodedToken = await decodeJWT(parsedToken);
-          authenticatedUserId = decodedToken._id;
-          
-          const user = await User.findById(authenticatedUserId);
-          purchasedCourses = user?.purchasedCourses || [];
-        }
-      } catch (error) {
-        console.log("Token verification failed:", error);
-      }
-    }
+    let purchasedCourses: IPurchasedCourse[] = user?.purchasedCourses || [];
 
     if (courseId) {
       const course = await Course.findOne({ _id: courseId });
 
       if (!course) {
-        return NextResponse.json(
-          {
-            data: null,
-            message: "Course Not Found.",
-            status: true,
-          },
-          { status: 404 }
-        );
+        return response.error("Course Not Found", 404);
       }
 
       const filter = {
@@ -129,12 +72,13 @@ export const GET = async (req: NextRequest) => {
         populate: "courseId",
         computeFields: {
           isPurchased: (testimonial: any) => {
-            if (!authenticatedUserId || !testimonial.courseId) return false;
+            if (!user || !testimonial.courseId) return false;
             return purchasedCourses.some(
-              (pc: any) => pc.courseId?.toString() === testimonial.courseId._id?.toString()
+              (pc: any) =>
+                pc.courseId?.toString() === testimonial.courseId._id?.toString()
             );
-          }
-        }
+          },
+        },
       });
 
       const data = createPaginationResponse(
@@ -143,7 +87,7 @@ export const GET = async (req: NextRequest) => {
         "Testimonials fetched successfully"
       );
 
-      return NextResponse.json(data, { status: 200 });
+      return response.success(data, "Testimonial Fetched Successfully", 200);
     }
 
     const result = await paginate(
@@ -154,12 +98,13 @@ export const GET = async (req: NextRequest) => {
         populate: "courseId",
         computeFields: {
           isPurchased: (testimonial: any) => {
-            if (!authenticatedUserId || !testimonial.courseId) return false;
+            if (!user || !testimonial.courseId) return false;
             return purchasedCourses.some(
-              (pc: any) => pc.courseId?.toString() === testimonial.courseId._id?.toString()
+              (pc: any) =>
+                pc.courseId?.toString() === testimonial.courseId._id?.toString()
             );
-          }
-        }
+          },
+        },
       }
     );
 
@@ -169,16 +114,15 @@ export const GET = async (req: NextRequest) => {
       "Testimonials fetched successfully"
     );
 
-    return NextResponse.json(data, { status: 200 });
+    return response.paginatedResponse(data, 200);
   } catch (error) {
     console.error("Error fetching courses:", error);
-    return NextResponse.json(
-      {
-        data: null,
-        message: "Internal Server Error",
-        status: false,
-      },
-      { status: 500 }
-    );
+    return response.error("Internal Server Error", 500);
   }
 };
+
+export const POST = async (req: NextRequest) =>
+  authMiddleware(req, [Roles.admin], postController);
+
+export const GET = async (req: NextRequest) =>
+  authMiddleware(req, [], getController, true);

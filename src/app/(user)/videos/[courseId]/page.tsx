@@ -1,6 +1,7 @@
 import CourseVideoLine from "@/components/my-course/CourseVideoLine";
 import { getCourseById, getCourseProgress, getMyVideos } from "@/lib/api";
 import { getQueryClient } from "@/lib/query";
+import { getUserAuthCookie } from "@/utils/cookie";
 
 export default async function VideosPage({
   params,
@@ -25,5 +26,10 @@ export default async function VideosPage({
     queryFn: () => getCourseProgress(courseId),
   });
 
-  return <CourseVideoLine courseId={courseId} />;
+  const token = await getUserAuthCookie();
+  const isAuthenticated = !!token;
+
+  return (
+    <CourseVideoLine courseId={courseId} isAuthenticated={isAuthenticated} />
+  );
 }

@@ -1,78 +1,41 @@
 import connect from "@/lib/db";
 import { decodeJWT, verifyJWT } from "@/lib/jwt";
 import { validateSchema } from "@/lib/schemaValidator";
+import { authMiddleware } from "@/middlewares/authMiddleware";
 import "@/models/Course";
 import { Course } from "@/models/Course";
 import { Testimonial } from "@/models/Testimonial";
-import { User } from "@/models/User";
+import { IPurchasedCourse, IUser, User } from "@/models/User";
+import { Roles } from "@/types/constants";
 import { courseUpdateValidations } from "@/types/schema";
-import { Course as TypeOfCourse } from "@/types/types";
+import { Admin, Course as TypeOfCourse } from "@/types/types";
+import { response } from "@/utils/response";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-export const GET = async (
+export const getController = async (
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { id, admin, user }: { id: string; admin?: Admin; user?: IUser }
 ) => {
   try {
-    const { id } = await params;
     const searchParams = req.nextUrl.searchParams;
     const relatedCourse = searchParams.get("relatedCourse");
-
-    if (!id) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Course ID is required",
-          status: false,
-        },
-        { status: 400 }
-      );
-    }
 
     await connect();
 
     const course = await Course.findById(id).populate("courseVideos").lean();
 
     if (!course) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Course not found",
-          status: false,
-        },
-        { status: 404 }
-      );
+      return response.error("Course Not Found", 404);
     }
 
-    // Check if user is authenticated and has purchased this course
     let isPurchased = false;
-    let user = null;
-    let authenticatedUserId = null;
-    const userToken = (await cookies()).get("user_token")?.value;
 
-    if (userToken) {
-      try {
-        let parsedToken;
-        try {
-          parsedToken = JSON.parse(userToken);
-        } catch {
-          parsedToken = userToken;
-        }
-
-        if (await verifyJWT(parsedToken)) {
-          const decodedToken = await decodeJWT(parsedToken);
-          authenticatedUserId = decodedToken._id;
-
-          user = await User.findById(authenticatedUserId);
-          isPurchased =
-            user?.purchasedCourses?.some(
-              (courseId: any) => courseId.toString() === id
-            ) || false;
-        }
-      } catch (error) {
-        console.log("Token verification failed:", error);
-      }
+    if (user) {
+      isPurchased =
+        user?.purchasedCourses?.some(
+          (pc: IPurchasedCourse) => pc.courseId.toString() === id
+        ) || false;
     }
 
     const testimonials = await Testimonial.find({
@@ -90,18 +53,16 @@ export const GET = async (
         4
       );
 
-      // Add isPurchased field to related courses
       const relatedCoursesWithPurchaseStatus = relatedCoursesData.map(
         (relatedCourse) => ({
           ...relatedCourse.toObject(),
-          isPurchased:
-            userToken && authenticatedUserId
-              ? user?.purchasedCourses?.some(
-                  (courseId: { toString: () => string }) =>
-                    courseId.toString() ===
-                    (relatedCourse._id as { toString: () => string }).toString()
-                ) || false
-              : false,
+          isPurchased: user
+            ? user?.purchasedCourses?.some(
+                (pc: IPurchasedCourse) =>
+                  pc.courseId?.toString() ===
+                  (relatedCourse._id as { toString: () => string }).toString()
+              ) || false
+            : false,
         })
       );
 
@@ -111,66 +72,32 @@ export const GET = async (
       } as unknown as TypeOfCourse;
     }
 
-    return NextResponse.json(
-      {
-        data: result,
-        message: "Course fetched successfully",
-        status: true,
-      },
-      { status: 200 }
-    );
+    return response.success(result, "Course fetched successfully", 200);
   } catch (error) {
     console.error("Error fetching course:", error);
-    return NextResponse.json(
-      {
-        data: null,
-        message: "Internal Server Error",
-        status: false,
-      },
-      { status: 500 }
-    );
+    return response.error("Internal Server Error", 500);
   }
 };
 
-export const PUT = async (
+export const putController = async (
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { id, admin, user }: { id: string; admin?: Admin; user?: IUser }
 ) => {
   try {
-    const { id } = await params;
-
-    if (!id) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Course ID is required",
-          status: false,
-        },
-        { status: 400 }
-      );
-    }
     const json = await req.json();
 
     validateSchema(courseUpdateValidations, json);
 
-    // Get existing course data to preserve asset structures
     await connect();
+
     const existingCourse = await Course.findById(id)
       .populate("courseVideos")
       .lean();
 
     if (!existingCourse) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Course not found",
-          status: false,
-        },
-        { status: 404 }
-      );
+      return response.error("Course Not Found", 404);
     }
 
-    // No need to process files - they're already uploaded to Cloudinary
     const finalResults = {
       ...json,
       courseVideos: json.courseVideos || [],
@@ -179,118 +106,120 @@ export const PUT = async (
     const updatedCourse = await Course.updateWithVideos(id, finalResults);
 
     if (!updatedCourse) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Course not found",
-          status: false,
-        },
-        { status: 404 }
-      );
+      return response.error("Course Not Found", 404);
     }
 
-    return NextResponse.json(
-      {
-        data: updatedCourse,
-        message: "Course updated successfully",
-        status: true,
-      },
-      { status: 200 }
-    );
+    return response.success(updatedCourse, "Course Updated Successfully", 200);
   } catch (error) {
     console.error("Error updating course:", error);
-
-    // Check if it's a validation error from formDataParser
-    if (error instanceof Error && error.message.includes("Validation failed")) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Validation failed",
-          status: false,
-          errors: error.message,
-        },
-        { status: 400 }
-      );
-    }
-
-    // Check if it's a file upload error
-    if (
-      error instanceof Error &&
-      (error.message.includes("Invalid file type") ||
-        error.message.includes("too large") ||
-        error.message.includes("Failed to upload"))
-    ) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: error.message,
-          status: false,
-        },
-        { status: 400 }
-      );
-    }
-
-    return NextResponse.json(
-      {
-        data: null,
-        message: "Internal Server Error",
-        status: false,
-      },
-      { status: 500 }
-    );
+    return response.error("Internal server error", 500);
   }
 };
 
-export const DELETE = async (
+export const deleteController = async (
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { id, admin, user }: { id: string; admin?: Admin; user?: IUser }
 ) => {
   try {
-    const { id } = await params;
-
-    if (!id) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Course ID is required",
-          status: false,
-        },
-        { status: 400 }
-      );
-    }
-
     await connect();
 
     const deletedCourse = await Course.deleteWithVideos(id);
 
     if (!deletedCourse) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Course not found",
-          status: false,
-        },
-        { status: 404 }
-      );
+      return response.error("Course Not Found", 404);
     }
 
-    return NextResponse.json(
-      {
-        data: deletedCourse,
-        message: "Course deleted successfully",
-        status: true,
-      },
-      { status: 200 }
-    );
+    return response.success(null, "Course deleted successfully", 200);
   } catch (error) {
     console.error("Error deleting course:", error);
-    return NextResponse.json(
-      {
-        data: null,
-        message: "Internal Server Error",
-        status: false,
-      },
-      { status: 500 }
-    );
+    return response.error("Internal server error", 500);
   }
 };
+
+export const DELETE = (
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) =>
+  authMiddleware(
+    req,
+    [Roles.admin],
+    async (
+      r: NextRequest,
+      context: {
+        user?: IUser;
+        admin?: Admin;
+      }
+    ) => {
+      const { id } = await params;
+      if (!id) {
+        return NextResponse.json(
+          { error: "Please provide a valid courseId" },
+          { status: 400 }
+        );
+      }
+      return await deleteController(r, {
+        id,
+        admin: context?.admin,
+        user: context?.user,
+      });
+    }
+  );
+
+export const PUT = (
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) =>
+  authMiddleware(
+    req,
+    [Roles.admin],
+    async (
+      r: NextRequest,
+      context: {
+        user?: IUser;
+        admin?: Admin;
+      }
+    ) => {
+      const { id } = await params;
+      if (!id) {
+        return NextResponse.json(
+          { error: "Please provide a valid courseId" },
+          { status: 400 }
+        );
+      }
+      return await putController(r, {
+        id,
+        admin: context?.admin,
+        user: context?.user,
+      });
+    }
+  );
+
+export const GET = (
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) =>
+  authMiddleware(
+    req,
+    [],
+    async (
+      r: NextRequest,
+      context: {
+        user?: IUser;
+        admin?: Admin;
+      }
+    ) => {
+      const { id } = await params;
+      if (!id) {
+        return NextResponse.json(
+          { error: "Please provide a valid courseId" },
+          { status: 400 }
+        );
+      }
+      return await getController(r, {
+        id,
+        admin: context?.admin,
+        user: context?.user,
+      });
+    },
+    true
+  );

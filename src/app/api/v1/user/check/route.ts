@@ -18,7 +18,7 @@ export const POST = async () => {
     if (!isLoggedIn) {
       return NextResponse.json(
         { message: "You are not logged in", data: { isLoggedIn, role } },
-        { status: 401 }
+        { status: 200 }
       );
     }
 
@@ -28,8 +28,9 @@ export const POST = async () => {
     );
   } catch {
     return NextResponse.json(
-      { message: "You are logged in", data: null },
+      { message: "You are not logged in", data: null },
       { status: 200 }
     );
   }
 };
+

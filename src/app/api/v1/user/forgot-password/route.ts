@@ -1,15 +1,18 @@
 import connect from "@/lib/db";
 import { assignJWT } from "@/lib/jwt";
 import { validateSchema } from "@/lib/schemaValidator";
+import { authMiddleware, noAuthMiddleware } from "@/middlewares/authMiddleware";
 import { User } from "@/models/User";
 import { sendMail } from "@/services/email";
+import { Roles } from "@/types/constants";
 import { forgotPasswordValidations } from "@/types/schema";
 import { emailTemplate } from "@/utils/email";
 import { generate4DigitOTP } from "@/utils/otp";
+import { response } from "@/utils/response";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-export const POST = async (req: NextRequest) => {
+export const postController = async (req: NextRequest) => {
   try {
     const json = await req.json();
 
@@ -22,14 +25,7 @@ export const POST = async (req: NextRequest) => {
     });
 
     if (!user) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Not Registered First Register YourSelf",
-          status: false,
-        },
-        { status: 401 }
-      );
+      return response.error("Not Registered First Register YourSelf", 401);
     }
 
     const otp = generate4DigitOTP();
@@ -53,23 +49,12 @@ export const POST = async (req: NextRequest) => {
       user?.email
     );
 
-    return NextResponse.json(
-      {
-        data: null,
-        message: "OTP sent successfully",
-        status: true,
-      },
-      { status: 200 }
-    );
+    return response.success(null, "OTP sent successfully", 200);
   } catch (err) {
     console.error("Resend OTP error:", err);
-    return NextResponse.json(
-      {
-        data: null,
-        message: "Internal Server Error",
-        status: false,
-      },
-      { status: 500 }
-    );
+    return response.error("Internal Server Error", 500);
   }
 };
+
+export const POST = async (req: NextRequest) =>
+  noAuthMiddleware(req, postController);

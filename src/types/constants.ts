@@ -1,5 +1,10 @@
 export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
+export enum Roles {
+  user = "user",
+  admin = "admin",
+}
+
 export enum CourseCurrency {
   dollar = "dollar",
   rupee = "rupee",

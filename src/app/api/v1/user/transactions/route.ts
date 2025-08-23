@@ -1,48 +1,18 @@
 import connect from "@/lib/db";
 import { decodeJWT, verifyJWT } from "@/lib/jwt";
+import { authMiddleware } from "@/middlewares/authMiddleware";
 import { Transaction } from "@/models/Transaction";
+import { IUser } from "@/models/User";
+import { Roles } from "@/types/constants";
+import { response } from "@/utils/response";
 import { NextRequest, NextResponse } from "next/server";
 
-export const GET = async (req: NextRequest) => {
+export const getController = async (
+  req: NextRequest,
+  { user }: { user?: IUser }
+) => {
   try {
     await connect();
-
-    // Get user token from cookies
-    const userToken = req.cookies.get("user_token")?.value;
-
-    if (!userToken) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Authentication required",
-          status: false,
-        },
-        { status: 401 }
-      );
-    }
-
-    // Parse and verify token
-    let parsedToken;
-    try {
-      parsedToken = JSON.parse(userToken);
-    } catch {
-      parsedToken = userToken;
-    }
-
-    const isTokenValid = await verifyJWT(parsedToken);
-    if (!isTokenValid) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Invalid authentication token",
-          status: false,
-        },
-        { status: 401 }
-      );
-    }
-
-    const decodedToken = await decodeJWT(parsedToken);
-    const userId = decodedToken._id;
 
     // Get query parameters for pagination and filtering
     const url = new URL(req.url);
@@ -53,7 +23,7 @@ export const GET = async (req: NextRequest) => {
     const skip = (page - 1) * limit;
 
     // Build filter query
-    const filterQuery: any = { userId };
+    const filterQuery: any = { userId: user };
     if (status && ["success", "failed", "pending"].includes(status)) {
       filterQuery.status = status;
     }
@@ -94,33 +64,26 @@ export const GET = async (req: NextRequest) => {
       updatedAt: transaction.updatedAt,
     }));
 
-    return NextResponse.json(
+    return response.success(
       {
-        data: {
-          transactions: formattedTransactions,
-          pagination: {
-            currentPage: page,
-            totalPages,
-            totalCount,
-            hasNextPage,
-            hasPreviousPage,
-            limit,
-          },
+        transactions: formattedTransactions,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalCount,
+          hasNextPage,
+          hasPreviousPage,
+          limit,
         },
-        message: "Transactions retrieved successfully",
-        status: true,
       },
-      { status: 200 }
+      "Transactions retrieved successfully",
+      200
     );
   } catch (error) {
     console.error("Error fetching user transactions:", error);
-    return NextResponse.json(
-      {
-        data: null,
-        message: "Internal Server Error",
-        status: false,
-      },
-      { status: 500 }
-    );
+    return response.error("Internal Server Error", 500);
   }
 };
+
+export const GET = async (req: NextRequest) =>
+  authMiddleware(req, [Roles.user], getController);

@@ -27,7 +27,10 @@ interface PaymentFormProps {
   };
   userEmail?: string;
   onSuccess: () => void;
+  onStart: () => void;
+  onComplete: () => void;
   onBack: () => void;
+  onClose: () => void;
 }
 
 declare global {
@@ -41,6 +44,9 @@ const PaymentForm = ({
   userEmail,
   onSuccess,
   onBack,
+  onClose,
+  onStart,
+  onComplete,
 }: PaymentFormProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
@@ -90,7 +96,7 @@ const PaymentForm = ({
     }
 
     setIsProcessing(true);
-
+    onStart();
     const options = {
       key: checkoutData.razorpayKeyId,
       amount: checkoutData.amount,
@@ -116,6 +122,7 @@ const PaymentForm = ({
               : undefined,
           });
           onSuccess();
+          onComplete();
         } catch (error) {
           console.error("Payment verification failed:", error);
         } finally {
@@ -125,16 +132,19 @@ const PaymentForm = ({
       modal: {
         ondismiss: () => {
           setIsProcessing(false);
+          onComplete();
         },
       },
     };
+
+    // 👉 Close your modal before opening Razorpay to avoid click-blocking overlays
+    onClose(); // <--- this will close your custom modal
 
     const rzp = new window.Razorpay(options);
     rzp.on("payment.failed", (response: any) => {
       console.error("Payment failed:", response.error);
       setIsProcessing(false);
 
-      // Redirect to failure page
       const params = new URLSearchParams({
         courseId: checkoutData.course.id,
         courseName: checkoutData.course.name,
@@ -143,6 +153,7 @@ const PaymentForm = ({
       });
 
       router.replace(`/payment/failed?${params.toString()}`);
+      onComplete();
     });
 
     rzp.open();
@@ -150,7 +161,6 @@ const PaymentForm = ({
 
   return (
     <div className="space-y-4">
-      {/* Payment Summary */}
       <div className="bg-gradient-to-r from-primary/5 to-blue-500/5 rounded-lg p-4 border">
         <div className="flex items-center space-x-2 mb-3">
           <CreditCard className="w-5 h-5 text-primary" />

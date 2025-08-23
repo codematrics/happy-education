@@ -10,22 +10,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuthCheck } from "@/hooks/useAuth";
-import {
-  BookOpen,
-  CircleUser,
-  LogOut,
-  Menu,
-  Shield,
-  User,
-  X,
-} from "lucide-react";
+import { BookOpen, LogOut, Menu, Shield, User, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Avatar, AvatarFallback } from "../ui/avatar";
 
 const AppNavbar = () => {
-  const { data, refetch, isLoading } = useAuthCheck();
+  const { data, refetch, isPending, isLoading } = useAuthCheck();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
 
@@ -92,7 +85,7 @@ const AppNavbar = () => {
 
         {/* Auth Buttons (Right) */}
         <div className="hidden md:flex items-center space-x-4">
-          {isLoading ? (
+          {isPending || isLoading ? (
             // Show loading indicator while checking auth
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-muted animate-pulse" />
@@ -117,7 +110,9 @@ const AppNavbar = () => {
                   size="icon"
                   className="relative rounded-full hover:bg-primary/10 transition-colors p-0"
                 >
-                  <CircleUser className="w-9 h-9" />
+                  <Avatar>
+                    <AvatarFallback className="text-xs">HR</AvatarFallback>
+                  </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -212,7 +207,7 @@ const AppNavbar = () => {
                 </Link>
               ))}
             <div className="flex flex-col space-y-2 pt-4">
-              {isLoading ? (
+              {isPending || isLoading ? (
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-full bg-muted animate-pulse" />
                   <div className="h-3 w-16 bg-muted rounded animate-pulse" />
@@ -234,10 +229,9 @@ const AppNavbar = () => {
                 <>
                   {(role === "user" || role === "both") && (
                     <Link href="/profile" onClick={() => setIsMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start">
-                        <User className="w-4 h-4 mr-2" />
-                        Profile
-                      </Button>
+                      <Avatar>
+                        <AvatarFallback className="text-xs">HR</AvatarFallback>
+                      </Avatar>
                     </Link>
                   )}
                   <Button

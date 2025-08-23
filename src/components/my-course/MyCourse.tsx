@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCourses } from "@/hooks/useCourses";
 import useMyCourses from "@/hooks/useMyCourses";
-import { Award, BookOpen, Clock, Search, TrendingUp } from "lucide-react";
+import { BookOpen, Search, TrendingUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -134,34 +134,6 @@ const MyCourses = () => {
                 <div className="text-2xl font-bold">{totalProgress}%</div>
                 <div className="text-sm text-muted-foreground">
                   Average Progress
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-card rounded-2xl p-6 shadow-lg border">
-            <div className="flex items-center space-x-3 mb-2">
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-                <Clock className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold">47h</div>
-                <div className="text-sm text-muted-foreground">
-                  Learning Time
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-card rounded-2xl p-6 shadow-lg border">
-            <div className="flex items-center space-x-3 mb-2">
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-                <Award className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold">2</div>
-                <div className="text-sm text-muted-foreground">
-                  Certificates
                 </div>
               </div>
             </div>

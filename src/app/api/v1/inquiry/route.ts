@@ -5,11 +5,19 @@ import {
   paginate,
 } from "@/lib/pagination";
 import { validateSchema } from "@/lib/schemaValidator";
+import { authMiddleware } from "@/middlewares/authMiddleware";
 import { Inquiry } from "@/models/Inquiry";
+import { IUser } from "@/models/User";
+import { Roles } from "@/types/constants";
 import { inquirySchema } from "@/types/schema";
-import { NextRequest, NextResponse } from "next/server";
+import { Admin } from "@/types/types";
+import { response } from "@/utils/response";
+import { NextRequest } from "next/server";
 
-export const GET = async (req: NextRequest) => {
+export const getController = async (
+  req: NextRequest,
+  { admin, user }: { admin?: Admin; user?: IUser }
+) => {
   try {
     await connect();
 
@@ -44,21 +52,17 @@ export const GET = async (req: NextRequest) => {
       "Inquiries fetched successfully"
     );
 
-    return NextResponse.json(data, { status: 200 });
+    return response.paginatedResponse(data, 200);
   } catch (error) {
     console.error("Error fetching inquiry:", error);
-    return NextResponse.json(
-      {
-        data: null,
-        message: "Internal Server Error",
-        status: false,
-      },
-      { status: 500 }
-    );
+    return response.error("Internal Server Error", 500);
   }
 };
 
-export const POST = async (req: NextRequest) => {
+export const postController = async (
+  req: NextRequest,
+  { admin, user }: { admin?: Admin; user?: IUser }
+) => {
   try {
     const json = await req.json();
 
@@ -66,54 +70,17 @@ export const POST = async (req: NextRequest) => {
 
     await connect();
 
-    const newCourse = await Inquiry.create(json);
+    const newInquiry = await Inquiry.create(json);
 
-    return NextResponse.json(
-      {
-        data: newCourse,
-        message: "Inquiry sent successfully",
-        status: true,
-      },
-      { status: 201 }
-    );
+    return response.success(newInquiry, "Inquiry sent successfully", 201);
   } catch (error) {
     console.error("Error creating inquiry:", error);
-
-    if (error instanceof Error && error.message.includes("Validation failed")) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Validation failed",
-          status: false,
-          errors: error.message,
-        },
-        { status: 400 }
-      );
-    }
-
-    if (
-      error instanceof Error &&
-      (error.message.includes("Invalid file type") ||
-        error.message.includes("too large") ||
-        error.message.includes("Failed to upload"))
-    ) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: error.message,
-          status: false,
-        },
-        { status: 400 }
-      );
-    }
-
-    return NextResponse.json(
-      {
-        data: null,
-        message: "Internal Server Error",
-        status: false,
-      },
-      { status: 500 }
-    );
+    return response.error("Internal Server Error", 500);
   }
 };
+
+export const GET = async (req: NextRequest) =>
+  authMiddleware(req, [Roles.admin], getController);
+
+export const POST = async (req: NextRequest) =>
+  authMiddleware(req, [Roles.user], postController, true);

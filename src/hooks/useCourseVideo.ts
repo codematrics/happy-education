@@ -6,11 +6,23 @@ import { useQuery, UseQueryResult } from "@tanstack/react-query";
 
 export const useMyCourseVideos = (
   courseId: string
-): UseQueryResult<ResponseInterface<Course>> => {
-  return useQuery<ResponseInterface<Course>>({
+): UseQueryResult<
+  ResponseInterface<{
+    course: Course;
+  }>
+> => {
+  return useQuery<
+    ResponseInterface<{
+      course: Course;
+    }>
+  >({
     queryKey: [`course-video-${courseId}`, courseId],
     queryFn: () => {
-      return fetcher<ResponseInterface<Course>>(`/api/v1/videos/${courseId}`);
+      return fetcher<
+        ResponseInterface<{
+          course: Course;
+        }>
+      >(`/api/v1/videos/${courseId}`);
     },
     staleTime: 1000 * 60 * 5,
   });

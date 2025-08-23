@@ -129,7 +129,6 @@ export async function validateCourseAccess(
   response?: NextResponse;
 }> {
   try {
-    // Get user token from cookies
     const userToken = request.cookies.get("user_token")?.value;
 
     if (!userToken) {

@@ -14,7 +14,6 @@ const PaymentFailedContent = () => {
   const orderId = searchParams.get("orderId");
 
   const handleRetry = () => {
-    // Redirect back to course page to retry purchase
     if (courseId) {
       router.replace(`/course/${courseId}`);
     } else {

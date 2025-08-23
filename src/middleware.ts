@@ -5,27 +5,18 @@ import { verifyJWT } from "./lib/jwt";
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  const response = NextResponse.next(); // default response for continuation
+
+  // Admin Route Logic
   const isAdminLogin = pathname === "/admin/login";
   const isAdminRoute = pathname.startsWith("/admin") && !isAdminLogin;
+
   const adminToken = request.cookies.get("admin_token")?.value;
   const hasValidAdminToken = adminToken ? verifyJWT(adminToken) : false;
 
-  const isOtpPage = pathname === "/otp";
-  const isNewPasswordPage = pathname === "/new-password";
-
-  const userOtpToken = JSON.parse(
-    request.cookies.get("user_otp_token")?.value || "{}"
-  );
-  const userForgotPassToken = request.cookies.get(
-    "user_forgot_pass_token"
-  )?.value;
-
-  const hasValidOtpToken = userOtpToken ? verifyJWT(userOtpToken) : false;
-  const hasValidForgotPassToken = userForgotPassToken
-    ? verifyJWT(userForgotPassToken)
-    : false;
-
-  console.log(hasValidAdminToken, hasValidOtpToken, userOtpToken, isOtpPage);
+  if (adminToken && !hasValidAdminToken) {
+    response.cookies.delete("admin_token");
+  }
 
   if (isAdminLogin && hasValidAdminToken) {
     return NextResponse.redirect(new URL("/admin", request.url));
@@ -33,6 +24,28 @@ export function middleware(request: NextRequest) {
 
   if (isAdminRoute && !hasValidAdminToken) {
     return NextResponse.redirect(new URL("/admin/login", request.url));
+  }
+
+  // OTP & Forgot Password Logic
+  const isOtpPage = pathname === "/otp";
+  const isNewPasswordPage = pathname === "/new-password";
+
+  const otpTokenRaw = request.cookies.get("user_otp_token")?.value;
+  const forgotPassToken = request.cookies.get("user_forgot_pass_token")?.value;
+
+  const userOtpToken = otpTokenRaw ? JSON.parse(otpTokenRaw) : null;
+
+  const hasValidOtpToken = userOtpToken ? verifyJWT(userOtpToken) : false;
+  const hasValidForgotPassToken = forgotPassToken
+    ? verifyJWT(forgotPassToken)
+    : false;
+
+  if (otpTokenRaw && !hasValidOtpToken) {
+    response.cookies.delete("user_otp_token");
+  }
+
+  if (forgotPassToken && !hasValidForgotPassToken) {
+    response.cookies.delete("user_forgot_pass_token");
   }
 
   if (isOtpPage && !hasValidOtpToken && !hasValidForgotPassToken) {
@@ -43,7 +56,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {

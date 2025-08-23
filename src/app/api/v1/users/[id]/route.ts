@@ -1,29 +1,20 @@
 import connect from "@/lib/db";
 import { formDataToJson } from "@/lib/formDataParser";
 import { validateSchema } from "@/lib/schemaValidator";
+import { authMiddleware } from "@/middlewares/authMiddleware";
 import "@/models/CourseVideo";
-import { User } from "@/models/User";
+import { IUser, User } from "@/models/User";
+import { Roles } from "@/types/constants";
 import { userUpdateValidations } from "@/types/schema";
+import { Admin } from "@/types/types";
+import { response } from "@/utils/response";
 import { NextRequest, NextResponse } from "next/server";
 
-export const PUT = async (
+export const putController = async (
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { id, admin, user }: { id: string; user?: IUser; admin?: Admin }
 ) => {
   try {
-    const { id } = await params;
-
-    if (!id) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "User ID is required",
-          status: false,
-        },
-        { status: 400 }
-      );
-    }
-
     const formData = await req.formData();
     const json = formDataToJson(formData);
 
@@ -31,71 +22,51 @@ export const PUT = async (
 
     await connect();
 
-    console.log(json);
-
     const updatedUser = await User.findOneAndUpdate({ _id: id }, json, {
       new: true,
     });
 
     if (!updatedUser) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "User not found",
-          status: false,
-        },
-        { status: 404 }
-      );
+      return response.error("User Not Found", 404);
     }
 
-    return NextResponse.json(
-      {
-        data: updatedUser,
-        message: "User updated successfully",
-        status: true,
-      },
-      { status: 200 }
-    );
+    return response.success(updatedUser, "User updated successfully", 200);
   } catch (error) {
     console.error("Error updating user:", error);
-
-    // Check if it's a validation error from formDataParser
-    if (error instanceof Error && error.message.includes("Validation failed")) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Validation failed",
-          status: false,
-          errors: error.message,
-        },
-        { status: 400 }
-      );
-    }
-
-    // Check if it's a file upload error
-    if (
-      error instanceof Error &&
-      (error.message.includes("Invalid file type") ||
-        error.message.includes("too large") ||
-        error.message.includes("Failed to upload"))
-    ) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: error.message,
-          status: false,
-        },
-        { status: 400 }
-      );
-    }
-
-    return NextResponse.json(
-      {
-        data: null,
-        message: "Internal Server Error",
-        status: false,
-      },
-      { status: 500 }
-    );
+    return response.error("Internal Server Error", 400);
   }
 };
+
+export const PUT = (
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) =>
+  authMiddleware(
+    req,
+    [],
+    async (
+      r: NextRequest,
+      context: {
+        user?: IUser;
+        admin?: Admin;
+      }
+    ) => {
+      const { id } = await params;
+      if (!id) {
+        return NextResponse.json(
+          { error: "Please provide a valid userId" },
+          { status: 400 }
+        );
+      }
+
+      if ((context.user && id !== context?.user?._id) || !context.admin) {
+        return response.error("User is not authorized to the user", 403);
+      }
+
+      return await putController(r, {
+        id,
+        admin: context?.admin,
+        user: context?.user,
+      });
+    }
+  );

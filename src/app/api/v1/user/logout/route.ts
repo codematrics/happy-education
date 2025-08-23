@@ -1,33 +1,24 @@
+import { noAuthMiddleware } from "@/middlewares/authMiddleware";
+import { response } from "@/utils/response";
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export const POST = async () => {
+export const postController = async () => {
   try {
     // Clear user authentication cookies
     const cookieStore = await cookies();
-    
+
     // Clear all user-related cookies
     cookieStore.delete("user_token");
     cookieStore.delete("user_otp_token");
     cookieStore.delete("user_forgot_pass_token");
-    
-    return NextResponse.json(
-      {
-        data: null,
-        message: "Logged out successfully",
-        status: true,
-      },
-      { status: 200 }
-    );
+
+    return response.success(null, "Logged out successfully", 200);
   } catch (error) {
     console.error("Logout error:", error);
-    return NextResponse.json(
-      {
-        data: null,
-        message: "Internal Server Error",
-        status: false,
-      },
-      { status: 500 }
-    );
+    return response.error("Internal Server Error", 500);
   }
 };
+
+export const POST = async (req: NextRequest) =>
+  noAuthMiddleware(req, postController);

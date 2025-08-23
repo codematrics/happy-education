@@ -10,6 +10,7 @@ import { forwardRef, useState } from "react";
 import { Button } from "../ui/button";
 import CheckoutModal from "./CheckoutModal";
 import PaymentForm from "./PaymentForm";
+import FullPageLoader from "../skeleton/FullPageLoader";
 
 interface BuyButtonProps {
   course: Course;
@@ -38,6 +39,7 @@ const BuyButton = forwardRef<HTMLButtonElement, BuyButtonProps>(
   ) => {
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
     const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+    const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
     const [checkoutData, setCheckoutData] = useState<any>(null);
     const router = useRouter();
     const { data: authData, isLoading: authLoading } = useAuthCheck();
@@ -47,6 +49,7 @@ const BuyButton = forwardRef<HTMLButtonElement, BuyButtonProps>(
 
     const handleBuyClick = async () => {
       if (course.accessType === "free") {
+        router.push(`/videos/${course._id}`);
         return;
       }
 
@@ -134,6 +137,10 @@ const BuyButton = forwardRef<HTMLButtonElement, BuyButtonProps>(
 
     return (
       <>
+        <FullPageLoader
+          show={isPaymentProcessing}
+          message="Processing Payment..."
+        />
         <Button
           ref={ref}
           size={size}
@@ -163,9 +170,10 @@ const BuyButton = forwardRef<HTMLButtonElement, BuyButtonProps>(
           onClose={() => setIsCheckoutOpen(false)}
           course={course}
           isLoggedIn={isLoggedIn}
+          onComplete={() => setIsPaymentProcessing(false)}
+          onStart={() => setIsPaymentProcessing(true)}
         />
 
-        {/* One-click payment modal */}
         {isPaymentOpen && checkoutData && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
@@ -194,6 +202,9 @@ const BuyButton = forwardRef<HTMLButtonElement, BuyButtonProps>(
                   setIsPaymentOpen(false);
                   setCheckoutData(null);
                 }}
+                onStart={() => setIsPaymentProcessing(true)}
+                onComplete={() => setIsPaymentProcessing(false)}
+                onClose={() => setIsPaymentOpen(false)}
               />
             </div>
           </div>

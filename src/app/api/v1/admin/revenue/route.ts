@@ -1,64 +1,17 @@
 import connect from "@/lib/db";
 import { decodeJWT, verifyJWT } from "@/lib/jwt";
+import { authMiddleware } from "@/middlewares/authMiddleware";
 import "@/models/Course";
 import { Transaction } from "@/models/Transaction";
 import "@/models/User";
+import { Roles } from "@/types/constants";
+import { response } from "@/utils/response";
 import { NextRequest, NextResponse } from "next/server";
 
-export const GET = async (req: NextRequest) => {
+export const getController = async (req: NextRequest) => {
   try {
     await connect();
 
-    // Get admin token from cookies
-    const adminToken = req.cookies.get("admin_token")?.value;
-
-    if (!adminToken) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Admin authentication required",
-          status: false,
-        },
-        { status: 401 }
-      );
-    }
-
-    // Parse and verify admin token
-    let parsedToken;
-    try {
-      parsedToken = JSON.parse(adminToken);
-    } catch {
-      parsedToken = adminToken;
-    }
-
-    const isTokenValid = await verifyJWT(parsedToken);
-    if (!isTokenValid) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Invalid admin authentication token",
-          status: false,
-        },
-        { status: 401 }
-      );
-    }
-
-    const decodedToken = await decodeJWT(parsedToken);
-    console.log(decodedToken);
-
-    // Verify admin role (assuming admin check logic exists)
-    if (!decodedToken.isAdmin) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "Admin access required",
-          status: false,
-        },
-        { status: 403 }
-      );
-    }
-
-    // Get query parameters for filtering
     const url = new URL(req.url);
     const courseId = url.searchParams.get("courseId");
     const startDate = url.searchParams.get("startDate");
@@ -126,7 +79,6 @@ export const GET = async (req: NextRequest) => {
       },
     ]);
 
-    // Get monthly revenue trends (last 12 months)
     const twelveMonthsAgo = new Date();
     twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
 
@@ -189,89 +141,46 @@ export const GET = async (req: NextRequest) => {
     // Calculate pagination info
     const totalPages = Math.ceil(totalCount / limit);
 
-    return NextResponse.json(
+    return response.success(
       {
-        data: {
-          statistics: {
-            totalRevenue: revenueStats.totalRevenue,
-            monthlyRevenue: revenueStats.monthlyRevenue,
-            totalTransactions: revenueStats.totalTransactions,
-            successfulTransactions: revenueStats.successfulTransactions,
-            successRate:
-              revenueStats.totalTransactions > 0
-                ? (
-                    (revenueStats.successfulTransactions /
-                      revenueStats.totalTransactions) *
-                    100
-                  ).toFixed(2)
-                : "0.00",
-          },
-          transactions: formattedTransactions,
-          topSellingCourses,
-          monthlyRevenue: formattedMonthlyRevenue,
-          pagination: {
-            currentPage: page,
-            totalPages,
-            totalCount,
-            hasNextPage: page < totalPages,
-            hasPreviousPage: page > 1,
-            limit,
-          },
+        statistics: {
+          totalRevenue: revenueStats.totalRevenue,
+          monthlyRevenue: revenueStats.monthlyRevenue,
+          totalTransactions: revenueStats.totalTransactions,
+          successfulTransactions: revenueStats.successfulTransactions,
+          successRate:
+            revenueStats.totalTransactions > 0
+              ? (
+                  (revenueStats.successfulTransactions /
+                    revenueStats.totalTransactions) *
+                  100
+                ).toFixed(2)
+              : "0.00",
         },
-        message: "Revenue data retrieved successfully",
-        status: true,
+        transactions: formattedTransactions,
+        topSellingCourses,
+        monthlyRevenue: formattedMonthlyRevenue,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalCount,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1,
+          limit,
+        },
       },
-      { status: 200 }
+      "Revenue data retrieved successfully",
+      200
     );
   } catch (error) {
     console.error("Error fetching revenue data:", error);
-    return NextResponse.json(
-      {
-        data: null,
-        message: "Internal Server Error",
-        status: false,
-      },
-      { status: 500 }
-    );
+    return response.error("Internal Server Error", 500);
   }
 };
 
-// Export revenue data as CSV
-export const POST = async (req: NextRequest) => {
+export const postController = async (req: NextRequest) => {
   try {
     await connect();
-
-    // Verify admin authentication (same as GET)
-    const adminToken = req.cookies.get("admin_token")?.value;
-    if (!adminToken) {
-      return NextResponse.json(
-        { message: "Admin authentication required" },
-        { status: 401 }
-      );
-    }
-
-    let parsedToken;
-    try {
-      parsedToken = JSON.parse(adminToken);
-    } catch {
-      parsedToken = adminToken;
-    }
-
-    const isTokenValid = await verifyJWT(parsedToken);
-    if (!isTokenValid) {
-      return NextResponse.json(
-        { message: "Invalid admin token" },
-        { status: 401 }
-      );
-    }
-
-    const decodedToken = await decodeJWT(parsedToken);
-    if (!decodedToken.isAdmin) {
-      return NextResponse.json(
-        { message: "Admin access required" },
-        { status: 403 }
-      );
-    }
 
     const {
       startDate,
@@ -339,13 +248,12 @@ export const POST = async (req: NextRequest) => {
     });
   } catch (error) {
     console.error("Error exporting revenue data:", error);
-    return NextResponse.json(
-      {
-        data: null,
-        message: "Export failed",
-        status: false,
-      },
-      { status: 500 }
-    );
+    return response.error("Export Failed", 500);
   }
 };
+
+export const POST = async (req: NextRequest) =>
+  authMiddleware(req, [Roles.admin], postController);
+
+export const GET = async (req: NextRequest) =>
+  authMiddleware(req, [Roles.admin], getController);
