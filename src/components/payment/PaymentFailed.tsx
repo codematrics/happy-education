@@ -46,7 +46,7 @@ const PaymentFailed = ({
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-dvh flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mb-4">
@@ -82,7 +82,9 @@ const PaymentFailed = ({
             {orderId && (
               <div>
                 <h4 className="font-semibold mb-1">Order ID</h4>
-                <p className="text-sm text-muted-foreground font-mono">{orderId}</p>
+                <p className="text-sm text-muted-foreground font-mono">
+                  {orderId}
+                </p>
               </div>
             )}
           </div>

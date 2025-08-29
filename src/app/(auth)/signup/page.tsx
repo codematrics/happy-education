@@ -20,7 +20,6 @@ const defaultValues: SignUpUserFormData = {
   firstName: "",
   lastName: "",
   email: "",
-  mobile: "",
   password: "",
   confirmPassword: "",
 };
@@ -50,8 +49,8 @@ const SignUp = () => {
   return (
     <>
       <div className="text-center mb-8">
-        <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto">
-          <Image src={Logo} alt="logo" className="w-16 h-16 text-white" />
+        <div className="w-20 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-2">
+          <Image src={Logo} alt="logo" className="w-full text-white" />
         </div>
         <h1 className="text-3xl font-bold mb-2">Start Learning</h1>
         <p className="text-muted-foreground">
@@ -86,7 +85,7 @@ const SignUp = () => {
       {/* <TabsContent className="mb-0" value={AuthIdentifiers.email}> */}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-6">
-          <div className="grid grid-cols-2 gap-4 mb-0">
+          <div className="grid md:grid-cols-2 md:gap-4 mb-0">
             <FormInput
               label="First Name"
               name="firstName"

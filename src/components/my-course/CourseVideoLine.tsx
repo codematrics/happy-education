@@ -117,7 +117,7 @@ const CourseVideoLine = ({
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-dvh flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading course videos...</p>
@@ -128,7 +128,7 @@ const CourseVideoLine = ({
 
   if (error || !course) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-dvh flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-semibold mb-2">Course not found</h2>
           <p className="text-muted-foreground mb-4">
@@ -142,7 +142,7 @@ const CourseVideoLine = ({
 
   if (!videos.length) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-dvh flex items-center justify-center">
         <div className="text-center">
           <PlayCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
           <h2 className="text-2xl font-semibold mb-2">No videos available</h2>
@@ -156,7 +156,7 @@ const CourseVideoLine = ({
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-dvh bg-background">
       <div className="flex flex-col lg:flex-row relative">
         {/* Main Video Player Area */}
         <div

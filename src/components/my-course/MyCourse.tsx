@@ -82,7 +82,7 @@ const MyCourses = () => {
 
   if (myCoursesError || exploreCoursesError) {
     return (
-      <div className="min-h-screen py-12">
+      <div className="min-h-dvh py-12">
         <div className="container mx-auto px-4">
           <div className="text-center py-16">
             <h2 className="text-2xl font-semibold mb-2">
@@ -99,7 +99,7 @@ const MyCourses = () => {
   }
 
   return (
-    <div className="min-h-screen py-12">
+    <div className="min-h-dvh py-12">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="mb-12">

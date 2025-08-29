@@ -17,13 +17,10 @@ export const loginAdminValidations = z.object({
 export const loginUserValidations = z.object({
   identifier: z
     .string()
-    .min(1, "Email or mobile number is required")
-    .refine(
-      (value) => /^\S+@\S+\.\S+$/.test(value) || /^[0-9]{10}$/.test(value),
-      {
-        message: "Must be a valid email address or 10-digit mobile number",
-      }
-    ),
+    .min(1, "Email is required")
+    .refine((value) => /^\S+@\S+\.\S+$/.test(value), {
+      message: "Must be a valid email address",
+    }),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
@@ -31,12 +28,7 @@ export const signupUserValidations = z
   .object({
     identifier: z.nativeEnum(AuthIdentifiers),
 
-    email: z.string().email("Invalid email").optional().or(z.literal("")),
-    mobile: z
-      .string()
-      .regex(/^[0-9]{10}$/, "Invalid mobile number")
-      .optional()
-      .or(z.literal("")),
+    email: z.string().email("Please Enter Valid Email").nonoptional(),
 
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z
@@ -46,15 +38,6 @@ export const signupUserValidations = z
     firstName: z.string().min(1, "First name is required"),
     lastName: z.string().min(1, "Last name is required"),
   })
-  .refine(
-    (data) =>
-      (data.identifier === AuthIdentifiers.email && !!data.email) ||
-      (data.identifier === AuthIdentifiers.phone && !!data.mobile),
-    {
-      message: "Email or mobile number is required based on identifier",
-      path: ["identifier"],
-    }
-  )
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords must match",
     path: ["confirmPassword"],
@@ -75,13 +58,10 @@ export const newPasswordValidations = z
 export const forgotPasswordValidations = z.object({
   identifier: z
     .string()
-    .min(1, "Email or mobile number is required")
-    .refine(
-      (value) => /^\S+@\S+\.\S+$/.test(value) || /^[0-9]{10}$/.test(value),
-      {
-        message: "Must be a valid email address or 10-digit mobile number",
-      }
-    ),
+    .min(1, "Email is required")
+    .refine((value) => /^\S+@\S+\.\S+$/.test(value), {
+      message: "Must be a valid email address",
+    }),
 });
 
 export const otpValidations = z.object({

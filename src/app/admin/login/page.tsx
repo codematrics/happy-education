@@ -47,7 +47,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted">
+    <div className="min-h-dvh flex items-center justify-center bg-gradient-to-br from-background to-muted">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="text-center space-y-2">
           <div className="mx-auto w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-4">

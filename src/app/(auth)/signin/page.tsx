@@ -45,8 +45,8 @@ const SignIn = () => {
   return (
     <>
       <div className="text-center mb-8">
-        <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto">
-          <Image src={Logo} alt="logo" className="w-16 h-16" />
+        <div className="w-20 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-2">
+          <Image src={Logo} alt="logo" className="w-full" />
         </div>
         <h1 className="text-3xl font-bold mb-2">Welcome Back</h1>
         <p className="text-muted-foreground">

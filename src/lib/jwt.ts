@@ -29,8 +29,7 @@ export const verifyJWT = async (
 };
 
 export const assignJWT = async (
-  payload: string | object,
-  isAdmin: boolean = false
+  payload: string | object
 ): Promise<string | null> => {
   try {
     const secret = JWT_SECRET;

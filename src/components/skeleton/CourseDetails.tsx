@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const CourseDetailsSkeleton = () => {
   return (
-    <div className="min-h-screen space-y-10 max-w-full">
+    <div className="min-h-dvh space-y-10 max-w-full">
       {/* Header Section */}
       <section className="relative py-8 sm:py-10 lg:py-20 bg-gradient-to-r from-primary/10 to-info/10">
         <div className="container mx-auto px-4">

@@ -1,20 +1,19 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { verifyJWTJose } from "./lib/jose";
+import { verifyJWT } from "./lib/jwt";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const response = NextResponse.next(); // default response for continuation
+  const response = NextResponse.next();
 
-  // Admin Route Logic
   const isAdminLogin = pathname === "/admin/login";
   const isAdminRoute = pathname.startsWith("/admin") && !isAdminLogin;
 
   const adminTokenRaw = request.cookies.get("admin_token")?.value;
   const adminToken = adminTokenRaw ? adminTokenRaw : null;
   const hasValidAdminToken = adminToken
-    ? await verifyJWTJose(adminToken, true)
+    ? await verifyJWT(adminToken, true)
     : false;
 
   if (adminTokenRaw && !hasValidAdminToken) {
@@ -36,11 +35,9 @@ export async function middleware(request: NextRequest) {
   const userOtpToken = request.cookies.get("user_otp_token")?.value;
   const forgotPassToken = request.cookies.get("user_forgot_pass_token")?.value;
 
-  const hasValidOtpToken = userOtpToken
-    ? await verifyJWTJose(userOtpToken)
-    : false;
+  const hasValidOtpToken = userOtpToken ? await verifyJWT(userOtpToken) : false;
   const hasValidForgotPassToken = forgotPassToken
-    ? await verifyJWTJose(forgotPassToken)
+    ? await verifyJWT(forgotPassToken)
     : false;
 
   if (userOtpToken && !hasValidOtpToken) {

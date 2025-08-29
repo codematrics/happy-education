@@ -24,7 +24,10 @@ const postController = async (req: NextRequest) => {
     });
 
     if (!user) {
-      return response.error("Not Registered First Register YourSelf", 401);
+      return response.error(
+        "This Email is not registered with us. Please Register First",
+        401
+      );
     }
 
     const otp = generate4DigitOTP();

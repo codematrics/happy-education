@@ -69,7 +69,7 @@ const CourseDetails = ({ courseId }: { courseId: string }) => {
       error={error?.message}
       onRetry={refetch}
     >
-      <div className="min-h-screen">
+      <div className="min-h-dvh">
         <section className="relative py-10 lg:py-20 bg-gradient-to-r from-primary/10 to-info/10">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
