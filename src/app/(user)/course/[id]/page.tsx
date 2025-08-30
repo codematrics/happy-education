@@ -1,5 +1,5 @@
 import CourseDetails from "@/components/course/CourseDetails";
-import { getCourseById } from "@/lib/api";
+import { getCourseById, getEvents } from "@/lib/api";
 import { getQueryClient } from "@/lib/query";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { notFound } from "next/navigation";
@@ -20,6 +20,11 @@ export default async function CourseDetailsPage({
   await queryClient.prefetchQuery({
     queryKey: [id, id],
     queryFn: () => getCourseById(id),
+  });
+
+  await queryClient.prefetchQuery({
+    queryKey: ["events"],
+    queryFn: getEvents,
   });
 
   return (

@@ -12,12 +12,8 @@ import { NextRequest } from "next/server";
 const postController = async (req: NextRequest) => {
   try {
     // Check for both signup and forgot password tokens
-    const signupToken = JSON.parse(
-      req.cookies.get("user_otp_token")?.value || "{}"
-    );
-    const forgotPassToken = JSON.parse(
-      req.cookies.get("user_forgot_pass_token")?.value || "{}"
-    );
+    const signupToken = req.cookies.get("user_otp_token")?.value;
+    const forgotPassToken = req.cookies.get("user_forgot_pass_token")?.value;
 
     let activeToken = null;
     let isSignupFlow = false;
@@ -78,7 +74,7 @@ const postController = async (req: NextRequest) => {
     }
 
     // Update the appropriate cookie with new JWT
-    (await cookies()).set(cookieName, JSON.stringify(newJwt), {
+    (await cookies()).set(cookieName, newJwt, {
       httpOnly: process.env.NODE_ENV === "production",
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",

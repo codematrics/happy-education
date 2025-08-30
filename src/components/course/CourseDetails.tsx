@@ -18,6 +18,7 @@ import CustomCarousel from "../common/CustomCarousel";
 import CustomImage from "../common/CustomImage";
 import CustomVideo from "../common/CustomVideo";
 import LoadingError from "../common/LoadingError";
+import CoursePageEvents from "../events/CoursePageEvents";
 import BuyButton from "../payment/BuyButton";
 import CourseDetailsSkeleton from "../skeleton/CourseDetails";
 import TestimonialCard from "../testimonal/TestimonialCard";
@@ -221,7 +222,7 @@ const CourseDetails = ({ courseId }: { courseId: string }) => {
                       </div>
                       <div className="flex-1">
                         <h3 className="text-xl font-semibold mb-2">
-                          John Smith
+                          Pankaj Patel
                         </h3>
                         <p className="text-muted-foreground mb-4">
                           Senior Software Engineer with 10+ years of experience
@@ -305,6 +306,8 @@ const CourseDetails = ({ courseId }: { courseId: string }) => {
                   </div>
                 </div>
               )}
+
+            <CoursePageEvents />
 
             {data?.data?.relatedCourse &&
               data?.data?.relatedCourse.length > 0 && (

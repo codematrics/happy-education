@@ -9,9 +9,9 @@ import { NextRequest, NextResponse } from "next/server";
 export const GET = async () => {
   try {
     await connect();
-    
+
     const userToken = (await cookies()).get("user_token")?.value;
-    
+
     if (!userToken) {
       return NextResponse.json(
         {
@@ -25,7 +25,7 @@ export const GET = async () => {
 
     let parsedToken;
     try {
-      parsedToken = JSON.parse(userToken);
+      parsedToken = userToken;
     } catch (parseError) {
       parsedToken = userToken;
     }
@@ -83,9 +83,9 @@ export const GET = async () => {
 export const PUT = async (req: NextRequest) => {
   try {
     await connect();
-    
+
     const userToken = (await cookies()).get("user_token")?.value;
-    
+
     if (!userToken) {
       return NextResponse.json(
         {
@@ -99,7 +99,7 @@ export const PUT = async (req: NextRequest) => {
 
     let parsedToken;
     try {
-      parsedToken = JSON.parse(userToken);
+      parsedToken = userToken;
     } catch (parseError) {
       parsedToken = userToken;
     }

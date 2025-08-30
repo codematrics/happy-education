@@ -14,12 +14,8 @@ export const POST = async (req: NextRequest) => {
 
     const { otp }: OtpFormData = body;
 
-    const signupToken = JSON.parse(
-      req.cookies.get("user_otp_token")?.value || "{}"
-    );
-    const forgotPassToken = JSON.parse(
-      req.cookies.get("user_forgot_pass_token")?.value || "{}"
-    );
+    const signupToken = req.cookies.get("user_otp_token")?.value;
+    const forgotPassToken = req.cookies.get("user_forgot_pass_token")?.value;
 
     let activeToken = null;
     let isSignupFlow = false;
@@ -122,7 +118,7 @@ export const POST = async (req: NextRequest) => {
       (await cookies()).delete("user_otp_token");
       (await cookies()).delete("user_otp_email");
 
-      (await cookies()).set("user_token", JSON.stringify(jwt), {
+      (await cookies()).set("user_token", jwt, {
         httpOnly: process.env.NODE_ENV === "production",
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",

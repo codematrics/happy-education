@@ -1,11 +1,21 @@
+import jwt, { JwtPayload } from "jsonwebtoken";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { verifyJWT } from "./lib/jwt";
+import { verifyJWTJose } from "./lib/jose";
 
+export function verifyJwt(token: string): JwtPayload | null {
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
+  } catch (error) {
+    console.error("JWT verification failed:", error);
+    return null;
+  }
+}
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const response = NextResponse.next();
+  const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
   const isAdminLogin = pathname === "/admin/login";
   const isAdminRoute = pathname.startsWith("/admin") && !isAdminLogin;
@@ -13,7 +23,7 @@ export async function middleware(request: NextRequest) {
   const adminTokenRaw = request.cookies.get("admin_token")?.value;
   const adminToken = adminTokenRaw ? adminTokenRaw : null;
   const hasValidAdminToken = adminToken
-    ? await verifyJWT(adminToken, true)
+    ? await verifyJWTJose(adminToken)
     : false;
 
   if (adminTokenRaw && !hasValidAdminToken) {
@@ -35,9 +45,11 @@ export async function middleware(request: NextRequest) {
   const userOtpToken = request.cookies.get("user_otp_token")?.value;
   const forgotPassToken = request.cookies.get("user_forgot_pass_token")?.value;
 
-  const hasValidOtpToken = userOtpToken ? await verifyJWT(userOtpToken) : false;
+  const hasValidOtpToken = userOtpToken
+    ? await verifyJWTJose(userOtpToken)
+    : false;
   const hasValidForgotPassToken = forgotPassToken
-    ? await verifyJWT(forgotPassToken)
+    ? await verifyJWTJose(forgotPassToken)
     : false;
 
   if (userOtpToken && !hasValidOtpToken) {

@@ -14,9 +14,9 @@ export const POST = async (req: NextRequest) => {
     const { otp }: OtpFormData = body;
 
     await connect();
-    
+
     const userToken = (await cookies()).get("user_token")?.value;
-    
+
     if (!userToken) {
       return NextResponse.json(
         {
@@ -30,7 +30,7 @@ export const POST = async (req: NextRequest) => {
 
     let parsedToken;
     try {
-      parsedToken = JSON.parse(userToken);
+      parsedToken = userToken;
     } catch (parseError) {
       parsedToken = userToken;
     }

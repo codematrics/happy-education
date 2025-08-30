@@ -1,5 +1,6 @@
 import { calculateExpiryDate } from "@/lib/courseAccessMiddleware";
 import connect from "@/lib/db";
+import { assignJWT } from "@/lib/jwt";
 import {
   createReceiptData,
   generateReceiptHTML,
@@ -11,6 +12,7 @@ import { User } from "@/models/User";
 import { response } from "@/utils/response";
 import crypto from "crypto";
 import { Types } from "mongoose";
+import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 /* -------------------- Razorpay Signature Verification -------------------- */
@@ -114,6 +116,16 @@ const postController = async (req: NextRequest): Promise<NextResponse> => {
       };
       await transaction.save();
     }
+
+    const jwt = await assignJWT({ _id: user._id });
+
+    if (!jwt) {
+      return response.error("Something Went wrong. Please Try Again!", 500);
+    }
+
+    (await cookies()).set("user_token", jwt, {
+      httpOnly: process.env.NODE_ENV === "production",
+    });
 
     return response.success(
       {

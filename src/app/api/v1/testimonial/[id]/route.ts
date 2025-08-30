@@ -37,7 +37,7 @@ export const GET = async (
       try {
         let parsedToken;
         try {
-          parsedToken = JSON.parse(userToken);
+          parsedToken = userToken;
         } catch {
           parsedToken = userToken;
         }

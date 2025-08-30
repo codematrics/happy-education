@@ -148,7 +148,7 @@ export async function validateCourseAccess(
     // Parse and verify token
     let parsedToken;
     try {
-      parsedToken = JSON.parse(userToken);
+      parsedToken = userToken;
     } catch {
       parsedToken = userToken;
     }

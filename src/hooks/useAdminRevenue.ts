@@ -84,7 +84,7 @@ interface ExportParams {
 
 export const useAdminRevenue = (params: RevenueParams = {}) => {
   const queryParams = new URLSearchParams();
-  
+
   if (params.page) queryParams.set("page", params.page.toString());
   if (params.limit) queryParams.set("limit", params.limit.toString());
   if (params.courseId) queryParams.set("courseId", params.courseId);
@@ -125,12 +125,14 @@ export const useExportRevenue = () => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `revenue-report-${new Date().toISOString().split('T')[0]}.csv`;
+      link.download = `revenue-report-${
+        new Date().toISOString().split("T")[0]
+      }.csv`;
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-      
+
       Toast.success("Revenue report downloaded successfully");
     },
     onError: (error) => {
@@ -144,7 +146,9 @@ export const useRevenueSummary = () => {
   return useQuery<ResponseInterface<RevenueStats>>({
     queryKey: ["revenue-summary"],
     queryFn: () =>
-      fetcher<ResponseInterface<RevenueStats>>("/api/v1/admin/revenue?summary=true"),
+      fetcher<ResponseInterface<RevenueStats>>(
+        "/api/v1/admin/revenue?summary=true"
+      ),
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };

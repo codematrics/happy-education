@@ -18,8 +18,7 @@ const postController = async (req: NextRequest) => {
 
     validateSchema(signupUserValidations, body);
 
-    const { email, mobile, password, firstName, lastName }: SignUpUserFormData =
-      body;
+    const { email, password, firstName, lastName }: SignUpUserFormData = body;
 
     await connect();
 
@@ -27,10 +26,6 @@ const postController = async (req: NextRequest) => {
 
     if (email) {
       query.push({ email });
-    }
-
-    if (mobile) {
-      query.push({ mobileNumber: mobile });
     }
 
     const existingUser = await User.findOne({
@@ -47,7 +42,6 @@ const postController = async (req: NextRequest) => {
       email,
       otp: otp,
       otpGenerationTime: new Date(),
-      mobileNumber: mobile,
       password: await hashValue(password),
       firstName,
       lastName,
@@ -73,7 +67,7 @@ const postController = async (req: NextRequest) => {
       expires: new Date(Date.now() + 5 * 60 * 1000),
     });
 
-    (await cookies()).set("user_otp_email", JSON.stringify(email), {
+    (await cookies()).set("user_otp_email", email, {
       httpOnly: process.env.NODE_ENV === "production",
       expires: new Date(Date.now() + 5 * 60 * 1000),
     });

@@ -10,9 +10,9 @@ import { NextResponse } from "next/server";
 export const POST = async () => {
   try {
     await connect();
-    
+
     const userToken = (await cookies()).get("user_token")?.value;
-    
+
     if (!userToken) {
       return NextResponse.json(
         {
@@ -26,7 +26,7 @@ export const POST = async () => {
 
     let parsedToken;
     try {
-      parsedToken = JSON.parse(userToken);
+      parsedToken = userToken;
     } catch (parseError) {
       parsedToken = userToken;
     }

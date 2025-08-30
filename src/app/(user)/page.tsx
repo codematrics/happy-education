@@ -1,9 +1,10 @@
 import ContactLink from "@/components/contact/ContactLink";
 import StaticPageCourseList from "@/components/course/StaticPageList";
+import LandingPageEvents from "@/components/events/LandingPageEvents";
 import Hero from "@/components/home/Hero";
 import CourseSliderSkeleton from "@/components/skeleton/StaticPageCourseSkeleton";
 import StaticPageTestimonials from "@/components/testimonal/StaticPageTestimonials";
-import { getCourses, getTestimonial } from "@/lib/api";
+import { getCourses, getEvents, getTestimonial } from "@/lib/api";
 import { getQueryClient } from "@/lib/query";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Suspense } from "react";
@@ -23,10 +24,18 @@ const page = async () => {
     queryFn: () => getTestimonial(page, pageSize),
   });
 
+  await queryClient.prefetchQuery({
+    queryKey: ["events"],
+    queryFn: getEvents,
+  });
+
   return (
     <>
       <HydrationBoundary state={dehydrate(queryClient)}>
         <Hero />
+        <Suspense fallback={<CourseSliderSkeleton />}>
+          <LandingPageEvents />
+        </Suspense>
         <Suspense fallback={<CourseSliderSkeleton />}>
           <StaticPageCourseList />
         </Suspense>

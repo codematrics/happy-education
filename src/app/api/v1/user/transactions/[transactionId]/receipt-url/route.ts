@@ -1,8 +1,8 @@
 import connect from "@/lib/db";
 import { decodeJWT, verifyJWT } from "@/lib/jwt";
 import { Transaction } from "@/models/Transaction";
-import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
+import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (
   req: NextRequest,
@@ -49,7 +49,7 @@ export const GET = async (
     // Parse and verify token
     let parsedToken;
     try {
-      parsedToken = JSON.parse(userToken);
+      parsedToken = userToken;
     } catch {
       parsedToken = userToken;
     }
@@ -108,9 +108,12 @@ export const GET = async (
     }
 
     // Generate receipt access token
-    const receiptToken = generateReceiptToken(transactionId, transaction.orderId);
+    const receiptToken = generateReceiptToken(
+      transactionId,
+      transaction.orderId
+    );
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || req.nextUrl.origin;
-    
+
     const receiptUrl = `${baseUrl}/api/v1/receipt/${transactionId}?token=${receiptToken}`;
     const receiptJsonUrl = `${baseUrl}/api/v1/receipt/${transactionId}?token=${receiptToken}&format=json`;
 
@@ -144,9 +147,10 @@ export const GET = async (
  * Generate a secure token for receipt access
  */
 function generateReceiptToken(transactionId: string, orderId: string): string {
-  const secret = process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET || "fallback-secret";
+  const secret =
+    process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET || "fallback-secret";
   const payload = `${transactionId}:${orderId}`;
-  
+
   return crypto
     .createHmac("sha256", secret)
     .update(payload)

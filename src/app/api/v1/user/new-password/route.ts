@@ -16,9 +16,7 @@ const postController = async (req: NextRequest) => {
     validateSchema(newPasswordValidations, body);
 
     const { password }: NewPasswordFormData = body;
-    const forgotPassToken = JSON.parse(
-      req.cookies.get("user_forgot_pass_token")?.value || "{}"
-    );
+    const forgotPassToken = req.cookies.get("user_forgot_pass_token")?.value;
 
     if (!forgotPassToken || !(await verifyJWT(forgotPassToken))) {
       return response.error(

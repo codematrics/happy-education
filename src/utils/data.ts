@@ -28,7 +28,7 @@ export const sidebarItems = [
   },
   {
     title: "Events",
-    url: "#",
+    url: "/admin/events",
     icon: Calendar,
   },
   {

@@ -1,9 +1,7 @@
 import connect from "@/lib/db";
 import { decodeJWT, verifyJWT } from "@/lib/jwt";
 import { createReceiptData, generateReceiptHTML } from "@/lib/pdfGenerator";
-import { Course } from "@/models/Course";
 import { Transaction } from "@/models/Transaction";
-import { User } from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (
@@ -52,7 +50,7 @@ export const GET = async (
     // Parse and verify token
     let parsedToken;
     try {
-      parsedToken = JSON.parse(userToken);
+      parsedToken = userToken;
     } catch {
       parsedToken = userToken;
     }
@@ -135,7 +133,7 @@ export const GET = async (
 
     // Check if user wants JSON response (for frontend to handle PDF generation)
     const format = req.nextUrl.searchParams.get("format");
-    
+
     if (format === "json") {
       return NextResponse.json(
         {

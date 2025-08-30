@@ -135,7 +135,7 @@ export const useVerifyPayment = () => {
       return response;
     },
     onSuccess: (data) => {
-      // Invalidate relevant queries
+      queryClient.invalidateQueries({ queryKey: ["auth-check"], stale: false });
       queryClient.invalidateQueries({ queryKey: ["courses"] });
       queryClient.invalidateQueries({ queryKey: ["user-transactions"] });
       queryClient.invalidateQueries({ queryKey: ["my-courses"] });
@@ -145,29 +145,15 @@ export const useVerifyPayment = () => {
 
       Toast.success(data.message || "Payment successful!");
 
-      // If auto-login occurred, force a page reload to update authentication state
-      if (data.data?.autoLogin) {
-        // Use window.location.href to force a full page reload
-        const params = new URLSearchParams({
-          transactionId: data.data.transactionId,
-          courseId: data.data.course.id,
-          courseName: data.data.course.name,
-          newUser: data.data.user.isNewUser?.toString(),
-          email: data.data.user.email,
-        });
-        router.replace(`/payment/success?${params.toString()}`);
-      } else {
-        // Normal navigation for already logged-in users
-        const params = new URLSearchParams({
-          transactionId: data.data.transactionId,
-          courseId: data.data.course.id,
-          courseName: data.data.course.name,
-          newUser: data.data.user.isNewUser?.toString(),
-          email: data.data.user.email,
-        });
+      const params = new URLSearchParams({
+        transactionId: data.data.transactionId,
+        courseId: data.data.course.id,
+        courseName: data.data.course.name,
+        newUser: data.data.user.isNewUser?.toString(),
+        email: data.data.user.email,
+      });
 
-        router.push(`/payment/success?${params.toString()}`);
-      }
+      router.push(`/payment/success?${params.toString()}`);
     },
     onError: (error) => {
       Toast.error(error.message || "Payment verification failed");

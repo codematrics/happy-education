@@ -1,4 +1,4 @@
-import { assignJWT } from "@/lib/jwt";
+import { assignJWTJose } from "@/lib/jose";
 import { LoginAdminFormData, loginAdminValidations } from "@/types/schema";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
@@ -36,7 +36,7 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    const jwt = await assignJWT({
+    const jwt = await assignJWTJose({
       _id: process.env.ADMIN_USERNAME,
       isAdmin: true,
     });
@@ -52,7 +52,7 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    (await cookies()).set("admin_token", JSON.stringify(jwt), {
+    (await cookies()).set("admin_token", jwt, {
       httpOnly: process.env.NODE_ENV === "production",
     });
 

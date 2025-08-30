@@ -1,5 +1,6 @@
 import { ICourse } from "@/models/Course";
 import { ICourseVideo } from "@/models/CourseVideo";
+import { IEvent } from "@/models/Events";
 import { IInquiry } from "@/models/Inquiry";
 import { ITestimonial } from "@/models/Testimonial";
 import { IUser } from "@/models/User";
@@ -36,6 +37,10 @@ export interface Testimonial extends ITestimonial {
   courseIds?: string[];
 }
 
+export interface Event extends IEvent {
+  _id: string;
+}
+
 export interface CourseVideo extends ICourseVideo {
   _id: string;
 }
@@ -51,4 +56,3 @@ export interface DropdownProps<T = any> {
     iconClassName?: HTMLProps<HTMLElement>["className"];
   }[];
 }
-

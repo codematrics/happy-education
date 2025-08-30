@@ -1,6 +1,7 @@
 import { CourseFormData } from "@/types/schema";
 import {
   Course,
+  Event,
   Inquiry,
   ResponseInterface,
   Testimonial,
@@ -105,4 +106,8 @@ export const getInquiry = (
   return fetcher(
     `/api/v1/inquiry?page=${page}&limit=${limit}&search=${search}`
   );
+};
+
+export const getEvents = (): Promise<ResponseInterface<Event[]>> => {
+  return fetcher(`/api/v1/events`);
 };

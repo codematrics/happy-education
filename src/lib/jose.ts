@@ -7,35 +7,13 @@ import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
-const EXPIRES_IN = "7d"; // jose requires explicit expiration in `setExpirationTime`
+const EXPIRES_IN = "7d";
 
-const getSecretKey = () => new TextEncoder().encode(JWT_SECRET);
-
-export const verifyJWTJose = async (
-  token: string,
-  isAdmin: boolean = false
-): Promise<boolean> => {
-  try {
-    console.log("Verifying JWT:", {
-      isAdmin,
-      tokenLength: token?.length,
-    });
-
-    const { payload } = await jose.jwtVerify(token, getSecretKey(), {
-      algorithms: ["HS256"],
-    });
-
-    console.log("JWT verification result:", payload);
-    return true;
-  } catch (error) {
-    console.log("JWT verification failed:", error);
-    return false;
-  }
-};
+const getSecretKey = (): Uint8Array | any =>
+  new TextEncoder().encode(JWT_SECRET);
 
 export const assignJWTJose = async (
-  payload: string | object,
-  isAdmin: boolean = false
+  payload: string | object
 ): Promise<string | null> => {
   try {
     const token = await new jose.SignJWT(
@@ -48,8 +26,30 @@ export const assignJWTJose = async (
       .sign(getSecretKey());
 
     return token;
-  } catch {
+  } catch (err) {
+    console.error("JWT signing failed:", err);
     return null;
+  }
+};
+
+export const verifyJWTJose = async (
+  token: string,
+  isAdmin: boolean = false
+): Promise<boolean> => {
+  try {
+    const { payload, protectedHeader } = await jose.jwtVerify(
+      token,
+      getSecretKey(),
+      {
+        algorithms: ["HS256"],
+      }
+    );
+
+    console.log("JWT verified:", { payload, protectedHeader });
+    return true;
+  } catch (error) {
+    console.error("JWT verification failed:", error);
+    return false;
   }
 };
 
@@ -68,7 +68,7 @@ export const assignUserTokenJose = async (data: IUser) => {
   const { password, purchasedCourses, transactions, ...rest } = data;
   const token = await assignJWTJose(rest);
 
-  (await cookies()).set("user_token", JSON.stringify(token), {
+  (await cookies()).set("user_token", token || "", {
     httpOnly: process.env.NODE_ENV === "production",
   });
 };
@@ -78,7 +78,7 @@ export const getUserDataFromTokenJose = async (req: NextRequest) => {
     const raw = (await cookies()).get("user_token")?.value;
     if (!raw) return null;
 
-    const token = JSON.parse(raw);
+    const token = raw;
     if (!token) return null;
 
     const isValid = await verifyJWTJose(token);
@@ -97,7 +97,7 @@ export const getAdminDataFromTokenJose = async (req: NextRequest) => {
     const raw = (await cookies()).get("admin_token")?.value;
     if (!raw) return null;
 
-    const token = JSON.parse(raw);
+    const token = raw;
     if (!token) return null;
 
     const isValid = await verifyJWTJose(token);

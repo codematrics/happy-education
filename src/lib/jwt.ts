@@ -2,6 +2,7 @@
 
 import { IUser } from "@/models/User";
 import { Admin, User } from "@/types/types";
+import { JsonWebKeyInput, PublicKeyInput } from "crypto";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
@@ -11,14 +12,13 @@ const EXPIRES_IN = "7d";
 
 export const verifyJWT = async (
   token: string,
-  isAdmin: boolean = false
+  secret:
+    | jwt.Secret
+    | PublicKeyInput
+    | Buffer<ArrayBufferLike>
+    | JsonWebKeyInput = JWT_SECRET
 ): Promise<boolean> => {
   try {
-    const secret = JWT_SECRET;
-    console.log("Verifying JWT:", {
-      isAdmin,
-      tokenLength: token?.length,
-    });
     const result = await jwt.verify(token, secret);
     console.log("JWT verification result:", result);
     return true;
@@ -55,7 +55,7 @@ export const assignUserToken = async (data: IUser) => {
   const { password, purchasedCourses, transactions, ...rest } = data;
   const token = await assignJWT(rest);
 
-  (await cookies()).set("user_token", JSON.stringify(token), {
+  (await cookies()).set("user_token", token || "", {
     httpOnly: process.env.NODE_ENV === "production",
   });
 };
@@ -65,7 +65,7 @@ export const getUserDataFromToken = async (req: NextRequest) => {
     const raw = (await cookies()).get("user_token")?.value;
     if (!raw) return null;
 
-    const token = JSON.parse(raw);
+    const token = raw;
     if (!token) return null;
 
     const isValid = await verifyJWT(token);
@@ -84,7 +84,7 @@ export const getAdminDataFromToken = async (req: NextRequest) => {
     const raw = (await cookies()).get("admin_token")?.value;
     if (!raw) return null;
 
-    const token = JSON.parse(raw);
+    const token = raw;
     if (!token) return null;
 
     const isValid = await verifyJWT(token);

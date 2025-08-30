@@ -9,6 +9,7 @@ import { Admin } from "@/types/types";
 import { response } from "@/utils/response";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+
 export const authMiddleware = async (
   req: NextRequest,
   requiredRoles: Roles[] = [],

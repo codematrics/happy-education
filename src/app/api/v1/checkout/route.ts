@@ -96,6 +96,9 @@ const postController = async (
 
         emailSender
           .sendNewUserPassword(userEmail, generatedPassword, course.name)
+          .then(() => {
+            console.log("Email Sent successfully");
+          })
           .catch((error: any) => {
             console.error("Failed to send welcome email:", error);
           });
