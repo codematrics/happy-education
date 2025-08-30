@@ -50,19 +50,19 @@ const TopSellingCourses = ({ courses }: TopSellingCoursesProps) => {
   const getAccessTypeLabel = (accessType: string) => {
     switch (accessType) {
       case "lifetime":
-        return "Lifetime";
+        return "लाइफटाइम";
       case "monthly":
-        return "Monthly";
+        return "मासिक";
       case "yearly":
-        return "Yearly";
+        return "वार्षिक";
       case "free":
-        return "Free";
+        return "मुफ़्त";
       default:
         return accessType;
     }
   };
 
-  const maxSales = Math.max(...courses.map(course => course.totalSales), 1);
+  const maxSales = Math.max(...courses.map((course) => course.totalSales), 1);
 
   if (courses.length === 0) {
     return (
@@ -70,16 +70,18 @@ const TopSellingCourses = ({ courses }: TopSellingCoursesProps) => {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Award className="w-5 h-5" />
-            <span>Top Selling Courses</span>
+            <span>शीर्ष बिकने वाले कोर्स</span>
           </CardTitle>
           <CardDescription>
-            Most popular courses by sales volume
+            सबसे लोकप्रिय कोर्स बिक्री मात्रा के अनुसार
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-center py-8">
             <Award className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-sm text-muted-foreground">No sales data available</p>
+            <p className="text-sm text-muted-foreground">
+              कोई बिक्री डेटा उपलब्ध नहीं है
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -91,10 +93,10 @@ const TopSellingCourses = ({ courses }: TopSellingCoursesProps) => {
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <Award className="w-5 h-5" />
-          <span>Top Selling Courses</span>
+          <span>शीर्ष बिकने वाले कोर्स</span>
         </CardTitle>
         <CardDescription>
-          Most popular courses by sales volume
+          सबसे लोकप्रिय कोर्स बिक्री मात्रा के अनुसार
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -132,10 +134,12 @@ const TopSellingCourses = ({ courses }: TopSellingCoursesProps) => {
                     {getAccessTypeLabel(course.accessType)}
                   </span>
                 </div>
-                
+
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>{course.totalSales} sales</span>
-                  <span className="font-medium">{formatCurrency(course.totalRevenue)}</span>
+                  <span>{course.totalSales} बिक्री</span>
+                  <span className="font-medium">
+                    {formatCurrency(course.totalRevenue)}
+                  </span>
                 </div>
 
                 {/* Progress Bar */}
@@ -164,15 +168,20 @@ const TopSellingCourses = ({ courses }: TopSellingCoursesProps) => {
           <div className="mt-6 pt-4 border-t">
             <div className="text-sm space-y-1">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Total Sales:</span>
+                <span className="text-muted-foreground">कुल बिक्री:</span>
                 <span className="font-medium">
                   {courses.reduce((sum, course) => sum + course.totalSales, 0)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Total Revenue:</span>
+                <span className="text-muted-foreground">कुल राजस्व:</span>
                 <span className="font-medium">
-                  {formatCurrency(courses.reduce((sum, course) => sum + course.totalRevenue, 0))}
+                  {formatCurrency(
+                    courses.reduce(
+                      (sum, course) => sum + course.totalRevenue,
+                      0
+                    )
+                  )}
                 </span>
               </div>
             </div>

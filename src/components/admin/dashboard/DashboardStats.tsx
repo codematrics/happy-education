@@ -30,11 +30,11 @@ const DashboardStats = () => {
       <LoadingError
         isLoading={false}
         error={error.message}
-        errorTitle="Failed to load dashboard data"
+        errorTitle="डैशबोर्ड डेटा लोड करने में विफल"
         onRetry={refetch}
-        skeleton={<div>Loading...</div>}
+        skeleton={<div>लोड हो रहा है...</div>}
       >
-        <div>Error loading dashboard data</div>
+        <div>डैशबोर्ड डेटा लोड करने में त्रुटि</div>
       </LoadingError>
     );
   }
@@ -44,9 +44,9 @@ const DashboardStats = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Dashboard Overview</h1>
+          <h1 className="text-3xl font-bold">डैशबोर्ड अवलोकन</h1>
           <p className="text-muted-foreground">
-            Monitor your platform's performance and key metrics
+            अपने प्लेटफ़ॉर्म के प्रदर्शन और मुख्य मेट्रिक्स की निगरानी करें
           </p>
         </div>
         <Button
@@ -58,7 +58,7 @@ const DashboardStats = () => {
           <RefreshCw
             className={`w-4 h-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
           />
-          Refresh
+          रिफ्रेश
         </Button>
       </div>
 
@@ -129,9 +129,9 @@ const DashboardStats = () => {
       {/* Quick Actions */}
       <Card>
         <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
+          <CardTitle>त्वरित क्रियाएँ</CardTitle>
           <CardDescription>
-            Access frequently used admin functions
+            अक्सर उपयोग की जाने वाली व्यवस्थापक क्रियाओं तक पहुँचें
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -141,9 +141,9 @@ const DashboardStats = () => {
               className="h-auto p-4 flex flex-col items-start"
               onClick={() => router.replace("/admin/transactions")}
             >
-              <div className="font-semibold">View All Transactions</div>
+              <div className="font-semibold">सभी लेनदेन देखें</div>
               <div className="text-sm text-muted-foreground">
-                Detailed transaction history and management
+                लेनदेन का विस्तृत इतिहास और प्रबंधन
               </div>
             </Button>
 
@@ -152,9 +152,9 @@ const DashboardStats = () => {
               className="h-auto p-4 flex flex-col items-start"
               onClick={() => router.replace("/admin/course/new")}
             >
-              <div className="font-semibold">Create New Course</div>
+              <div className="font-semibold">नया कोर्स बनाएँ</div>
               <div className="text-sm text-muted-foreground">
-                Add a new course to your platform
+                अपने प्लेटफ़ॉर्म में नया कोर्स जोड़ें
               </div>
             </Button>
 
@@ -163,9 +163,9 @@ const DashboardStats = () => {
               className="h-auto p-4 flex flex-col items-start"
               onClick={() => router.push("/admin/users")}
             >
-              <div className="font-semibold">Manage Users</div>
+              <div className="font-semibold">उपयोगकर्ताओं का प्रबंधन करें</div>
               <div className="text-sm text-muted-foreground">
-                View and manage user accounts
+                उपयोगकर्ता खातों को देखें और प्रबंधित करें
               </div>
             </Button>
           </div>

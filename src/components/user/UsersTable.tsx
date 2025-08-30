@@ -69,6 +69,7 @@ const UserPage: React.FC<Props> = ({ initialSearch, initialPage }) => {
       userName: "",
       onBlock: () => {},
     });
+
   const limit = 10;
   const sortParams = getSortParams(sort);
   const { mutateAsync: blockUser } = useBlockUser();
@@ -122,17 +123,17 @@ const UserPage: React.FC<Props> = ({ initialSearch, initialPage }) => {
     label: <MoreHorizontal className="h-4 w-4" />,
     options: [
       {
-        label: "Edit User",
+        label: "उपयोगकर्ता संपादित करें",
         action: (data: User) => openUpdateModal(data),
         icon: Edit,
       },
       {
-        label: "Mark As Verified",
+        label: "सत्यापित के रूप में चिह्नित करें",
         action: async (data) => data?._id && (await verifyUser(data._id)),
         icon: CheckCheck,
       },
       {
-        label: "Block User",
+        label: "उपयोगकर्ता ब्लॉक करें",
         action: (data) =>
           setBlockConfirmation({
             isOpen: true,
@@ -159,60 +160,55 @@ const UserPage: React.FC<Props> = ({ initialSearch, initialPage }) => {
     {
       id: "rowNumber",
       header: "#",
-      cell: ({ row }) => {
-        return "#" + String(row.index + 1);
-      },
+      cell: ({ row }) => "#" + String(row.index + 1),
     },
     {
       accessorKey: "fullName",
-      header: "Full Name",
+      header: "पूरा नाम",
     },
-
     {
       accessorKey: "email",
-      header: "Email",
+      header: "ईमेल",
       cell: ({ row }) => row.getValue("email") || "-",
     },
     {
       accessorKey: "mobileNumber",
-      header: "Mobile Number",
+      header: "मोबाइल नंबर",
       cell: ({ row }) => row.getValue("mobileNumber") || "-",
     },
     {
       accessorKey: "purchasedCount",
-      header: "Purchased Courses",
+      header: "खरीदे गए कोर्स",
       cell: ({ row }) => row.getValue("purchasedCount") || "-",
     },
     {
       accessorKey: "createdAt",
-      header: "Creation Date",
+      header: "निर्माण तिथि",
       cell: ({ row }) => row.getValue("createdAt") || "-",
     },
     {
       accessorKey: "isVerified",
-      header: "Verified",
-      cell: ({ row }) => {
-        return row.getValue("isVerified") ? (
+      header: "सत्यापित",
+      cell: ({ row }) =>
+        row.getValue("isVerified") ? (
           <CheckCheck className="h-4 w-4 text-blue-600" />
         ) : (
           <X className="h-4 w-4 text-destructive" />
-        );
-      },
+        ),
     },
     {
       accessorKey: "isBlocked",
-      header: "Blocked",
-      cell: ({ row }) => {
-        return row.getValue("isBlocked") ? (
+      header: "ब्लॉक",
+      cell: ({ row }) =>
+        row.getValue("isBlocked") ? (
           <CheckCheck className="h-4 w-4 text-blue-600" />
         ) : (
           <X className="h-4 w-4 text-destructive" />
-        );
-      },
+        ),
     },
     {
       accessorKey: "actions",
-      header: "Actions",
+      header: "क्रियाएँ",
       cell: ({ row }) => (
         <CustomDropdown {...userDropdownData} data={row.original} />
       ),
@@ -233,22 +229,25 @@ const UserPage: React.FC<Props> = ({ initialSearch, initialPage }) => {
     <>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Users</h1>
-          <p className="text-muted-foreground">Manage your user accounts</p>
+          <h1 className="text-2xl font-bold text-foreground">उपयोगकर्ता</h1>
+          <p className="text-muted-foreground">
+            अपने उपयोगकर्ता खातों का प्रबंधन करें
+          </p>
         </div>
         <Button
           onClick={openCreationModal}
           className="bg-primary hover:bg-primary/90 text-primary-foreground"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Create User
+          उपयोगकर्ता बनाएँ
         </Button>
       </div>
+
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search users..."
+            placeholder="उपयोगकर्ताओं को खोजें..."
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
             className="pl-9 h-10"
@@ -273,7 +272,7 @@ const UserPage: React.FC<Props> = ({ initialSearch, initialPage }) => {
 
       <LoadingError
         isLoading={isLoading}
-        errorTitle="Error loading Users"
+        errorTitle="उपयोगकर्ताओं को लोड करने में त्रुटि"
         onRetry={refetch}
         skeleton={<CustomTableSkeleton columns={columns.length} />}
       >
@@ -291,11 +290,11 @@ const UserPage: React.FC<Props> = ({ initialSearch, initialPage }) => {
           <div className="text-center py-12">
             <div className="text-muted-foreground">
               {search
-                ? "No Users found matching your search."
-                : "No Users available."}
+                ? "कोई उपयोगकर्ता खोज से मेल नहीं खाता।"
+                : "कोई उपयोगकर्ता उपलब्ध नहीं है।"}
             </div>
             {!search && (
-              <Button className="mt-4">Create Your First User</Button>
+              <Button className="mt-4">अपना पहला उपयोगकर्ता बनाएँ</Button>
             )}
           </div>
         )}
@@ -319,8 +318,8 @@ const UserPage: React.FC<Props> = ({ initialSearch, initialPage }) => {
           })
         }
         onConfirm={blockConfirmation.onBlock}
-        title="Block User"
-        description="Are you sure you want to block this user?"
+        title="उपयोगकर्ता ब्लॉक करें"
+        description="क्या आप सुनिश्चित हैं कि आप इस उपयोगकर्ता को ब्लॉक करना चाहते हैं?"
       />
     </>
   );

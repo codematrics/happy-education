@@ -32,13 +32,13 @@ const RevenueTable: React.FC<Props> = ({ initialPage, initialSearch }) => {
     label: <MoreHorizontal className="h-4 w-4" />,
     options: [
       {
-        label: "View User",
+        label: "उपयोगकर्ता देखें",
         action: (row: any) =>
           window.open(`/admin/users?search=${row.user.id}`, "_blank"),
         icon: User,
       },
       {
-        label: "View Course",
+        label: "कोर्स देखें",
         action: (row: any) =>
           window.open(`/admin/course/${row.course.id}`, "_blank"),
         icon: Eye,
@@ -47,16 +47,10 @@ const RevenueTable: React.FC<Props> = ({ initialPage, initialSearch }) => {
   };
 
   const columns: ColumnDef<any>[] = [
-    {
-      id: "rowNumber",
-      header: "#",
-      cell: ({ row }) => {
-        return "#" + String(row.index + 1);
-      },
-    },
+    { id: "rowNumber", header: "#", cell: ({ row }) => "#" + (row.index + 1) },
     {
       accessorKey: "user.name",
-      header: "User",
+      header: "उपयोगकर्ता",
       cell: ({ row }) => (
         <div>
           <p className="font-medium">{row.original.user.name}</p>
@@ -68,21 +62,21 @@ const RevenueTable: React.FC<Props> = ({ initialPage, initialSearch }) => {
     },
     {
       accessorKey: "course.accessType",
-      header: "Access Type",
+      header: "एक्सेस प्रकार",
       cell: ({ row }) => (
         <span className="capitalize">{row.original.course.accessType}</span>
       ),
     },
     {
       accessorKey: "course.name",
-      header: "Course Name",
+      header: "कोर्स का नाम",
       cell: ({ row }) => (
         <span className="line-clamp-1">{row.original.course.name}</span>
       ),
     },
     {
       accessorKey: "amount",
-      header: "Amount",
+      header: "राशि",
       cell: ({ row }) => (
         <span>
           {row.original.currency === "USD" ? "$" : "₹"}
@@ -92,27 +86,29 @@ const RevenueTable: React.FC<Props> = ({ initialPage, initialSearch }) => {
     },
     {
       accessorKey: "status",
-      header: "Status",
+      header: "स्थिति",
       cell: ({ row }) => (
-        <span>
-          <Badge
-            className="capitalize"
-            variant={
-              row.original?.status === "pending"
-                ? "secondary"
-                : row.original?.status === "success"
-                ? "outline"
-                : "destructive"
-            }
-          >
-            {row.original?.status}
-          </Badge>
-        </span>
+        <Badge
+          className="capitalize"
+          variant={
+            row.original?.status === "pending"
+              ? "secondary"
+              : row.original?.status === "success"
+              ? "outline"
+              : "destructive"
+          }
+        >
+          {row.original?.status === "success"
+            ? "सफल"
+            : row.original?.status === "pending"
+            ? "प्रक्रियाधीन"
+            : "असफल"}
+        </Badge>
       ),
     },
     {
       accessorKey: "createdAt",
-      header: "Transaction Date",
+      header: "लेन-देन तिथि",
       cell: ({ row }) =>
         new Intl.DateTimeFormat("en-US", {
           year: "numeric",
@@ -124,7 +120,7 @@ const RevenueTable: React.FC<Props> = ({ initialPage, initialSearch }) => {
     },
     {
       accessorKey: "orderId",
-      header: "Transaction ID",
+      header: "लेन-देन ID",
       cell: ({ row }) => (
         <div>
           <p className="font-mono text-xs">{row.original.orderId}</p>
@@ -136,7 +132,7 @@ const RevenueTable: React.FC<Props> = ({ initialPage, initialSearch }) => {
     },
     {
       accessorKey: "actions",
-      header: "Actions",
+      header: "कार्रवाई",
       cell: ({ row }) => (
         <CustomDropdown {...userDropdownData} data={row.original} />
       ),
@@ -152,8 +148,8 @@ const RevenueTable: React.FC<Props> = ({ initialPage, initialSearch }) => {
     <>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Revenue</h1>
-          <p className="text-muted-foreground">View all transactions</p>
+          <h1 className="text-2xl font-bold text-foreground">राजस्व</h1>
+          <p className="text-muted-foreground">सभी लेन-देन देखें</p>
         </div>
       </div>
 
@@ -161,7 +157,7 @@ const RevenueTable: React.FC<Props> = ({ initialPage, initialSearch }) => {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search transactions..."
+            placeholder="लेन-देन खोजें..."
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
             className="pl-9 h-10"
@@ -171,17 +167,14 @@ const RevenueTable: React.FC<Props> = ({ initialPage, initialSearch }) => {
 
       <LoadingError
         isLoading={isLoading}
-        errorTitle="Error loading Transactions"
+        errorTitle="लेन-देन लोड करने में त्रुटि"
         onRetry={refetch}
         skeleton={<CustomTableSkeleton columns={columns.length} />}
       >
-        {data?.data?.transactions?.length ? ( // replace with (data?.data?.items?.length ?? 0) > 0
+        {data?.data?.transactions?.length ? (
           <>
-            <CustomTable
-              data={data?.data?.transactions} // replace with data?.data?.items || []
-              columns={columns}
-            />
-            {data?.data?.pagination && ( // replace with data?.data?.pagination
+            <CustomTable data={data?.data?.transactions} columns={columns} />
+            {data?.data?.pagination && (
               <CustomPagination
                 page={page}
                 totalPages={data?.data?.pagination?.totalPages}
@@ -196,8 +189,8 @@ const RevenueTable: React.FC<Props> = ({ initialPage, initialSearch }) => {
         ) : (
           <div className="text-center py-12 text-muted-foreground">
             {search
-              ? "No Transactions found matching your search."
-              : "No Transactions available."}
+              ? "कोई लेन-देन आपकी खोज से मेल नहीं खाता।"
+              : "कोई लेन-देन उपलब्ध नहीं है।"}
           </div>
         )}
       </LoadingError>

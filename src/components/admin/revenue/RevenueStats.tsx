@@ -1,17 +1,7 @@
 "use client";
 
-import {
-  Activity,
-  CreditCard,
-  DollarSign,
-  TrendingUp,
-} from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../../ui/card";
+import { Activity, CreditCard, DollarSign, TrendingUp } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 
 interface RevenueStats {
   totalRevenue: number;
@@ -41,33 +31,35 @@ const RevenueStatsComponent = ({ statistics }: RevenueStatsProps) => {
 
   const stats = [
     {
-      title: "Total Revenue",
+      title: "कुल राजस्व",
       value: formatCurrency(statistics?.totalRevenue || 0),
-      description: "All time revenue",
+      description: "संपूर्ण समय का राजस्व",
       icon: DollarSign,
       color: "text-green-600",
       bgColor: "bg-green-100 dark:bg-green-900/20",
     },
     {
-      title: "Monthly Revenue",
+      title: "मासिक राजस्व",
       value: formatCurrency(statistics?.monthlyRevenue || 0),
-      description: "Current month",
+      description: "वर्तमान माह",
       icon: TrendingUp,
       color: "text-blue-600",
       bgColor: "bg-blue-100 dark:bg-blue-900/20",
     },
     {
-      title: "Total Transactions",
+      title: "कुल लेनदेन",
       value: formatNumber(statistics?.totalTransactions || 0),
-      description: "All transactions",
+      description: "सभी लेनदेन",
       icon: CreditCard,
       color: "text-purple-600",
       bgColor: "bg-purple-100 dark:bg-purple-900/20",
     },
     {
-      title: "Success Rate",
+      title: "सफलता दर",
       value: `${statistics?.successRate || "0.00"}%`,
-      description: `${formatNumber(statistics?.successfulTransactions || 0)} successful`,
+      description: `${formatNumber(
+        statistics?.successfulTransactions || 0
+      )} सफल`,
       icon: Activity,
       color: "text-orange-600",
       bgColor: "bg-orange-100 dark:bg-orange-900/20",
