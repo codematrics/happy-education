@@ -33,24 +33,24 @@ const InquiryForm = () => {
       <form onSubmit={form.handleSubmit(handleSubmit)}>
         <div className="grid md:grid-cols-2 gap-6">
           <FormInput
-            label="First Name *"
+            label="प्रथम नाम *"
             name="firstName"
             control={form.control}
-            placeholder=""
+            placeholder="अपना पहला नाम दर्ज करें"
           />
           <FormInput
-            label="Phone Number *"
+            label="फोन नंबर *"
             name="phone"
             control={form.control}
-            placeholder=""
+            placeholder="10 अंकों का फोन नंबर दर्ज करें"
           />
         </div>
 
         <FormTextarea
           name="message"
-          label="Message *"
+          label="संदेश *"
           control={form.control}
-          placeholder=""
+          placeholder="अपना संदेश यहाँ लिखें"
         />
 
         <Button
@@ -59,7 +59,7 @@ const InquiryForm = () => {
           size="lg"
           className="w-full gradient-primary text-white border-0 shadow-medium hover:shadow-strong transition-smooth group"
         >
-          {isPending ? "Sending..." : "Send Message"}
+          {isPending ? "भेज रहे हैं..." : "संदेश भेजें"}
           <Send className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-smooth" />
         </Button>
       </form>

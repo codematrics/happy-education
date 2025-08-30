@@ -36,7 +36,7 @@ const EventCard: React.FC<{ event: Event }> = ({ event }) => {
                 <Calendar className="h-12 w-12 text-muted-foreground" />
               </div>
             )}
-            {/* Price Badge */}
+
             <div className="absolute top-3 right-3">
               <Badge className="bg-background text-foreground shadow-md">
                 {formatPrice(event.amount, event.currency)}
@@ -57,7 +57,6 @@ const EventCard: React.FC<{ event: Event }> = ({ event }) => {
             )}
           </div>
 
-          {/* Event Meta Info */}
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm">
               <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -65,13 +64,12 @@ const EventCard: React.FC<{ event: Event }> = ({ event }) => {
               {event.repeating && (
                 <Badge variant="outline" className="text-xs">
                   <Repeat className="h-3 w-3 mr-1" />
-                  Repeating
+                  दोहराया जाने वाला
                 </Badge>
               )}
             </div>
           </div>
 
-          {/* Benefits Preview */}
           {event.benefits && event.benefits.length > 0 && (
             <div>
               <div className="flex flex-wrap gap-1">
@@ -84,21 +82,20 @@ const EventCard: React.FC<{ event: Event }> = ({ event }) => {
                 ))}
                 {event.benefits.length > 2 && (
                   <Badge variant="secondary" className="text-xs">
-                    +{event.benefits.length - 2} more
+                    +{event.benefits.length - 2} और
                   </Badge>
                 )}
               </div>
             </div>
           )}
 
-          {/* Join Button */}
           <Button
             onClick={() => setShowPayment(true)}
             className="w-full mt-4"
             size="sm"
           >
             <ExternalLink className="h-4 w-4 mr-2" />
-            Join Event
+            इवेंट में शामिल हों
           </Button>
         </CardContent>
       </Card>
@@ -118,7 +115,7 @@ const CoursePageEvents: React.FC = () => {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <h2 className="text-3xl font-bold">Upcoming Events</h2>
+        <h2 className="text-3xl font-bold">आगामी इवेंट्स</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map((i) => (
             <div key={i} className="animate-pulse">
@@ -138,10 +135,10 @@ const CoursePageEvents: React.FC = () => {
 
   return (
     <div className="py-7">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-3xl font-bold">Don't Miss Our Events</h2>
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-2">
+        <h2 className="text-3xl font-bold">हमारे इवेंट्स न चूकें</h2>
         <p className="text-muted-foreground">
-          Connect with experts and expand your knowledge
+          विशेषज्ञों से जुड़ें और अपने ज्ञान का विस्तार करें
         </p>
       </div>
 

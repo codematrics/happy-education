@@ -7,10 +7,10 @@ const Contact = () => {
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl lg:text-5xl font-bold mb-4">Get in Touch</h1>
+          <h1 className="text-4xl lg:text-5xl font-bold mb-4">संपर्क करें</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Have questions about our courses? Need technical support? We're here
-            to help! Send us a message and we'll respond as quickly as possible.
+            हमारे कोर्स के बारे में सवाल हैं? तकनीकी सहायता चाहिए? हम आपकी मदद
+            के लिए यहां हैं! हमें संदेश भेजें और हम जल्द से जल्द उत्तर देंगे।
           </p>
         </div>
 
@@ -18,30 +18,31 @@ const Contact = () => {
           {/* Contact Form */}
           <div className="">
             <div className="bg-card rounded-2xl p-8 shadow-soft border">
-              <h2 className="text-2xl font-bold mb-6">Send us a Message</h2>
+              <h2 className="text-2xl font-bold mb-6">हमें संदेश भेजें</h2>
 
               <InquiryForm />
 
               <div className="mt-6 p-4 bg-secondary/30 rounded-lg">
                 <p className="text-sm text-muted-foreground">
-                  By submitting this form, you agree to our privacy policy and
-                  terms of service. We'll never share your information with
-                  third parties.
+                  इस फॉर्म को सबमिट करके, आप हमारी गोपनीयता नीति और सेवा की
+                  शर्तों से सहमत होते हैं। हम आपकी जानकारी किसी तीसरे पक्ष के
+                  साथ साझा नहीं करेंगे।
                 </p>
               </div>
             </div>
           </div>
+
           {/* Contact Information */}
           <div className="space-y-8 px-8">
             <div>
-              <h2 className="text-2xl font-bold mb-6">Contact Information</h2>
+              <h2 className="text-2xl font-bold mb-6">संपर्क जानकारी</h2>
               <div className="space-y-6 grid grid-cols-2 lg:grid-cols-1">
                 <div className="flex items-start space-x-4 rounded-2xl p-4 shadow-soft border">
                   <div className="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center flex-shrink-0">
                     <Mail className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-1">Email Us</h3>
+                    <h3 className="font-semibold mb-1">हमें ईमेल करें</h3>
                     <p className="text-muted-foreground">
                       info@eduplatform.com
                     </p>
@@ -56,10 +57,10 @@ const Contact = () => {
                     <Phone className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-1">Call Us</h3>
+                    <h3 className="font-semibold mb-1">हमें कॉल करें</h3>
                     <p className="text-muted-foreground">+1 (555) 123-4567</p>
                     <p className="text-muted-foreground">
-                      Mon-Sun 9AM-10PM EST
+                      सोमवार-रविवार 9AM-10PM EST
                     </p>
                   </div>
                 </div>
@@ -71,14 +72,14 @@ const Contact = () => {
         {/* Map Section */}
         <div className="mt-16">
           <div className="bg-card rounded-2xl p-8 shadow-soft">
-            <h2 className="text-2xl font-bold mb-6 text-center">Find Us</h2>
+            <h2 className="text-2xl font-bold mb-6 text-center">हमसे मिलें</h2>
             <div className="mb-6 text-center">
               <p className="text-muted-foreground mb-2">
-                Visit our office at 123 Education Street, Learning City, LC
+                हमारे कार्यालय पर आएँ: 123 Education Street, Learning City, LC
                 12345
               </p>
               <p className="text-sm text-muted-foreground">
-                Open Monday to Friday, 9:00 AM - 6:00 PM EST
+                सोमवार से शुक्रवार, सुबह 9:00 बजे - शाम 6:00 बजे EST
               </p>
             </div>
             <iframe

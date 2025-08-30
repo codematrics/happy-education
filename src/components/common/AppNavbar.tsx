@@ -31,24 +31,24 @@ const AppNavbar = () => {
       router.push("/");
       refetch();
     } catch (error) {
-      console.error("Logout failed:", error);
+      console.error("लॉगआउट असफल:", error);
       refetch();
     }
   };
 
   const navLinks = [
-    { href: "/", label: "Home" },
-    { href: "/courses", label: "Courses" },
-    { href: "/testimonials", label: "Testimonials" },
-    { href: "/contact", label: "Contact" },
+    { href: "/", label: "होम" },
+    { href: "/courses", label: "कोर्स" },
+    { href: "/testimonials", label: "प्रशंसापत्र" },
+    { href: "/contact", label: "संपर्क करें" },
   ];
 
   const authenticatedLinks = [
-    { href: "/my-courses", label: "My Courses", icon: BookOpen },
-    { href: "/profile", label: "Profile", icon: User },
+    { href: "/my-courses", label: "मेरे पाठ्यक्रम", icon: BookOpen },
+    { href: "/profile", label: "प्रोफ़ाइल", icon: User },
   ];
 
-  const adminLinks = [{ href: "/admin", label: "Admin", icon: Shield }];
+  const adminLinks = [{ href: "/admin", label: "एडमिन", icon: Shield }];
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border shadow-soft">
@@ -66,11 +66,11 @@ const AppNavbar = () => {
             />
           </div>
           <span className="text-xl font-bold max-md:hidden">
-            Happy Education
+            हैप्पी एजुकेशन
           </span>
         </Link>
 
-        {/* Desktop Navigation (centered) */}
+        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8 absolute left-1/2 -translate-x-1/2">
           {navLinks.map((link) => (
             <Link
@@ -83,10 +83,9 @@ const AppNavbar = () => {
           ))}
         </nav>
 
-        {/* Auth Buttons (Right) */}
+        {/* Auth Buttons */}
         <div className="hidden md:flex items-center space-x-4">
           {isPending || isLoading ? (
-            // Show loading indicator while checking auth
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-muted animate-pulse" />
               <div className="h-3 w-16 bg-muted rounded animate-pulse" />
@@ -94,11 +93,11 @@ const AppNavbar = () => {
           ) : !isAuthenticated ? (
             <>
               <Link href="/signin">
-                <Button variant="ghost">Sign In</Button>
+                <Button variant="ghost">लॉगिन</Button>
               </Link>
               <Link href="/signup">
                 <Button className="gradient-primary text-white border-0 shadow-medium hover:shadow-strong transition-smooth">
-                  Sign Up
+                  साइन अप करें
                 </Button>
               </Link>
             </>
@@ -111,7 +110,7 @@ const AppNavbar = () => {
                   className="relative rounded-full hover:bg-primary/10 transition-colors p-0"
                 >
                   <Avatar>
-                    <AvatarFallback className="text-xs">HR</AvatarFallback>
+                    <AvatarFallback className="text-xs">यू</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
@@ -147,7 +146,7 @@ const AppNavbar = () => {
                   className="cursor-pointer text-red-600 focus:text-red-600"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
-                  Logout
+                  लॉगआउट
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -216,12 +215,12 @@ const AppNavbar = () => {
                 <>
                   <Link href="/signin" onClick={() => setIsMenuOpen(false)}>
                     <Button variant="ghost" className="w-full justify-center">
-                      Sign In
+                      लॉगिन
                     </Button>
                   </Link>
                   <Link href="/signup" onClick={() => setIsMenuOpen(false)}>
                     <Button className="w-full gradient-primary text-white border-0">
-                      Sign Up
+                      साइन अप करें
                     </Button>
                   </Link>
                 </>
@@ -230,7 +229,7 @@ const AppNavbar = () => {
                   {(role === "user" || role === "both") && (
                     <Link href="/profile" onClick={() => setIsMenuOpen(false)}>
                       <Avatar>
-                        <AvatarFallback className="text-xs">HR</AvatarFallback>
+                        <AvatarFallback className="text-xs">यू</AvatarFallback>
                       </Avatar>
                     </Link>
                   )}
@@ -240,7 +239,7 @@ const AppNavbar = () => {
                     onClick={handleLogout}
                   >
                     <LogOut className="w-4 h-4 mr-2" />
-                    Logout
+                    लॉगआउट
                   </Button>
                 </>
               )}

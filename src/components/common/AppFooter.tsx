@@ -43,8 +43,8 @@ const AppFooter = () => {
               <span className="text-xl font-bold">Happy Education</span>
             </Link>
             <p className="text-muted-foreground">
-              Empowering learners worldwide with quality education and
-              innovative courses.
+              गुणवत्तापूर्ण शिक्षा और नवाचारी कोर्स के साथ शिक्षार्थियों को
+              सशक्त बनाना।
             </p>
             <div className="flex space-x-4">
               <div className="p-2 rounded-lg bg-secondary/50 hover:bg-secondary transition-smooth cursor-pointer">
@@ -64,38 +64,38 @@ const AppFooter = () => {
 
           {/* Quick Links */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Quick Links</h3>
+            <h3 className="text-lg font-semibold">त्वरित लिंक</h3>
             <div className="space-y-2">
               <Link
                 href="/"
                 className="block text-muted-foreground hover:text-primary transition-smooth"
               >
-                Home
+                होम
               </Link>
               <Link
                 href="/courses"
                 className="block text-muted-foreground hover:text-primary transition-smooth"
               >
-                Courses
+                कोर्स
               </Link>
               <Link
                 href="/testimonials"
                 className="block text-muted-foreground hover:text-primary transition-smooth"
               >
-                Testimonials
+                प्रशंसापत्र
               </Link>
               <Link
                 href="/contact"
                 className="block text-muted-foreground hover:text-primary transition-smooth"
               >
-                Contact
+                संपर्क करें
               </Link>
             </div>
           </div>
 
           {/* Contact Info */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Contact Info</h3>
+            <h3 className="text-lg font-semibold">संपर्क जानकारी</h3>
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <Mail className="w-5 h-5 text-primary" />
@@ -111,7 +111,7 @@ const AppFooter = () => {
                 <div className="flex items-start space-x-3">
                   <MapPin className="w-5 h-5 text-primary mt-1" />
                   <span className="text-muted-foreground">
-                    123 Education St, Learning City
+                    123 एजुकेशन स्ट्रीट, लर्निंग सिटी
                   </span>
                 </div>
                 {/* Responsive Google Map */}
@@ -123,10 +123,10 @@ const AppFooter = () => {
         <div className="border-t border-border mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-muted-foreground text-sm">
-              © 2024 Happy Education. All rights reserved.
+              © 2024 Happy Education. सर्वाधिकार सुरक्षित।
             </p>
             <div className="text-muted-foreground text-sm mt-2 md:mt-0 flex gap-[1ch]">
-              <p className="">Developed and Designed By</p>
+              <p className="">डिज़ाइन और विकास द्वारा</p>
               <Link
                 href="https://www.codematrics.com/"
                 className="text-primary hover:underline"

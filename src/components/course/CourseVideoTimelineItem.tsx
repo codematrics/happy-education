@@ -2,11 +2,11 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { ICourseVideo } from "@/models/CourseVideo";
-import { formatDuration, estimateVideoDuration } from "@/lib/videoUtils";
 import { getAssetUrl } from "@/lib/assetUtils";
+import { estimateVideoDuration, formatDuration } from "@/lib/videoUtils";
+import { ICourseVideo } from "@/models/CourseVideo";
 import { CheckCircle, Clock, Play } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import CustomImage from "../common/CustomImage";
 
 interface CourseVideoTimelineItemProps {
@@ -26,11 +26,9 @@ const CourseVideoTimelineItem = ({
   const [duration, setDuration] = useState<number>(0);
 
   useEffect(() => {
-    // Use actual duration from database if available, otherwise estimate
     if (video.video?.duration) {
       setDuration(video.video.duration);
     } else {
-      // Fallback to estimation for backward compatibility
       const estimatedDurationSeconds = estimateVideoDuration();
       setDuration(estimatedDurationSeconds);
     }
@@ -38,13 +36,11 @@ const CourseVideoTimelineItem = ({
 
   const handleClick = () => {
     onSelect();
-    // Mark as watched when selected (in a real app, this would track actual progress)
     setIsWatched(true);
   };
 
   return (
     <div className="relative">
-      {/* Timeline line */}
       {index > 0 && (
         <div className="absolute left-6 -top-4 w-0.5 h-4 bg-border" />
       )}
@@ -61,7 +57,6 @@ const CourseVideoTimelineItem = ({
           <div className="flex gap-4">
             {/* Timeline dot and thumbnail */}
             <div className="relative flex-shrink-0">
-              {/* Timeline dot */}
               <div
                 className={`absolute -left-2 top-3 w-4 h-4 rounded-full border-2 border-background z-10 ${
                   isWatched
@@ -76,7 +71,6 @@ const CourseVideoTimelineItem = ({
                 )}
               </div>
 
-              {/* Video thumbnail */}
               <div className="w-20 h-12 rounded-lg overflow-hidden bg-muted relative group">
                 <CustomImage
                   src={getAssetUrl(video.thumbnail)}
@@ -114,17 +108,15 @@ const CourseVideoTimelineItem = ({
 
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 {isWatched && (
-                  <>
-                    <span className="text-green-600 flex items-center">
-                      <CheckCircle className="w-3 h-3 mr-1" />
-                      Watched
-                    </span>
-                  </>
+                  <span className="text-green-600 flex items-center">
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    देखा गया
+                  </span>
                 )}
                 {isSelected && !isWatched && (
                   <>
                     <span>•</span>
-                    <span className="text-primary">Now Playing</span>
+                    <span className="text-primary">अब चल रहा है</span>
                   </>
                 )}
               </div>

@@ -1,3 +1,5 @@
+"use client";
+
 import { useCourses } from "@/hooks/useCourses";
 import {
   useCreateTestimonial,
@@ -101,7 +103,7 @@ const AddCourse = ({ form }: { form: UseFormReturn<TestimonialFormData> }) => {
       defaultValue="item-1"
     >
       <AccordionItem value="item-1" className="px-2">
-        <AccordionTrigger className="px-3">Select Courses</AccordionTrigger>
+        <AccordionTrigger className="px-3">कोर्स चुनें</AccordionTrigger>
         <AccordionContent className="flex flex-col gap-4">
           {/* Selected Courses */}
           <div className="flex flex-wrap gap-2">
@@ -145,7 +147,7 @@ const AddCourse = ({ form }: { form: UseFormReturn<TestimonialFormData> }) => {
             </label>
           ))}
 
-          {/* 🟢 Load More Button */}
+          {/* Load More Button */}
           {page < totalPages && (
             <button
               type="button"
@@ -153,7 +155,7 @@ const AddCourse = ({ form }: { form: UseFormReturn<TestimonialFormData> }) => {
               onClick={() => setPage((p) => p + 1)}
               disabled={isLoading}
             >
-              {isLoading ? "Loading..." : "Load More"}
+              {isLoading ? "लोड हो रहा है..." : "और दिखाएँ"}
             </button>
           )}
         </AccordionContent>
@@ -210,14 +212,14 @@ const UpdateModal: React.FC<ModalProps> = ({
       confirmText={
         data
           ? isUpdating
-            ? "Updating..."
-            : "Update"
+            ? "अपडेट हो रहा है..."
+            : "अपडेट करें"
           : isCreating
-          ? "Adding..."
-          : "Add"
+          ? "जोड़ रहा है..."
+          : "जोड़ें"
       }
       isLoading={isUpdating || isCreating}
-      title={data ? "Update Testimonial" : "Add Testimonial"}
+      title={data ? "टेस्टिमोनियल अपडेट करें" : "टेस्टिमोनियल जोड़ें"}
     >
       <Form {...form}>
         <form
@@ -227,7 +229,7 @@ const UpdateModal: React.FC<ModalProps> = ({
           <div className="grid grid-cols-1 lg:gap-2 space-y-2">
             <FormFileUpload
               name="video"
-              label="Video File *"
+              label="वीडियो फ़ाइल *"
               accept=".mp4,.avi,.mov,.wmv,.flv,.webm"
               type="video"
               control={form.control}
@@ -235,7 +237,7 @@ const UpdateModal: React.FC<ModalProps> = ({
             />
             <FormFileUpload
               name="thumbnail"
-              label="Video Thumbnail"
+              label="वीडियो थंबनेल"
               accept=".jpg,.jpeg,.png,.gif,.webp"
               type="image"
               control={form.control}

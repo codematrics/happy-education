@@ -69,7 +69,7 @@ export function CustomTable<TData, TValue>({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
+                कोई परिणाम नहीं
               </TableCell>
             </TableRow>
           )}

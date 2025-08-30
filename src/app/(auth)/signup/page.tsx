@@ -37,7 +37,7 @@ const SignUp = () => {
   const handleLogin = (data: SignUpUserFormData) => {
     mutate(data, {
       onSuccess: () => {
-        Toast.success("You are Signed Up Successfully");
+        Toast.success("आपका खाता सफलतापूर्वक बनाया गया");
         router.replace("/otp");
       },
       onError: (err) => {
@@ -52,58 +52,33 @@ const SignUp = () => {
         <div className="w-20 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-2">
           <Image src={Logo} alt="logo" className="w-full text-white" />
         </div>
-        <h1 className="text-3xl font-bold mb-2">Start Learning</h1>
+        <h1 className="text-3xl font-bold mb-2">सीखना शुरू करें</h1>
         <p className="text-muted-foreground">
-          Create your account and start learning today
+          अपना खाता बनाएं और आज से सीखना शुरू करें
         </p>
       </div>
 
-      {/* <Tabs
-        onValueChange={(value) =>
-          form.setValue("identifier", value as AuthIdentifiers)
-        }
-        defaultValue={form.getValues("identifier")}
-        className="space-y-6"
-      >
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger
-            value={AuthIdentifiers.email}
-            className="flex items-center space-x-2"
-          >
-            <Mail className="w-4 h-4" />
-            <span>Email</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value={AuthIdentifiers.phone}
-            className="flex items-center space-x-2"
-          >
-            <Phone className="w-4 h-4" />
-            <span>Phone</span>
-          </TabsTrigger>
-        </TabsList> */}
-
-      {/* <TabsContent className="mb-0" value={AuthIdentifiers.email}> */}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-6">
           <div className="grid md:grid-cols-2 md:gap-4 mb-0">
             <FormInput
-              label="First Name"
+              label="पहला नाम"
               name="firstName"
               type="text"
-              placeholder="first name"
+              placeholder="पहला नाम"
               control={form.control}
             />
             <FormInput
-              label="Last Name"
+              label="अंतिम नाम"
               name="lastName"
               type="text"
-              placeholder="last name"
+              placeholder="अंतिम नाम"
               control={form.control}
             />
           </div>
 
           <FormInput
-            label="Email"
+            label="ईमेल"
             name="email"
             type="email"
             placeholder="john.doe@example.com"
@@ -111,18 +86,18 @@ const SignUp = () => {
           />
 
           <FormInput
-            label="Password"
+            label="पासवर्ड"
             name="password"
             type="password"
-            placeholder="Create a strong password"
+            placeholder="मजबूत पासवर्ड बनाएं"
             control={form.control}
           />
 
           <FormInput
-            label="Confirm Password"
+            label="पासवर्ड की पुष्टि करें"
             name="confirmPassword"
             type="password"
-            placeholder="Confirm your password"
+            placeholder="पासवर्ड की पुष्टि करें"
             control={form.control}
           />
 
@@ -133,98 +108,38 @@ const SignUp = () => {
             className="w-full gradient-primary text-white border-0 shadow-medium hover:shadow-strong transition-smooth group"
           >
             {isPending ? (
-              "Creating Account..."
+              "खाता बनाया जा रहा है..."
             ) : (
               <>
-                Continue with Email
+                ईमेल के साथ जारी रखें
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-smooth" />
               </>
             )}
           </Button>
         </form>
       </Form>
-      {/* </TabsContent>
-
-        <TabsContent className="mb-0" value={AuthIdentifiers.phone}>
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(handleLogin)}
-              className="space-y-6"
-            >
-              <div className="grid grid-cols-2 gap-4 mb-0">
-                <FormInput
-                  label="First Name"
-                  name="firstName"
-                  type="text"
-                  placeholder="Enter your first name"
-                  control={form.control}
-                />
-                <FormInput
-                  label="Last Name"
-                  name="lastName"
-                  type="text"
-                  placeholder="Enter your last name"
-                  control={form.control}
-                />
-              </div>
-
-              <FormInput
-                label="Phone Number"
-                name="mobile"
-                type="tel"
-                placeholder="+1 (555) 123-4567"
-                control={form.control}
-              />
-
-              <FormInput
-                label="Password"
-                name="password"
-                type="password"
-                placeholder="Create a strong password"
-                control={form.control}
-              />
-
-              <FormInput
-                label="Confirm Password"
-                name="confirmPassword"
-                type="password"
-                placeholder="Confirm your password"
-                control={form.control}
-              />
-
-              <Button
-                type="submit"
-                size="lg"
-                className="w-full gradient-primary text-white border-0 shadow-medium hover:shadow-strong transition-smooth group"
-              >
-                Continue with Email
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-smooth" />
-              </Button>
-            </form>
-          </Form>
-        </TabsContent>
-      </Tabs> */}
 
       <div className="mt-6">
         <div className="text-center text-xs text-muted-foreground mb-4">
-          By creating an account, you agree to our{" "}
+          खाता बनाकर, आप हमारी{" "}
           <Link href="/terms" className="text-primary hover:underline">
-            Terms of Service
+            सेवा की शर्तें
           </Link>{" "}
-          and{" "}
+          और{" "}
           <Link href="/privacy" className="text-primary hover:underline">
-            Privacy Policy
-          </Link>
+            गोपनीयता नीति
+          </Link>{" "}
+          से सहमत होते हैं
         </div>
 
         <Separator className="my-4" />
         <p className="text-center text-sm text-muted-foreground">
-          Already have an account?{" "}
+          पहले से खाता है?{" "}
           <Link
             href="/signin"
             className="text-primary hover:underline font-medium"
           >
-            Sign in here
+            यहाँ लॉगिन करें
           </Link>
         </p>
       </div>

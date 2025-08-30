@@ -68,10 +68,10 @@ const AllCourse: React.FC<Props> = ({ initialSearch, initialPage }) => {
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl lg:text-5xl font-bold mb-4">All Courses</h1>
+          <h1 className="text-4xl lg:text-5xl font-bold mb-4">सभी कोर्स</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Explore our comprehensive collection of courses designed to help you
-            master new skills and advance your career.
+            हमारे व्यापक कोर्स संग्रह का अन्वेषण करें, जो नई क्षमताओं में
+            निपुणता हासिल करने और अपने करियर को आगे बढ़ाने में आपकी मदद करता है।
           </p>
         </div>
 
@@ -80,12 +80,12 @@ const AllCourse: React.FC<Props> = ({ initialSearch, initialPage }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
             <div className="lg:col-span-2">
               <label className="text-sm font-medium mb-2 block">
-                Search Courses
+                कोर्स खोजें
               </label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
-                  placeholder="Search by title or description..."
+                  placeholder="शीर्षक या विवरण से खोजें..."
                   value={search}
                   onChange={(e) => handleSearch(e.target.value)}
                   className="pl-10"
@@ -94,7 +94,9 @@ const AllCourse: React.FC<Props> = ({ initialSearch, initialPage }) => {
             </div>
 
             <div className="lg:col-span-2">
-              <label className="text-sm font-medium mb-2 block">Sort By</label>
+              <label className="text-sm font-medium mb-2 block">
+                क्रमबद्ध करें
+              </label>
               <Select value={sort} onValueChange={handleSort}>
                 <SelectTrigger className="w-40 h-10">
                   <SelectValue />
@@ -114,12 +116,12 @@ const AllCourse: React.FC<Props> = ({ initialSearch, initialPage }) => {
         {/* Results Count */}
         <div className="flex items-center justify-between mb-6">
           <p className="text-muted-foreground">
-            Showing {courses.length} of {totalCourses} courses
+            दिखा रहे हैं {courses.length} में से {totalCourses} कोर्स
           </p>
           <div className="flex items-center space-x-2">
             <Filter className="w-4 h-4 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">
-              Filtered results
+              फ़िल्टर किए गए परिणाम
             </span>
           </div>
         </div>
@@ -127,7 +129,7 @@ const AllCourse: React.FC<Props> = ({ initialSearch, initialPage }) => {
         {/* Courses Grid/List */}
         <LoadingError
           isLoading={isLoading && page === 1}
-          errorTitle="Failed to Load Courses"
+          errorTitle="कोर्स लोड करने में विफल"
           error={error?.message}
           onRetry={refetch}
           skeleton={<CourseCardSkeleton />}
@@ -153,7 +155,7 @@ const AllCourse: React.FC<Props> = ({ initialSearch, initialPage }) => {
                     disabled={isLoading}
                     className="w-full md:w-auto"
                   >
-                    {isLoading ? "Loading..." : "Load More"}
+                    {isLoading ? "लोड हो रहा है..." : "और लोड करें"}
                   </Button>
                 </div>
               )}
@@ -163,10 +165,11 @@ const AllCourse: React.FC<Props> = ({ initialSearch, initialPage }) => {
               <div className="w-24 h-24 gradient-primary rounded-full flex items-center justify-center mx-auto mb-6 opacity-20">
                 <Search className="w-12 h-12 text-white" />
               </div>
-              <h3 className="text-2xl font-semibold mb-2">No courses found</h3>
+              <h3 className="text-2xl font-semibold mb-2">
+                कोई कोर्स नहीं मिला
+              </h3>
               <p className="text-muted-foreground mb-6">
-                Try adjusting your search terms or filters to find what you're
-                looking for.
+                अपने खोज शब्द या फ़िल्टर बदलकर देखें कि आप क्या ढूंढ रहे हैं।
               </p>
               <Button
                 onClick={() => {
@@ -175,7 +178,7 @@ const AllCourse: React.FC<Props> = ({ initialSearch, initialPage }) => {
                 }}
                 variant="outline"
               >
-                Clear All Filters
+                सभी फ़िल्टर साफ़ करें
               </Button>
             </div>
           )}

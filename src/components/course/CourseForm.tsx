@@ -87,7 +87,6 @@ const CourseForm = ({ courseId }: CourseFormProps) => {
 
   useEffect(() => {
     if (course?.data) {
-      console.log(course.data, "ss");
       form.reset(course.data as CourseFormData);
     }
   }, [course, form]);
@@ -95,8 +94,6 @@ const CourseForm = ({ courseId }: CourseFormProps) => {
   if (isLoading) {
     return <FormSpinner />;
   }
-
-  console.log(form.getValues());
 
   return (
     <div className="p-6 space-y-6">
@@ -108,7 +105,7 @@ const CourseForm = ({ courseId }: CourseFormProps) => {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-foreground">
-                {courseId ? "Edit Course" : "Create New Course"}
+                {courseId ? "कोर्स संपादित करें" : "नया कोर्स बनाएं"}
               </h1>
             </div>
             <Button
@@ -122,27 +119,28 @@ const CourseForm = ({ courseId }: CourseFormProps) => {
               className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               {isCreating
-                ? "Creating..."
+                ? "बनाया जा रहा है..."
                 : isUpdating
-                ? "Updating..."
+                ? "अपडेट किया जा रहा है..."
                 : courseId
-                ? "Update Course"
-                : "Create Course"}
+                ? "कोर्स अपडेट करें"
+                : "कोर्स बनाएं"}
             </Button>
           </div>
+
           <div className="space-y-6 pb-6">
             <section className="space-y-4">
-              <h3 className="text-lg font-semibold">Basic Information</h3>
+              <h3 className="text-lg font-semibold">मूल जानकारी</h3>
               <FormInput
                 name="name"
                 control={form.control}
-                label="Course Name *"
-                placeholder="course name"
+                label="कोर्स का नाम *"
+                placeholder="कोर्स का नाम डालें"
               />
               <div className="flex items-center gap-4">
                 <div className="grow">
                   <FormInput
-                    label="Price *"
+                    label="कीमत *"
                     name="price"
                     type="number"
                     control={form.control}
@@ -154,36 +152,38 @@ const CourseForm = ({ courseId }: CourseFormProps) => {
 
                 <div className="flex gap-4">
                   <FormSelect
-                    label="Currency"
+                    label="मुद्रा"
                     name="currency"
                     control={form.control}
                     options={currencyOptions}
                   />
 
                   <FormSelect
-                    label="Access Time"
+                    label="एक्सेस अवधि"
                     name="accessType"
                     control={form.control}
                     options={accessTypeOptions}
                   />
                 </div>
               </div>
+
               <FormTextarea
                 name="description"
-                label="Description *"
+                label="विवरण *"
                 control={form.control}
               />
 
               <BenefitsManager form={form} />
             </section>
+
             <Separator />
 
             <section className="space-y-4">
-              <h3 className="text-lg font-semibold">Media Files</h3>
+              <h3 className="text-lg font-semibold">मीडिया फाइलें</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormFileUpload
                   name="thumbnail"
-                  label="Course Thumbnail *"
+                  label="कोर्स थंबनेल *"
                   accept="image/*"
                   control={form.control}
                   type="image"
@@ -192,7 +192,7 @@ const CourseForm = ({ courseId }: CourseFormProps) => {
 
                 <FormFileUpload
                   name="previewVideo"
-                  label="Preview Video"
+                  label="पूर्वावलोकन वीडियो"
                   accept="video/*"
                   control={form.control}
                   type="video"
@@ -204,10 +204,11 @@ const CourseForm = ({ courseId }: CourseFormProps) => {
             <Separator />
 
             <section className="space-y-4">
-              <h3 className="text-lg font-semibold">Course Content</h3>
+              <h3 className="text-lg font-semibold">कोर्स सामग्री</h3>
               <CourseVideoManager form={form} />
             </section>
           </div>
+
           <div className="py-6 border-t mt-auto flex justify-end">
             <Button
               disabled={
@@ -220,13 +221,13 @@ const CourseForm = ({ courseId }: CourseFormProps) => {
               className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               {isCreating ? (
-                "Creating..."
+                "बनाया जा रहा है..."
               ) : isUpdating ? (
-                "Updating..."
+                "अपडेट किया जा रहा है..."
               ) : (
                 <>
                   <Plus className="h-4 w-4 mr-2" />
-                  {courseId ? "Update" : "Create"} Course
+                  {courseId ? "अपडेट करें" : "बनाएँ"} कोर्स
                 </>
               )}
             </Button>

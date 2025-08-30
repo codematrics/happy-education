@@ -40,12 +40,7 @@ const BuyButton = forwardRef<HTMLButtonElement, BuyButtonProps>(
     const router = useRouter();
 
     const handleBuyClick = async () => {
-      if (course.accessType === "free") {
-        router.push(`/videos/${course._id}`);
-        return;
-      }
-
-      if (course.isPurchased) {
+      if (course.accessType === CourseAccessType.free || course.isPurchased) {
         router.push(`/videos/${course._id}`);
         return;
       }
@@ -55,13 +50,12 @@ const BuyButton = forwardRef<HTMLButtonElement, BuyButtonProps>(
       const userData = JSON.parse(
         (await getCookie("user_data"))?.value || "{}"
       );
-      // If user is logged in and one-click payment is enabled, go directly to payment
+
       if (isLoggedIn && oneClickPayment) {
         try {
           const response = await createCheckout.mutateAsync({
             courseId: course._id,
           });
-
           openModal("payment", {
             checkoutData: response.data,
             userEmail: userData?.email ?? null,
@@ -78,11 +72,11 @@ const BuyButton = forwardRef<HTMLButtonElement, BuyButtonProps>(
           openModal("checkout", {
             course,
             isLoggedIn,
+            userEmail: userData?.email ?? null,
             onClose: () => {
               setShowPaymentLoading(false);
               closeModal();
             },
-            userEmail: userData?.email ?? null,
             onStart: () => setShowPaymentLoading(true),
             onComplete: () => setShowPaymentLoading(false),
           });
@@ -102,29 +96,18 @@ const BuyButton = forwardRef<HTMLButtonElement, BuyButtonProps>(
       }
     };
 
-    const getCurrencySymbol = () => {
-      return course.currency === CourseCurrency.dollar ? "$" : "₹";
-    };
+    const getCurrencySymbol = () =>
+      course.currency === CourseCurrency.dollar ? "$" : "₹";
 
-    const getButtonVariant = () => {
-      if (variant === "gradient" || variant === "primary") {
-        return "default";
-      }
-      return variant;
-    };
+    const getButtonVariant = () =>
+      variant === "gradient" || variant === "primary" ? "default" : variant;
 
     const getButtonClassName = () => {
-      let baseClass = "";
-
-      if (variant === "gradient") {
-        baseClass =
-          "gradient-primary text-white border-0 shadow-medium hover:shadow-strong";
-      }
-
-      if (fullWidth) {
-        baseClass += " w-full";
-      }
-
+      let baseClass =
+        variant === "gradient"
+          ? "gradient-primary text-white border-0 shadow-medium hover:shadow-strong"
+          : "";
+      if (fullWidth) baseClass += " w-full";
       return `${baseClass} transition-smooth ${className}`;
     };
 
@@ -139,7 +122,7 @@ const BuyButton = forwardRef<HTMLButtonElement, BuyButtonProps>(
           disabled={disabled}
         >
           <Play className="w-4 h-4 mr-2" />
-          Continue Learning
+          सीखना जारी रखें
         </Button>
       );
     }
@@ -155,31 +138,24 @@ const BuyButton = forwardRef<HTMLButtonElement, BuyButtonProps>(
           disabled={disabled}
         >
           <Play className="w-4 h-4 mr-2" />
-          Start Learning - Free
+          शुरू करें - मुफ्त
         </Button>
       );
     }
 
     return (
-      <>
-        <Button
-          ref={ref}
-          size={size}
-          variant={getButtonVariant()}
-          className={getButtonClassName()}
-          onClick={handleBuyClick}
-        >
-          <ShoppingCart className="w-4 h-4 mr-2" />
-          {showPrice ? (
-            <>
-              Enroll Now - {getCurrencySymbol()}
-              {course.price}
-            </>
-          ) : (
-            "Enroll Now"
-          )}
-        </Button>
-      </>
+      <Button
+        ref={ref}
+        size={size}
+        variant={getButtonVariant()}
+        className={getButtonClassName()}
+        onClick={handleBuyClick}
+      >
+        <ShoppingCart className="w-4 h-4 mr-2" />
+        {showPrice
+          ? `नामांकित करें - ${getCurrencySymbol()}${course.price}`
+          : "नामांकित करें"}
+      </Button>
     );
   }
 );

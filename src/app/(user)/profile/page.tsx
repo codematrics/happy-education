@@ -8,7 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { useSendProfileOtp, useVerifyProfileOtp } from "@/hooks/useProfileVerification";
+import {
+  useSendProfileOtp,
+  useVerifyProfileOtp,
+} from "@/hooks/useProfileVerification";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Camera, Mail, Phone, Shield, ShieldCheck, User } from "lucide-react";
 import { useState } from "react";
@@ -47,7 +50,7 @@ const ProfilePage = () => {
     queryFn: async () => {
       const response = await fetch("/api/v1/user/profile");
       if (!response.ok) {
-        throw new Error("Failed to fetch profile");
+        throw new Error("प्रोफाइल लोड करने में विफल");
       }
       return response.json();
     },
@@ -65,7 +68,7 @@ const ProfilePage = () => {
         body: formData,
       });
       if (!response.ok) {
-        throw new Error("Failed to update profile");
+        throw new Error("प्रोफाइल अपडेट करने में विफल");
       }
       return response.json();
     },
@@ -82,7 +85,7 @@ const ProfilePage = () => {
       }
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to update profile");
+      toast.error(error.message || "प्रोफाइल अपडेट करने में विफल");
     },
   });
 
@@ -114,7 +117,7 @@ const ProfilePage = () => {
 
   const handleSave = () => {
     const formData = new FormData();
-    
+
     if (profileData.firstName) {
       formData.append("firstName", profileData.firstName);
     }
@@ -142,14 +145,14 @@ const ProfilePage = () => {
         }
       },
       onError: (error) => {
-        toast.error(error.message || "Failed to send OTP");
+        toast.error(error.message || "OTP भेजने में विफल");
       },
     });
   };
 
   const handleVerifyOtp = () => {
     if (!otpCode.trim()) {
-      toast.error("Please enter the OTP code");
+      toast.error("कृपया OTP कोड दर्ज करें");
       return;
     }
 
@@ -166,7 +169,7 @@ const ProfilePage = () => {
           }
         },
         onError: (error) => {
-          toast.error(error.message || "Failed to verify OTP");
+          toast.error(error.message || "OTP सत्यापित करने में विफल");
         },
       }
     );
@@ -175,16 +178,16 @@ const ProfilePage = () => {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">My Profile</h1>
+        <h1 className="text-3xl font-bold">मेरा प्रोफाइल</h1>
         <p className="text-muted-foreground">
-          Manage your account settings and preferences
+          अपने खाते की सेटिंग्स और प्राथमिकताएं प्रबंधित करें
         </p>
       </div>
 
       <LoadingError
         isLoading={isLoading}
         error={error?.message}
-        errorTitle="Failed to load profile"
+        errorTitle="प्रोफाइल लोड करने में विफल"
         onRetry={refetch}
         skeleton={
           <Card>
@@ -210,25 +213,27 @@ const ProfilePage = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle>Personal Information</CardTitle>
+                <CardTitle>व्यक्तिगत जानकारी</CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Update your personal details
+                  अपनी व्यक्तिगत जानकारी अपडेट करें
                 </p>
               </div>
               {!isEditing ? (
                 <Button onClick={handleEdit} variant="outline">
-                  Edit Profile
+                  प्रोफाइल संपादित करें
                 </Button>
               ) : (
                 <div className="flex gap-2">
                   <Button onClick={handleCancel} variant="outline">
-                    Cancel
+                    रद्द करें
                   </Button>
                   <Button
                     onClick={handleSave}
                     disabled={updateProfileMutation.isPending}
                   >
-                    {updateProfileMutation.isPending ? "Saving..." : "Save"}
+                    {updateProfileMutation.isPending
+                      ? "सहेजा जा रहा है..."
+                      : "सहेजें"}
                   </Button>
                 </div>
               )}
@@ -267,7 +272,7 @@ const ProfilePage = () => {
                     {profile?.firstName} {profile?.lastName}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Member since{" "}
+                    सदस्य हैं{" "}
                     {new Date(profile?.createdAt).toLocaleDateString()}
                   </p>
                 </div>
@@ -278,7 +283,7 @@ const ProfilePage = () => {
               {/* Form Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
+                  <Label htmlFor="firstName">पहला नाम</Label>
                   <Input
                     id="firstName"
                     value={
@@ -297,7 +302,7 @@ const ProfilePage = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
+                  <Label htmlFor="lastName">अंतिम नाम</Label>
                   <Input
                     id="lastName"
                     value={
@@ -316,7 +321,7 @@ const ProfilePage = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
+                  <Label htmlFor="email">ईमेल पता</Label>
                   <div className="relative">
                     <Input
                       id="email"
@@ -328,12 +333,12 @@ const ProfilePage = () => {
                     <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Email cannot be changed
+                    ईमेल बदला नहीं जा सकता
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="mobileNumber">Mobile Number</Label>
+                  <Label htmlFor="mobileNumber">मोबाइल नंबर</Label>
                   <div className="relative">
                     <Input
                       id="mobileNumber"
@@ -368,18 +373,17 @@ const ProfilePage = () => {
                 ) : (
                   <Shield className="w-5 h-5 text-yellow-600" />
                 )}
-                Account Verification
+                खाता सत्यापन
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Verification Status</p>
+                  <p className="font-medium">सत्यापन स्थिति</p>
                   <p className="text-sm text-muted-foreground">
-                    {profile?.isVerified 
-                      ? "Your account is verified and secure"
-                      : "Verify your account to unlock all features"
-                    }
+                    {profile?.isVerified
+                      ? "आपका खाता सत्यापित और सुरक्षित है"
+                      : "सभी फीचर्स अनलॉक करने के लिए अपना खाता सत्यापित करें"}
                   </p>
                 </div>
                 <div
@@ -389,7 +393,7 @@ const ProfilePage = () => {
                       : "bg-yellow-100 text-yellow-800"
                   }`}
                 >
-                  {profile?.isVerified ? "Verified" : "Pending"}
+                  {profile?.isVerified ? "सत्यापित" : "लंबित"}
                 </div>
               </div>
 
@@ -399,9 +403,12 @@ const ProfilePage = () => {
                   <Separator />
                   <div className="space-y-4">
                     <div>
-                      <h4 className="font-medium text-sm mb-2">Verify Your Account</h4>
+                      <h4 className="font-medium text-sm mb-2">
+                        अपना खाता सत्यापित करें
+                      </h4>
                       <p className="text-sm text-muted-foreground mb-4">
-                        We&apos;ll send a verification code to <strong>{profile?.email}</strong>
+                        हम <strong>{profile?.email}</strong> पर सत्यापन कोड
+                        भेजेंगे
                       </p>
                     </div>
 
@@ -411,32 +418,38 @@ const ProfilePage = () => {
                         disabled={sendOtpMutation.isPending}
                         className="w-full"
                       >
-                        {sendOtpMutation.isPending ? "Sending..." : "Send Verification Code"}
+                        {sendOtpMutation.isPending
+                          ? "भेजा जा रहा है..."
+                          : "सत्यापन कोड भेजें"}
                       </Button>
                     ) : (
                       <div className="space-y-3">
                         <div>
-                          <Label htmlFor="otpCode">Enter Verification Code</Label>
+                          <Label htmlFor="otpCode">सत्यापन कोड दर्ज करें</Label>
                           <Input
                             id="otpCode"
                             type="text"
-                            placeholder="Enter 4-digit code"
+                            placeholder="4-अंकों का कोड दर्ज करें"
                             value={otpCode}
                             onChange={(e) => setOtpCode(e.target.value)}
                             maxLength={4}
                             className="text-center text-lg tracking-widest"
                           />
                           <p className="text-xs text-muted-foreground mt-1">
-                            Code expires in 5 minutes
+                            कोड 5 मिनट में समाप्त हो जाएगा
                           </p>
                         </div>
                         <div className="flex gap-2">
                           <Button
                             onClick={handleVerifyOtp}
-                            disabled={verifyOtpMutation.isPending || !otpCode.trim()}
+                            disabled={
+                              verifyOtpMutation.isPending || !otpCode.trim()
+                            }
                             className="flex-1"
                           >
-                            {verifyOtpMutation.isPending ? "Verifying..." : "Verify Account"}
+                            {verifyOtpMutation.isPending
+                              ? "सत्यापित किया जा रहा है..."
+                              : "खाता सत्यापित करें"}
                           </Button>
                           <Button
                             variant="outline"
@@ -444,7 +457,9 @@ const ProfilePage = () => {
                             disabled={sendOtpMutation.isPending}
                             className="flex-1"
                           >
-                            {sendOtpMutation.isPending ? "Sending..." : "Resend Code"}
+                            {sendOtpMutation.isPending
+                              ? "भेजा जा रहा है..."
+                              : "कोड पुनः भेजें"}
                           </Button>
                         </div>
                       </div>

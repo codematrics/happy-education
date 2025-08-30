@@ -50,7 +50,7 @@ const BenefitsManager: React.FC<BenefitsManagerProps> = ({ form }) => {
 
   return (
     <div className="space-y-3">
-      <Label className="text-sm font-medium">Benefits</Label>
+      <Label className="text-sm font-medium">लाभ</Label>
 
       {/* Input Section */}
       <div className="flex gap-2">
@@ -58,7 +58,7 @@ const BenefitsManager: React.FC<BenefitsManagerProps> = ({ form }) => {
           value={newBenefit}
           onChange={(e) => setNewBenefit(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="Third Eye Activation"
+          placeholder="तीसरी आंख सक्रियकरण"
           className="flex-1"
           disabled={benefits.length >= MaxBenefits}
         />
@@ -88,7 +88,7 @@ const BenefitsManager: React.FC<BenefitsManagerProps> = ({ form }) => {
                   type="button"
                   onClick={() => handleRemoveBenefit(index)}
                   className="ml-1 hover:bg-destructive/20 rounded-full p-0.5 transition-colors"
-                  aria-label={`Remove ${benefit}`}
+                  aria-label={`${benefit} हटाएँ`}
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -98,12 +98,12 @@ const BenefitsManager: React.FC<BenefitsManagerProps> = ({ form }) => {
 
           {/* Counter */}
           <div className="text-xs text-muted-foreground">
-            {benefits.length} of {MaxBenefits} benefits added
+            {benefits.length} में से {MaxBenefits} लाभ जोड़े गए
           </div>
         </div>
       ) : (
         <div className="text-xs text-muted-foreground">
-          Add benefits to highlight what learners will gain from this course
+          इस कोर्स से सीखने वालों को मिलने वाले लाभ जोड़ें
         </div>
       )}
     </div>

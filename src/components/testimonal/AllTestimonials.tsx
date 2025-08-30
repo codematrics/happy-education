@@ -41,19 +41,19 @@ const AllTestimonial: React.FC<Props> = ({ initialPage }) => {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl lg:text-5xl font-bold mb-4">
-            All Testimonials
+            सभी प्रशंसापत्र
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Watch inspiring video testimonials from our students sharing their
-            success stories and course experiences. Real people, real
-            transformations, real results.
+            हमारे छात्रों के प्रेरणादायक वीडियो प्रशंसापत्र देखें, जो अपने सफलता
+            की कहानियों और कोर्स अनुभव साझा कर रहे हैं। असली लोग, असली बदलाव,
+            असली परिणाम।
           </p>
         </div>
 
-        {/* Courses Grid/List */}
+        {/* Testimonials Grid/List */}
         <LoadingError
           isLoading={isLoading && page === 1}
-          errorTitle="Failed to Load Testimonials"
+          errorTitle="प्रशंसापत्र लोड करने में विफल"
           error={error?.message}
           onRetry={refetch}
           skeleton={<CourseCardSkeleton />}
@@ -76,7 +76,7 @@ const AllTestimonial: React.FC<Props> = ({ initialPage }) => {
                     disabled={isLoading}
                     className="w-full md:w-auto"
                   >
-                    {isLoading ? "Loading..." : "Load More"}
+                    {isLoading ? "लोड हो रहा है..." : "और लोड करें"}
                   </Button>
                 </div>
               )}
@@ -87,7 +87,7 @@ const AllTestimonial: React.FC<Props> = ({ initialPage }) => {
                 <Search className="w-12 h-12 text-white" />
               </div>
               <h3 className="text-2xl font-semibold mb-2">
-                No Testimonials found
+                कोई प्रशंसापत्र नहीं मिला
               </h3>
             </div>
           )}

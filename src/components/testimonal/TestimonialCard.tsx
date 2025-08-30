@@ -24,12 +24,12 @@ const TestimonialCard: React.FC<Props> = ({
     label: <MoreHorizontal className="h-4 w-4" />,
     options: [
       {
-        label: "Edit",
+        label: "संपादित करें", // Edit
         action: () => onEdit && onEdit(testimonial),
         icon: Edit,
       },
       {
-        label: "Delete",
+        label: "हटाएँ", // Delete
         action: () => onDelete && onDelete(testimonial._id),
         icon: Trash2,
         itemClassName: "text-destructive hover:text-destructive",
@@ -75,7 +75,7 @@ const TestimonialCard: React.FC<Props> = ({
                   variant="secondary"
                   className="text-xs break-words max-w-full whitespace-normal"
                 >
-                  {course.name || "Unknown"}
+                  {course.name || "अज्ञात"} {/* Unknown */}
                 </Badge>
               ))
             ) : (
@@ -83,7 +83,8 @@ const TestimonialCard: React.FC<Props> = ({
                 variant="secondary"
                 className="text-xs break-words max-w-full whitespace-normal"
               >
-                {(testimonial.courseId as Course)?.name || "Unknown"}
+                {(testimonial.courseId as Course)?.name || "अज्ञात"}{" "}
+                {/* Unknown */}
               </Badge>
             )}
           </div>

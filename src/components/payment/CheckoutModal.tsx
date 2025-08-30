@@ -45,45 +45,39 @@ const CheckoutModal = ({
   const createCheckout = useCreateCheckout();
 
   const handleContinueToPayment = async () => {
-    if (!isLoggedIn && !email?.trim()) {
-      return;
-    }
+    if (!isLoggedIn && !email?.trim()) return;
 
     try {
       const response = await createCheckout.mutateAsync({
         courseId: course._id,
         userEmail: !isLoggedIn ? email : undefined,
       });
-
       setCheckoutData(response.data);
       setStep("payment");
     } catch (error) {
-      // Error is handled by the mutation
+      // Error handled by mutation
     }
   };
 
-  const getCurrencySymbol = () => {
-    return course.currency === CourseCurrency.dollar ? "$" : "₹";
-  };
-
-  const getCurrencyIcon = () => {
-    return course.currency === CourseCurrency.dollar ? (
+  const getCurrencySymbol = () =>
+    course.currency === CourseCurrency.dollar ? "$" : "₹";
+  const getCurrencyIcon = () =>
+    course.currency === CourseCurrency.dollar ? (
       <DollarSign className="w-5 h-5" />
     ) : (
       <IndianRupee className="w-5 h-5" />
     );
-  };
 
   const getAccessTypeLabel = () => {
     switch (course.accessType) {
       case "lifetime":
-        return "Lifetime Access";
+        return "जीवन भर पहुँच";
       case "monthly":
-        return "30 Days Access";
+        return "30 दिन पहुँच";
       case "yearly":
-        return "365 Days Access";
+        return "365 दिन पहुँच";
       default:
-        return "Access";
+        return "कोर्स पहुँच";
     }
   };
 
@@ -92,12 +86,12 @@ const CheckoutModal = ({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {step === "details" ? "Course Checkout" : "Complete Payment"}
+            {step === "details" ? "कोर्स चेकआउट" : "भुगतान पूरा करें"}
           </DialogTitle>
           <DialogDescription>
             {step === "details"
-              ? "Review your course and continue to payment"
-              : "Complete your payment to access the course"}
+              ? "अपने कोर्स की जानकारी देखें और भुगतान की ओर बढ़ें"
+              : "कोर्स तक पहुँचने के लिए अपना भुगतान पूरा करें"}
           </DialogDescription>
         </DialogHeader>
 
@@ -129,13 +123,16 @@ const CheckoutModal = ({
 
           {step === "details" && (
             <>
+              {/* Email Input */}
               <div className="space-y-3">
                 <div>
-                  <Label htmlFor="email">Email Address</Label>
+                  <Label htmlFor="email">ईमेल पता</Label>
                   <Input
                     id="email"
                     type="email"
-                    placeholder={isLoggedIn ? "Loading..." : "Enter your email"}
+                    placeholder={
+                      isLoggedIn ? "लोड हो रहा है..." : "अपना ईमेल दर्ज करें"
+                    }
                     value={email}
                     onChange={(e) => setUserEmail(e.target.value)}
                     disabled={isLoggedIn}
@@ -143,8 +140,8 @@ const CheckoutModal = ({
                   />
                   <p className="text-xs text-muted-foreground mt-1">
                     {isLoggedIn
-                      ? "You're logged in with this email address"
-                      : "We'll create an account for you and send login details to this email"}
+                      ? "आप इस ईमेल पते से लॉग इन हैं"
+                      : "हम आपके लिए खाता बनाएंगे और लॉगिन विवरण इस ईमेल पर भेजेंगे"}
                   </p>
                 </div>
               </div>
@@ -154,14 +151,14 @@ const CheckoutModal = ({
               {/* Price Breakdown */}
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span>Course Price</span>
+                  <span>कोर्स मूल्य</span>
                   <span>
                     {getCurrencySymbol()}
                     {course.price}
                   </span>
                 </div>
                 <div className="flex justify-between font-semibold">
-                  <span>Total</span>
+                  <span>कुल</span>
                   <span className="flex items-center space-x-1">
                     {getCurrencyIcon()}
                     <span>{course.price}</span>
@@ -171,10 +168,10 @@ const CheckoutModal = ({
 
               <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded-lg">
                 <p className="text-xs text-blue-700 dark:text-blue-300">
-                  🔒 Secure payment powered by Razorpay
+                  🔒 सुरक्षित भुगतान Razorpay द्वारा संचालित
                 </p>
                 <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                  30-day money-back guarantee
+                  30 दिन की मनी-बैक गारंटी
                 </p>
               </div>
 
@@ -186,10 +183,10 @@ const CheckoutModal = ({
                 className="w-full gradient-primary text-white"
                 size="lg"
               >
-                {createCheckout.isPending ? (
+                {createCheckout.isPending && (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : null}
-                Continue to Payment
+                )}
+                भुगतान की ओर बढ़ें
               </Button>
             </>
           )}

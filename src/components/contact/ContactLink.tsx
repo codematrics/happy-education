@@ -8,12 +8,12 @@ const ContactLink = () => {
       <div className="container mx-auto px-4 text-center relative z-10">
         <div className="max-w-3xl mx-auto space-y-8">
           <h2 className="text-3xl lg:text-4xl font-bold">
-            Ready to Start Your Learning Journey?
+            क्या आप अपनी सीखने की यात्रा शुरू करने के लिए तैयार हैं?
           </h2>
           <p className="text-xl text-muted-foreground">
-            Join thousands of successful students who have transformed their
-            careers with our courses. Sign up today and get access to our entire
-            course library.
+            हमारे कोर्स से अपने करियर को बदल चुके हजारों सफल छात्रों में शामिल
+            हों। आज ही साइन अप करें और पूरी कोर्स लाइब्रेरी तक पहुँच प्राप्त
+            करें।
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
@@ -21,14 +21,14 @@ const ContactLink = () => {
               className="gradient-primary text-white border-0 shadow-medium hover:shadow-strong transition-smooth"
               asChild
             >
-              <Link href="/signup">Get Started Today</Link>
+              <Link href="/signup">आज ही शुरू करें</Link>
             </Button>
             <Button
               size="lg"
               variant="outline"
               className="hover:bg-primary hover:text-primary-foreground transition-smooth"
             >
-              <Link href="/contact">Contact Us</Link>
+              <Link href="/contact">हमसे संपर्क करें</Link>
             </Button>
           </div>
         </div>

@@ -53,26 +53,26 @@ const CourseCard = ({
   showBenefits = true,
   progress,
 }: CourseCardProps) => {
-  // Auto-determine button states based on isPurchased
   const isCoursePurchased = course.isPurchased;
   const shouldShowBuyButton = showBuy && !isCoursePurchased && !showMore;
   const shouldShowContinueButton =
     (showContinue || isCoursePurchased) && !showMore;
+
   const courseDropdownData: DropdownProps = {
     label: <MoreHorizontal className="h-4 w-4" />,
     options: [
       {
-        label: "Edit",
+        label: "संपादित करें",
         action: () => onEdit && onEdit(course._id),
         icon: Edit,
       },
       {
-        label: "View Videos",
+        label: "वीडियो देखें",
         action: () => onViewVideos && onViewVideos(course._id),
         icon: Eye,
       },
       {
-        label: "Delete",
+        label: "हटाएं",
         action: () => onDelete && onDelete(course._id),
         icon: Trash2,
         itemClassName: "text-destructive hover:text-destructive",
@@ -87,7 +87,7 @@ const CourseCard = ({
   };
 
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat("en-US", {
+    return new Intl.DateTimeFormat("en-IN", {
       month: "short",
       day: "numeric",
       year: "numeric",
@@ -137,7 +137,7 @@ const CourseCard = ({
           {course.benefits && showBenefits && course.benefits.length > 0 && (
             <div className="space-y-1">
               <h4 className="text-xs font-medium text-muted-foreground">
-                Key Benefits:
+                मुख्य लाभ:
               </h4>
               <div className="space-y-1">
                 {course.benefits.slice(0, 3).map((benefit, index) => (
@@ -150,28 +150,28 @@ const CourseCard = ({
                 ))}
                 {course.benefits.length > 3 && (
                   <div className="text-xs text-muted-foreground">
-                    +{course.benefits.length - 3} more benefits
+                    +{course.benefits.length - 3} और लाभ
                   </div>
                 )}
               </div>
             </div>
           )}
 
-          {/* Progress Section for My Courses */}
+          {/* Progress Section */}
           {progress && showContinue && (
             <div className="space-y-3">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Progress</span>
+                <span className="text-muted-foreground">प्रगति</span>
                 <span className="font-medium">{progress.percentage}%</span>
               </div>
               <Progress value={progress.percentage} className="h-2" />
               <div className="flex items-center justify-between text-sm text-muted-foreground">
                 <span>
-                  {progress.completedLessons}/{progress.totalLessons} lessons
+                  {progress.completedLessons}/{progress.totalLessons} पाठ
                 </span>
                 <div className="flex items-center space-x-1">
                   <CheckCircle className="w-4 h-4 text-green-600" />
-                  <span>{progress.completedLessons} completed</span>
+                  <span>{progress.completedLessons} पूरे हुए</span>
                 </div>
               </div>
             </div>
@@ -179,7 +179,7 @@ const CourseCard = ({
 
           <div className="flex items-center justify-between">
             <Badge variant="secondary" className="text-xs">
-              {getVideoCount()} videos
+              {getVideoCount()} वीडियो
             </Badge>
             <span className="text-sm text-muted-foreground">
               {formatDate(course.createdAt)}
@@ -196,7 +196,6 @@ const CourseCard = ({
             </span>
           )}
           <div className={`flex items-center gap-2 w-full`}>
-            {/* Continue Learning Buttons for Purchased Courses */}
             {shouldShowContinueButton && (
               <>
                 <Button
@@ -206,7 +205,7 @@ const CourseCard = ({
                 >
                   <Link href={`/videos/${course._id}`}>
                     <Play className="w-4 h-4 mr-2" />
-                    Continue
+                    जारी रखें
                   </Link>
                 </Button>
                 <Button
@@ -215,12 +214,11 @@ const CourseCard = ({
                   size="sm"
                   className="hover:bg-primary hover:text-primary-foreground transition-colors"
                 >
-                  <Link href={`/course/${course._id}`}>Details</Link>
+                  <Link href={`/course/${course._id}`}>विवरण</Link>
                 </Button>
               </>
             )}
 
-            {/* Regular Buy/View Buttons for Non-Purchased Courses */}
             {shouldShowBuyButton && (
               <>
                 <BuyButton
@@ -235,12 +233,11 @@ const CourseCard = ({
                   size="sm"
                   className="hover:bg-primary hover:text-primary-foreground transition-colors"
                 >
-                  <Link href={`/course/${course._id}`}>View Details</Link>
+                  <Link href={`/course/${course._id}`}>विवरण देखें</Link>
                 </Button>
               </>
             )}
 
-            {/* Admin Edit Button */}
             {showMore && onEdit && (
               <Button
                 variant="outline"
@@ -248,7 +245,7 @@ const CourseCard = ({
                 onClick={() => onEdit(course._id)}
                 className="hover:bg-primary hover:text-primary-foreground transition-colors"
               >
-                Edit Course
+                कोर्स संपादित करें
               </Button>
             )}
           </div>

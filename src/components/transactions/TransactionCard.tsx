@@ -3,8 +3,8 @@
 import { CourseCurrency } from "@/types/constants";
 import {
   Calendar,
-  Download,
   DollarSign,
+  Download,
   Eye,
   IndianRupee,
   Loader2,
@@ -39,10 +39,10 @@ interface TransactionCardProps {
   isDownloading?: boolean;
 }
 
-const TransactionCard = ({ 
-  transaction, 
-  onDownloadReceipt, 
-  isDownloading = false 
+const TransactionCard = ({
+  transaction,
+  onDownloadReceipt,
+  isDownloading = false,
 }: TransactionCardProps) => {
   const router = useRouter();
 
@@ -62,46 +62,44 @@ const TransactionCard = ({
   const getStatusText = (status: string) => {
     switch (status) {
       case "success":
-        return "Completed";
+        return "पूर्ण"; // Completed
       case "failed":
-        return "Failed";
+        return "विफल"; // Failed
       case "pending":
-        return "Processing";
+        return "प्रक्रिया में"; // Processing
       default:
         return status;
     }
   };
 
-  const getCurrencyIcon = () => {
-    return transaction.currency === CourseCurrency.dollar ? (
+  const getCurrencyIcon = () =>
+    transaction.currency === CourseCurrency.dollar ? (
       <DollarSign className="w-4 h-4" />
     ) : (
       <IndianRupee className="w-4 h-4" />
     );
-  };
 
-  const formatDate = (dateString: string) => {
-    return new Intl.DateTimeFormat("en-US", {
+  const formatDate = (dateString: string) =>
+    new Intl.DateTimeFormat("en-IN", {
       year: "numeric",
       month: "short",
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
     }).format(new Date(dateString));
-  };
 
   const getAccessTypeLabel = (accessType: string) => {
     switch (accessType) {
       case "lifetime":
-        return "Lifetime Access";
+        return "आजिवन पहुँच";
       case "monthly":
-        return "30 Days Access";
+        return "30 दिन की पहुँच";
       case "yearly":
-        return "365 Days Access";
+        return "365 दिन की पहुँच";
       case "free":
-        return "Free Access";
+        return "नि:शुल्क पहुँच";
       default:
-        return "Access";
+        return "पहुँच";
     }
   };
 
@@ -132,7 +130,7 @@ const TransactionCard = ({
               <h3 className="font-semibold text-sm line-clamp-1 mb-1">
                 {transaction.course.name}
               </h3>
-              
+
               <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                 <div className="flex items-center space-x-1">
                   <Calendar className="w-3 h-3" />
@@ -141,13 +139,13 @@ const TransactionCard = ({
                 <span>•</span>
                 <span>{getAccessTypeLabel(transaction.course.accessType)}</span>
                 <span>•</span>
-                <span className="font-mono">Order #{transaction.orderId}</span>
+                <span className="font-mono">ऑर्डर #{transaction.orderId}</span>
               </div>
 
               {transaction.paymentMethod && (
                 <div className="mt-1">
                   <span className="text-xs text-muted-foreground">
-                    Payment Method: {transaction.paymentMethod}
+                    भुगतान का तरीका: {transaction.paymentMethod}
                   </span>
                 </div>
               )}
@@ -165,8 +163,10 @@ const TransactionCard = ({
                 </div>
               </div>
 
-              <Badge 
-                className={`${getStatusColor(transaction.status)} border-0 font-medium`}
+              <Badge
+                className={`${getStatusColor(
+                  transaction.status
+                )} border-0 font-medium`}
               >
                 {getStatusText(transaction.status)}
               </Badge>
@@ -183,7 +183,7 @@ const TransactionCard = ({
             className="hidden sm:inline-flex"
           >
             <Eye className="w-4 h-4 mr-1" />
-            View
+            देखें
           </Button>
 
           {transaction.status === "success" && (
@@ -199,7 +199,7 @@ const TransactionCard = ({
               ) : (
                 <Download className="w-4 h-4 mr-1" />
               )}
-              Receipt
+              रसीद
             </Button>
           )}
         </div>
@@ -214,7 +214,7 @@ const TransactionCard = ({
           className="flex-1"
         >
           <Eye className="w-4 h-4 mr-1" />
-          View Course
+          कोर्स देखें
         </Button>
 
         {transaction.status === "success" && (
@@ -230,7 +230,7 @@ const TransactionCard = ({
             ) : (
               <Download className="w-4 h-4 mr-1" />
             )}
-            Receipt
+            रसीद
           </Button>
         )}
       </div>

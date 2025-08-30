@@ -94,22 +94,25 @@ const CoursePage: React.FC<Props> = ({ initialSearch, initialPage }) => {
     <>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Courses</h1>
-          <p className="text-muted-foreground">Manage your course catalog</p>
+          <h1 className="text-2xl font-bold text-foreground">कोर्स</h1>
+          <p className="text-muted-foreground">
+            अपने कोर्स कैटलॉग को प्रबंधित करें
+          </p>
         </div>
         <Button
           onClick={handleCreateCourse}
           className="bg-primary hover:bg-primary/90 text-primary-foreground"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Create Course
+          नया कोर्स बनाएं
         </Button>
       </div>
+
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search courses..."
+            placeholder="कोर्स खोजें..."
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
             className="pl-9 h-10"
@@ -158,7 +161,7 @@ const CoursePage: React.FC<Props> = ({ initialSearch, initialPage }) => {
             : "space-y-4"
         }
         isLoading={isLoading}
-        errorTitle="Error loading courses"
+        errorTitle="कोर्स लोड करने में त्रुटि"
         onRetry={refetch}
         skeleton={<CourseCardSkeleton />}
       >
@@ -187,18 +190,16 @@ const CoursePage: React.FC<Props> = ({ initialSearch, initialPage }) => {
                 {...data?.data?.pagination}
                 onPageChange={(page) => setPage(page)}
               />
-            )}{" "}
+            )}
           </>
         ) : (
           <div className="text-center py-12">
             <div className="text-muted-foreground">
               {search
-                ? "No courses found matching your search."
-                : "No courses available."}
+                ? "आपके खोज के अनुसार कोई कोर्स नहीं मिला।"
+                : "कोई कोर्स उपलब्ध नहीं है।"}
             </div>
-            {!search && (
-              <Button className="mt-4">Create Your First Course</Button>
-            )}
+            {!search && <Button className="mt-4">अपना पहला कोर्स बनाएं</Button>}
           </div>
         )}
       </LoadingError>
@@ -214,8 +215,8 @@ const CoursePage: React.FC<Props> = ({ initialSearch, initialPage }) => {
           })
         }
         onConfirm={deleteConfirm.onDelete}
-        title="Delete Course"
-        description={`Are you sure you want to delete "${deleteConfirm.courseName}"? This action cannot be undone and will permanently remove this course and all associated data.`}
+        title="कोर्स हटाएँ"
+        description={`क्या आप वाकई "${deleteConfirm.courseName}" को हटाना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती और इस कोर्स तथा सभी संबंधित डेटा को स्थायी रूप से हटा देगी।`}
       />
     </>
   );

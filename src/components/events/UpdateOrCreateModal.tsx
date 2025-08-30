@@ -33,10 +33,7 @@ interface ModalProps {
 
 const defaultValues: EventFormData = {
   name: "",
-  image: {
-    publicId: "",
-    url: "",
-  },
+  image: { publicId: "", url: "" },
   currency: CourseCurrency.rupee,
   description: "",
   benefits: [],
@@ -68,40 +65,31 @@ const UpdateOrCreateModal: React.FC<ModalProps> = ({
 
   const addBenefit = () => {
     if (benefitInput.trim()) {
-      const currentBenefits = benefits || [];
-      form.setValue("benefits", [...currentBenefits, benefitInput.trim()]);
+      form.setValue("benefits", [...(benefits || []), benefitInput.trim()]);
       setBenefitInput("");
     }
   };
 
   const removeBenefit = (index: number) => {
-    const currentBenefits = benefits || [];
     form.setValue(
       "benefits",
-      currentBenefits.filter((_, i) => i !== index)
+      (benefits || []).filter((_, i) => i !== index)
     );
   };
 
   const handleSubmit = async (formData: EventFormData) => {
     try {
-      if (eventId) {
-        await updateEvent({ id: eventId, data: formData });
-      } else {
-        await createEvent(formData);
-      }
+      if (eventId) await updateEvent({ id: eventId, data: formData });
+      else await createEvent(formData);
       onClose();
       form.reset();
     } catch (error) {
-      console.error("Error saving event:", error);
+      console.error("इवेंट सहेजने में त्रुटि:", error);
     }
   };
 
   useEffect(() => {
-    if (data) {
-      form.reset(data);
-    } else {
-      form.reset(defaultValues);
-    }
+    form.reset(data || defaultValues);
     setBenefitInput("");
   }, [data, form]);
 
@@ -114,19 +102,19 @@ const UpdateOrCreateModal: React.FC<ModalProps> = ({
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       onConfirm={form.handleSubmit(handleSubmit)}
       confirmText={
         data
           ? isUpdating
-            ? "Updating..."
-            : "Update"
+            ? "अपडेट कर रहे हैं..."
+            : "अपडेट करें"
           : isCreating
-          ? "Adding..."
-          : "Add"
+          ? "जोड़ रहे हैं..."
+          : "जोड़ें"
       }
       isLoading={isUpdating || isCreating}
-      title={data ? "Update Events" : "Add Events"}
+      title={data ? "इवेंट अपडेट करें" : "इवेंट जोड़ें"}
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
@@ -134,14 +122,14 @@ const UpdateOrCreateModal: React.FC<ModalProps> = ({
           <FormInput
             name="name"
             control={form.control}
-            label="Event Name *"
-            placeholder="Enter event name"
+            label="इवेंट का नाम *"
+            placeholder="इवेंट का नाम दर्ज करें"
           />
 
-          {/* Event Image URL */}
+          {/* Event Image */}
           <FormFileUpload
             name="image"
-            label="Event Thumbnail *"
+            label="इवेंट थंबनेल *"
             accept="image/*"
             control={form.control}
             type="image"
@@ -152,8 +140,8 @@ const UpdateOrCreateModal: React.FC<ModalProps> = ({
           <FormTextarea
             name="description"
             control={form.control}
-            label="Description"
-            placeholder="Enter event description"
+            label="विवरण"
+            placeholder="इवेंट का विवरण दर्ज करें"
             rows={4}
           />
 
@@ -163,11 +151,11 @@ const UpdateOrCreateModal: React.FC<ModalProps> = ({
             name="benefits"
             render={() => (
               <FormItem>
-                <FormLabel>Benefits (Optional)</FormLabel>
+                <FormLabel>लाभ (वैकल्पिक)</FormLabel>
                 <div className="space-y-2">
                   <div className="flex gap-2">
                     <Input
-                      placeholder="Enter a benefit"
+                      placeholder="लाभ दर्ज करें"
                       value={benefitInput}
                       onChange={(e) => setBenefitInput(e.target.value)}
                       onKeyPress={(e) => {
@@ -209,18 +197,18 @@ const UpdateOrCreateModal: React.FC<ModalProps> = ({
             )}
           />
 
-          {/* Amount */}
+          {/* Amount & Currency */}
           <div className="grid grid-cols-2 gap-3">
             <FormInput
               name="amount"
               control={form.control}
-              label="Amount (₹) *"
+              label="राशि (₹) *"
               type="number"
-              placeholder="Enter amount"
-              min="0"
+              placeholder="राशि दर्ज करें"
+              min={0}
             />
             <FormSelect
-              label="Currency"
+              label="मुद्रा"
               name="currency"
               control={form.control}
               options={currencyOptions}
@@ -233,12 +221,12 @@ const UpdateOrCreateModal: React.FC<ModalProps> = ({
             name="day"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Event Date *</FormLabel>
+                <FormLabel>इवेंट की तिथि *</FormLabel>
                 <FormControl>
                   <DatePicker
                     value={field.value.toDateString()}
                     onChange={field.onChange}
-                    placeholder="Select event date"
+                    placeholder="तिथि चुनें"
                   />
                 </FormControl>
                 <FormMessage />
@@ -250,8 +238,8 @@ const UpdateOrCreateModal: React.FC<ModalProps> = ({
           <FormCheckbox
             name="repeating"
             control={form.control}
-            label="Repeating Event"
-            helperText="Check if this event repeats regularly"
+            label="दोहराने वाला इवेंट"
+            helperText="यदि यह इवेंट नियमित रूप से दोहराता है तो चेक करें"
           />
 
           {/* Repeat Every (conditional) */}
@@ -259,10 +247,10 @@ const UpdateOrCreateModal: React.FC<ModalProps> = ({
             <FormInput
               name="repeatEvery"
               control={form.control}
-              label="Repeat Every (Days) *"
+              label="हर कितने दिन में दोहराएं *"
               type="number"
-              placeholder="Enter number of days"
-              min="1"
+              placeholder="दिनों की संख्या दर्ज करें"
+              min={1}
             />
           )}
 
@@ -270,8 +258,8 @@ const UpdateOrCreateModal: React.FC<ModalProps> = ({
           <FormInput
             name="joinLink"
             control={form.control}
-            label="Join Link (Zoom/Google Meet) *"
-            placeholder="Enter Zoom or Google Meet link"
+            label="जॉइन लिंक (Zoom/Google Meet) *"
+            placeholder="Zoom या Google Meet लिंक दर्ज करें"
             type="url"
           />
         </form>

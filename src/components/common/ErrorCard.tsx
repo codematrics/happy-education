@@ -16,8 +16,8 @@ interface ErrorCardProps {
 }
 
 const ErrorCard = ({
-  title = "Something went wrong",
-  message = "We couldn't load the course data. Please try again.",
+  title = "कुछ गलत हो गया",
+  message = "हम कोर्स डेटा लोड नहीं कर पाए। कृपया पुनः प्रयास करें।",
   onRetry,
 }: ErrorCardProps) => {
   return (
@@ -34,7 +34,7 @@ const ErrorCard = ({
       {onRetry && (
         <CardFooter className="flex justify-center">
           <Button variant="destructive" onClick={onRetry} className="px-6">
-            Retry
+            पुनः प्रयास करें
           </Button>
         </CardFooter>
       )}

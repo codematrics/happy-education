@@ -29,7 +29,7 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader>
         <SidebarMenuButton className="text-xl font-medium">
-          Admin
+          व्यवस्थापक
         </SidebarMenuButton>
       </SidebarHeader>
       <SidebarContent>
@@ -41,7 +41,8 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <Link href={item.url}>
                       <item.icon />
-                      <span>{item.title}</span>
+                      <span>{item.title}</span>{" "}
+                      {/* If you want these dynamic titles translated, update sidebarItems accordingly */}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -54,12 +55,10 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton onClick={handleLogout}>
-              {/* <Button onClick={handleLogout} className="cursor-pointer"> */}
               <>
                 <LogOut />
-                <span>Logout</span>
+                <span>लॉग आउट</span>
               </>
-              {/* </Button> */}
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

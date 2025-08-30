@@ -86,13 +86,21 @@ export const CustomPagination: React.FC<Props> = ({
           <PaginationItem>
             <PaginationPrevious
               onClick={() => hasPrev && onPageChange(page - 1)}
-            />
+              aria-label="पिछला" // Hindi for Previous
+            >
+              पिछला
+            </PaginationPrevious>
           </PaginationItem>
         )}
         {renderPageNumbers()}
         {hasNext && (
           <PaginationItem>
-            <PaginationNext onClick={() => hasNext && onPageChange(page + 1)} />
+            <PaginationNext
+              onClick={() => hasNext && onPageChange(page + 1)}
+              aria-label="अगला" // Hindi for Next
+            >
+              अगला
+            </PaginationNext>
           </PaginationItem>
         )}
       </PaginationContent>

@@ -61,7 +61,6 @@ const PaymentForm = ({
           resolve(true);
           return;
         }
-
         const script = document.createElement("script");
         script.src = "https://checkout.razorpay.com/v1/checkout.js";
         script.onload = () => {
@@ -69,13 +68,12 @@ const PaymentForm = ({
           resolve(true);
         };
         script.onerror = () => {
-          console.error("Failed to load Razorpay");
+          console.error("Razorpay लोड करने में विफल");
           resolve(false);
         };
         document.body.appendChild(script);
       });
     };
-
     loadRazorpay();
   }, []);
 
@@ -91,12 +89,13 @@ const PaymentForm = ({
 
   const handlePayment = async () => {
     if (!razorpayLoaded || !window.Razorpay) {
-      console.error("Razorpay not loaded");
+      console.error("Razorpay लोड नहीं हुआ");
       return;
     }
 
     setIsProcessing(true);
     onStart();
+
     const options = {
       key: checkoutData.razorpayKeyId,
       amount: checkoutData.amount,
@@ -108,9 +107,7 @@ const PaymentForm = ({
       prefill: {
         email: checkoutData.userEmail || userEmail,
       },
-      theme: {
-        color: "#3B82F6",
-      },
+      theme: { color: "#3B82F6" },
       handler: async (response: any) => {
         try {
           await verifyPayment.mutateAsync({
@@ -124,7 +121,7 @@ const PaymentForm = ({
           onSuccess();
           onComplete();
         } catch (error) {
-          console.error("Payment verification failed:", error);
+          console.error("भुगतान सत्यापन विफल:", error);
         } finally {
           setIsProcessing(false);
         }
@@ -137,18 +134,18 @@ const PaymentForm = ({
       },
     };
 
-    // 👉 Close your modal before opening Razorpay to avoid click-blocking overlays
-    onClose(); // <--- this will close your custom modal
+    // Razorpay खोलने से पहले कस्टम modal बंद करें
+    onClose();
 
     const rzp = new window.Razorpay(options);
     rzp.on("payment.failed", (response: any) => {
-      console.error("Payment failed:", response.error);
+      console.error("भुगतान असफल:", response.error);
       setIsProcessing(false);
 
       const params = new URLSearchParams({
         courseId: checkoutData.course.id,
         courseName: checkoutData.course.name,
-        error: response.error.description || "Payment failed",
+        error: response.error.description || "भुगतान असफल",
         orderId: checkoutData.orderId,
       });
 
@@ -164,22 +161,22 @@ const PaymentForm = ({
       <div className="bg-gradient-to-r from-primary/5 to-blue-500/5 rounded-lg p-4 border">
         <div className="flex items-center space-x-2 mb-3">
           <CreditCard className="w-5 h-5 text-primary" />
-          <span className="font-semibold">Payment Summary</span>
+          <span className="font-semibold">भुगतान सारांश</span>
         </div>
 
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <span>Course</span>
+            <span>कोर्स</span>
             <span className="font-medium">{checkoutData.course.name}</span>
           </div>
           <div className="flex justify-between">
-            <span>Access Type</span>
+            <span>एक्सेस प्रकार</span>
             <span className="font-medium capitalize">
               {checkoutData.course.accessType}
             </span>
           </div>
           <div className="flex justify-between">
-            <span>Amount</span>
+            <span>राशि</span>
             <span className="font-bold text-lg">
               {getCurrencySymbol()}
               {checkoutData.course.price}
@@ -193,7 +190,7 @@ const PaymentForm = ({
       {/* Security Features */}
       <div className="flex items-center space-x-2 text-sm text-muted-foreground">
         <Shield className="w-4 h-4" />
-        <span>Secure payment powered by Razorpay</span>
+        <span>Razorpay द्वारा सुरक्षित भुगतान</span>
       </div>
 
       {/* Action Buttons */}
@@ -205,7 +202,7 @@ const PaymentForm = ({
           className="flex-1"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
+          पीछे
         </Button>
 
         <Button
@@ -220,16 +217,15 @@ const PaymentForm = ({
             <CreditCard className="w-4 h-4 mr-2" />
           )}
           {isProcessing || verifyPayment.isPending
-            ? "Processing..."
-            : "Pay Now"}
+            ? "प्रसंस्करण..."
+            : "अभी भुगतान करें"}
         </Button>
       </div>
 
       {!checkoutData.isLoggedIn && (
         <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded-lg">
           <p className="text-xs text-blue-700 dark:text-blue-300">
-            📧 After payment, we'll create your account and email login details
-            to:{" "}
+            📧 भुगतान के बाद, हम आपका अकाउंट बनाएँगे और लॉगिन विवरण ईमेल करेंगे:{" "}
             <span className="font-semibold">
               {userEmail || checkoutData.userEmail}
             </span>

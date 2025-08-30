@@ -99,9 +99,9 @@ const TestimonialList: React.FC<Props> = ({ initialPage }) => {
     <>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Testimonials</h1>
+          <h1 className="text-2xl font-bold text-foreground">टेस्टिमोनियल्स</h1>
           <p className="text-muted-foreground">
-            Manage your testimonial catalog
+            अपने टेस्टिमोनियल कैटलॉग को प्रबंधित करें
           </p>
         </div>
         <Button
@@ -109,14 +109,14 @@ const TestimonialList: React.FC<Props> = ({ initialPage }) => {
           className="bg-primary hover:bg-primary/90 text-primary-foreground"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Add Testimonial
+          नया टेस्टिमोनियल जोड़ें
         </Button>
       </div>
 
       <LoadingError
         skeletonClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
         isLoading={isLoading}
-        errorTitle="Error loading courses"
+        errorTitle="कोर्स लोड करने में त्रुटि"
         onRetry={refetch}
         skeleton={<CourseCardSkeleton />}
       >
@@ -143,7 +143,7 @@ const TestimonialList: React.FC<Props> = ({ initialPage }) => {
         ) : (
           <div className="text-center py-12">
             <div className="text-muted-foreground">
-              No Testimonial available.
+              कोई टेस्टिमोनियल उपलब्ध नहीं है।
             </div>
           </div>
         )}
@@ -165,8 +165,8 @@ const TestimonialList: React.FC<Props> = ({ initialPage }) => {
           })
         }
         onConfirm={deleteConfirm.onDelete}
-        title="Delete Testimonial"
-        description={`Are you sure you want to delete "Testimonial"? This action cannot be undone and will permanently remove this course and all associated data.`}
+        title="टेस्टिमोनियल हटाएँ"
+        description={`क्या आप वाकई "टेस्टिमोनियल" हटाना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती और इससे इस कोर्स और सभी संबंधित डेटा स्थायी रूप से हट जाएगा।`}
       />
     </>
   );

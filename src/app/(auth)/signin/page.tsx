@@ -33,7 +33,7 @@ const SignIn = () => {
   const handleLogin = (data: LoginUserFormData) => {
     mutate(data, {
       onSuccess: () => {
-        Toast.success("You are Logged In Successfully");
+        Toast.success("आप सफलतापूर्वक लॉगिन हो गए हैं");
         router.replace("/");
       },
       onError: (err) => {
@@ -48,39 +48,41 @@ const SignIn = () => {
         <div className="w-20 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-2">
           <Image src={Logo} alt="logo" className="w-full" />
         </div>
-        <h1 className="text-3xl font-bold mb-2">Welcome Back</h1>
+        <h1 className="text-3xl font-bold mb-2">फिर से स्वागत है</h1>
         <p className="text-muted-foreground">
-          Sign in to your account to continue learning
+          सीखना जारी रखने के लिए अपने खाते में लॉगिन करें
         </p>
       </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-6">
           <FormInput
-            label="Email"
+            label="ईमेल"
             name="identifier"
             type="email"
-            placeholder="Enter your email"
+            placeholder="अपना ईमेल दर्ज करें"
             control={form.control}
           />
 
           <FormInput
-            label="Password"
+            label="पासवर्ड"
             name="password"
             type="password"
-            placeholder="Enter your password"
+            placeholder="अपना पासवर्ड दर्ज करें"
             control={form.control}
           />
 
           <div className="flex items-center justify-between">
             <label className="flex items-center space-x-2 cursor-pointer">
               <input type="checkbox" className="rounded border-border" />
-              <span className="text-sm text-muted-foreground">Remember me</span>
+              <span className="text-sm text-muted-foreground">
+                मुझे याद रखें
+              </span>
             </label>
             <Link
               href="/forgot-password"
               className="text-sm text-primary hover:underline"
             >
-              Forgot password?
+              पासवर्ड भूल गए?
             </Link>
           </div>
 
@@ -91,10 +93,10 @@ const SignIn = () => {
             className="w-full gradient-primary text-white border-0 shadow-medium hover:shadow-strong transition-smooth group"
           >
             {isPending ? (
-              "Signing in..."
+              "लॉगिन हो रहा है..."
             ) : (
               <>
-                Sign In
+                लॉगिन करें
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-smooth" />
               </>
             )}
@@ -104,12 +106,12 @@ const SignIn = () => {
       <div className="mt-6">
         <Separator className="my-4" />
         <p className="text-center text-sm text-muted-foreground">
-          Don't have an account?{" "}
+          क्या आपका खाता नहीं है?{" "}
           <Link
             href="/signup"
             className="text-primary hover:underline font-medium"
           >
-            Sign up for free
+            मुफ्त में साइन अप करें
           </Link>
         </p>
       </div>

@@ -74,8 +74,8 @@ const EventCard: React.FC<{ event: Event }> = ({ event }) => {
                   {event.repeating && (
                     <Badge variant="outline" className="text-sm">
                       <Repeat className="h-3 w-3 mr-1" />
-                      Every {event.repeatEvery} day
-                      {event.repeatEvery !== 1 ? "s" : ""}
+                      हर {event.repeatEvery} दिन
+                      {event.repeatEvery !== 1 ? "ों" : ""}
                     </Badge>
                   )}
                 </div>
@@ -85,7 +85,7 @@ const EventCard: React.FC<{ event: Event }> = ({ event }) => {
               {event.benefits && event.benefits.length > 0 && (
                 <div className="space-y-3">
                   <h3 className="text-xl font-semibold text-foreground">
-                    What you'll get:
+                    आपको क्या मिलेगा:
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {event.benefits.map((benefit, index) => (
@@ -106,7 +106,7 @@ const EventCard: React.FC<{ event: Event }> = ({ event }) => {
                   className="w-full lg:w-auto text-lg px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300"
                 >
                   <ExternalLink className="h-5 w-5 mr-2" />
-                  Join Event - {formatPrice(event.amount, event.currency)}
+                  इवेंट से जुड़ें - {formatPrice(event.amount, event.currency)}
                 </Button>
               </div>
             </div>
@@ -149,10 +149,10 @@ const LandingPageEvents: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            Upcoming Events
+            आगामी कार्यक्रम
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Join our exclusive events and connect with industry experts
+            हमारे विशेष कार्यक्रमों में शामिल हों और उद्योग विशेषज्ञों से जुड़ें
           </p>
         </div>
 

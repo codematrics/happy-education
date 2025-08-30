@@ -44,13 +44,13 @@ const CourseVideoManager = ({ form }: CourseVideoManagerProps) => {
   const handleDeleteVideo = (index: number) => {
     const videoName = fields[index]?.name || "";
     remove(index);
-    Toast.success(`"${videoName}" has been removed from the course.`);
+    Toast.success(`"${videoName}" वीडियो को कोर्स से हटा दिया गया है।`);
   };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <Label className="text-base font-semibold">Course Videos</Label>
+        <Label className="text-base font-semibold">कोर्स वीडियो</Label>
         <Button
           type="button"
           variant="outline"
@@ -59,14 +59,16 @@ const CourseVideoManager = ({ form }: CourseVideoManagerProps) => {
           className="h-8"
         >
           <Plus className="h-4 w-4 mr-1" />
-          Add Video
+          वीडियो जोड़ें
         </Button>
       </div>
 
       {fields.length === 0 && (
         <div className="text-center py-8 border-2 border-dashed border-border rounded-lg">
           <Video className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-          <p className="text-sm text-muted-foreground">No videos added yet</p>
+          <p className="text-sm text-muted-foreground">
+            अभी तक कोई वीडियो नहीं जोड़ा गया है
+          </p>
           <Button
             type="button"
             variant="outline"
@@ -74,7 +76,7 @@ const CourseVideoManager = ({ form }: CourseVideoManagerProps) => {
             onClick={handleAddVideo}
             className="mt-2"
           >
-            Add First Video
+            पहला वीडियो जोड़ें
           </Button>
         </div>
       )}
@@ -87,7 +89,8 @@ const CourseVideoManager = ({ form }: CourseVideoManagerProps) => {
                 <GripVertical className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm font-medium">#{index + 1}</span>
                 <CardTitle className="text-sm font-medium">
-                  {getValues(`courseVideos.${index}.name`)}
+                  {getValues(`courseVideos.${index}.name`) ||
+                    "नाम नहीं दिया गया"}
                 </CardTitle>
               </div>
               <Button
@@ -106,14 +109,14 @@ const CourseVideoManager = ({ form }: CourseVideoManagerProps) => {
             <FormInput
               control={control}
               name={`courseVideos.${index}.name`}
-              label="Video Name *"
-              placeholder="Enter video name"
+              label="वीडियो का नाम *"
+              placeholder="वीडियो का नाम दर्ज करें"
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormFileUpload
                 name={`courseVideos.${index}.thumbnail`}
-                label="Video Thumbnail *"
+                label="वीडियो थंबनेल *"
                 accept=".jpg,.jpeg,.png,.webp"
                 type="image"
                 control={form.control}
@@ -122,7 +125,7 @@ const CourseVideoManager = ({ form }: CourseVideoManagerProps) => {
 
               <FormFileUpload
                 name={`courseVideos.${index}.video`}
-                label="Video File *"
+                label="वीडियो फ़ाइल *"
                 accept=".mp4,.avi,.mov,.mkv"
                 type="video"
                 control={form.control}
@@ -133,8 +136,8 @@ const CourseVideoManager = ({ form }: CourseVideoManagerProps) => {
             <FormTextarea
               control={control}
               name={`courseVideos.${index}.description`}
-              label="Description *"
-              placeholder="Enter video description"
+              label="विवरण *"
+              placeholder="वीडियो का विवरण दर्ज करें"
               rows={2}
             />
           </CardContent>

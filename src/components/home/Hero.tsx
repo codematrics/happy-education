@@ -13,15 +13,15 @@ const Hero = () => {
           <div className="space-y-8">
             <div className="space-y-4">
               <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
-                Learn Without
+                बिना रुकावट
                 <span className="block bg-gradient-to-r from-primary to-info bg-clip-text text-transparent">
-                  Limits
+                  सीखें
                 </span>
               </h1>
               <p className="text-xl text-muted-foreground leading-relaxed">
-                Unlock your potential with our comprehensive courses designed by
-                industry experts. Start your learning journey today and
-                transform your career.
+                हमारे विशेषज्ञों द्वारा बनाए गए कोर्स के साथ अपनी क्षमता को
+                खोलें। आज ही अपनी सीखने की यात्रा शुरू करें और अपने करियर को
+                बदलें।
               </p>
             </div>
 
@@ -32,7 +32,7 @@ const Hero = () => {
                 asChild
               >
                 <Link href="/courses">
-                  View Trending Courses
+                  लोकप्रिय कोर्स देखें
                   <TrendingUp className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-smooth" />
                 </Link>
               </Button>
@@ -44,7 +44,7 @@ const Hero = () => {
               >
                 <Link href="/testimonials">
                   <Play className="w-5 h-5 mr-2" />
-                  Watch Demo
+                  डेमो देखें
                 </Link>
               </Button>
             </div>
@@ -54,7 +54,7 @@ const Hero = () => {
             <div className="relative z-10 bg-card rounded-2xl p-8 shadow-strong">
               <Image
                 src={HeroImage}
-                alt="Students learning"
+                alt="सीखते हुए छात्र"
                 className="w-full h-80 object-cover rounded-xl"
               />
               <div className="absolute -top-4 -right-4 bg-warning text-warning-foreground p-4 rounded-xl shadow-medium">
@@ -63,7 +63,7 @@ const Hero = () => {
             </div>
             <div className="absolute -bottom-6 -left-6 bg-primary text-primary-foreground p-6 rounded-xl shadow-medium">
               <div className="text-2xl font-bold">4.9★</div>
-              <div className="text-sm">Rating</div>
+              <div className="text-sm">रेटिंग</div>
             </div>
           </div>
         </div>

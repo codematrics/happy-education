@@ -18,18 +18,17 @@ const StaticPageTestimonials = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-3xl lg:text-4xl font-bold mb-4">
-            What Our Students Say
+            हमारे छात्र क्या कहते हैं
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Don't just take our word for it. Here's what our successful students
-            have to say about their experience.
+            सिर्फ़ हमारी बात पर मत जाइए। जानिए हमारे सफल छात्रों का अनुभव।
           </p>
         </div>
 
         <LoadingError
           skeletonClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
           isLoading={isLoading}
-          errorTitle="Error loading testimonials"
+          errorTitle="टेस्टिमोनियल लोड करने में त्रुटि"
           onRetry={refetch}
           skeleton={<CourseCardSkeleton />}
         >
@@ -51,7 +50,7 @@ const StaticPageTestimonials = () => {
               variant="outline"
               className="hover:bg-primary hover:text-primary-foreground transition-smooth group"
             >
-              See All Reviews
+              सभी समीक्षा देखें
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-smooth" />
             </Button>
           </Link>

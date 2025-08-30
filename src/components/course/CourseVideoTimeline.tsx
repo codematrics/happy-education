@@ -39,52 +39,41 @@ const CourseVideoTimeline = ({ courseId }: CourseVideoTimelineProps) => {
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
   const router = useRouter();
 
-  // Always call useMemo hook, regardless of data availability
   const videos = useMemo(() => {
     if (!course?.data) return [];
     return (course.data.courseVideos as ICourseVideo[]) || [];
   }, [course?.data]);
 
-  // Calculate total course duration
   const totalDuration = useMemo(() => {
     if (videos.length === 0) return 0;
-    // Use actual durations from database if available, otherwise estimate
     const durations = videos.map(
       (video) => video.video?.duration || estimateVideoDuration()
     );
     return calculateTotalDuration(durations);
   }, [videos]);
 
-  const handleBackToCourses = () => {
-    router.push("/admin/course");
-  };
-
-  const handleEditCourse = () => {
-    router.push(`/admin/course/${courseId}`);
-  };
-
-  const handleVideoSelect = (videoId: string) => {
-    setSelectedVideoId(videoId);
-  };
+  const handleBackToCourses = () => router.push("/admin/course");
+  const handleEditCourse = () => router.push(`/admin/course/${courseId}`);
+  const handleVideoSelect = (videoId: string) => setSelectedVideoId(videoId);
 
   if (!course?.data) {
     return (
       <LoadingError
         isLoading={isLoading}
         error={error?.message}
-        errorTitle="Error loading course"
+        errorTitle="कोर्स लोड करने में त्रुटि"
         onRetry={refetch}
         skeleton={<CourseVideoTimelineSkeleton />}
       >
         <div className="text-center py-12">
-          <div className="text-muted-foreground">Course not found</div>
+          <div className="text-muted-foreground">कोर्स नहीं मिला</div>
           <Button
             onClick={handleBackToCourses}
             variant="outline"
             className="mt-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Courses
+            कोर्स पर वापस जाएँ
           </Button>
         </div>
       </LoadingError>
@@ -104,18 +93,17 @@ const CourseVideoTimeline = ({ courseId }: CourseVideoTimelineProps) => {
           className="mb-2"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Courses
+          कोर्स पर वापस जाएँ
         </Button>
         <Button onClick={handleEditCourse} variant="outline" size="sm">
           <Edit className="h-4 w-4 mr-2" />
-          Edit Course
+          कोर्स संपादित करें
         </Button>
       </div>
 
       {/* Course Info Card */}
       <Card className="overflow-hidden py-0">
-        <div className="grid grid-cols-[1fr_2fr]  gap-3">
-          {/* Course Thumbnail */}
+        <div className="grid grid-cols-[1fr_2fr] gap-3">
           <div className="w-full h-full max-h-50 relative bg-muted">
             <CustomImage
               src={getAssetUrl(courseData.thumbnail)}
@@ -131,7 +119,6 @@ const CourseVideoTimeline = ({ courseId }: CourseVideoTimelineProps) => {
             )}
           </div>
 
-          {/* Course Details */}
           <div className="flex-1 p-6">
             <CardHeader className="p-0 mb-4">
               <div className="flex items-start justify-between">
@@ -158,7 +145,7 @@ const CourseVideoTimeline = ({ courseId }: CourseVideoTimelineProps) => {
               <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center">
                   <Video className="h-4 w-4 mr-2" />
-                  {videos.length} video{videos.length !== 1 ? "s" : ""}
+                  {videos.length} वीडियो{videos.length !== 1 ? "s" : ""}
                 </div>
                 <div className="flex items-center">
                   <Clock className="h-4 w-4 mr-2" />
@@ -166,10 +153,11 @@ const CourseVideoTimeline = ({ courseId }: CourseVideoTimelineProps) => {
                 </div>
                 <div className="flex items-center">
                   <Calendar className="h-4 w-4 mr-2" />
-                  Created {new Date(courseData.createdAt).toLocaleDateString()}
+                  बनाया गया{" "}
+                  {new Date(courseData.createdAt).toLocaleDateString()}
                 </div>
                 <div className="flex items-center">
-                  <Users className="h-4 w-4 mr-2" />0 enrolled
+                  <Users className="h-4 w-4 mr-2" />0 नामांकित
                 </div>
               </div>
             </CardContent>
@@ -179,9 +167,8 @@ const CourseVideoTimeline = ({ courseId }: CourseVideoTimelineProps) => {
 
       {/* Video Timeline */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Timeline */}
         <div className="order-2 lg:order-1">
-          <h2 className="text-xl font-semibold mb-4">Course Content</h2>
+          <h2 className="text-xl font-semibold mb-4">कोर्स सामग्री</h2>
           {videos.length > 0 ? (
             <div className="space-y-4">
               {videos.map((video, index) => (
@@ -199,23 +186,24 @@ const CourseVideoTimeline = ({ courseId }: CourseVideoTimelineProps) => {
           ) : (
             <Card className="p-8 text-center border-dashed">
               <Video className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">No Videos Yet</h3>
+              <h3 className="text-lg font-medium mb-2">
+                अभी तक कोई वीडियो नहीं
+              </h3>
               <p className="text-muted-foreground mb-4">
-                This course does not have any videos yet.
+                इस कोर्स में अभी तक कोई वीडियो नहीं है।
               </p>
               <Button onClick={handleEditCourse}>
                 <Edit className="h-4 w-4 mr-2" />
-                Add Videos
+                वीडियो जोड़ें
               </Button>
             </Card>
           )}
         </div>
 
-        {/* Video Player */}
         <div className="lg:sticky lg:top-6 lg:h-fit order-1 lg:order-2">
           {selectedVideoId ? (
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold">Video Player</h2>
+              <h2 className="text-xl font-semibold">वीडियो प्लेयर</h2>
               {(() => {
                 const selectedVideo = videos.find(
                   (v) => v._id?.toString() === selectedVideoId
@@ -245,9 +233,9 @@ const CourseVideoTimeline = ({ courseId }: CourseVideoTimelineProps) => {
           ) : (
             <Card className="p-8 text-center border-dashed">
               <Play className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">Select a Video</h3>
+              <h3 className="text-lg font-medium mb-2">एक वीडियो चुनें</h3>
               <p className="text-muted-foreground">
-                Choose a video from the timeline to start watching
+                देखने के लिए टाइमलाइन से वीडियो चुनें
               </p>
             </Card>
           )}

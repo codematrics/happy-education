@@ -89,22 +89,24 @@ const EventsList: React.FC = () => {
     <>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Events</h1>
-          <p className="text-muted-foreground">Manage your events catalog</p>
+          <h1 className="text-2xl font-bold text-foreground">इवेंट्स</h1>
+          <p className="text-muted-foreground">
+            अपने इवेंट्स कैटलॉग का प्रबंधन करें
+          </p>
         </div>
         <Button
           onClick={handleCreateEvent}
           className="bg-primary hover:bg-primary/90 text-primary-foreground"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Add Event
+          इवेंट जोड़ें
         </Button>
       </div>
 
       <LoadingError
         skeletonClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         isLoading={isLoading}
-        errorTitle="Error loading events"
+        errorTitle="इवेंट लोड करने में त्रुटि"
         onRetry={refetch}
         skeleton={<CourseCardSkeleton />}
       >
@@ -122,7 +124,9 @@ const EventsList: React.FC = () => {
           </div>
         ) : (
           <div className="text-center py-12">
-            <div className="text-muted-foreground">No events available.</div>
+            <div className="text-muted-foreground">
+              कोई इवेंट उपलब्ध नहीं है।
+            </div>
           </div>
         )}
       </LoadingError>
@@ -143,8 +147,8 @@ const EventsList: React.FC = () => {
           })
         }
         onConfirm={deleteConfirm.onDelete}
-        title="Delete Event"
-        description={`Are you sure you want to delete this event? This action cannot be undone and will permanently remove this event and all associated data.`}
+        title="इवेंट हटाएँ"
+        description="क्या आप सुनिश्चित हैं कि आप इस इवेंट को हटाना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती और इस इवेंट और संबंधित सभी डेटा को स्थायी रूप से हटा देगी।"
       />
     </>
   );

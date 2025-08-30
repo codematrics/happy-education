@@ -39,7 +39,7 @@ const NewPassword = () => {
       if (!hasForgotPassToken) {
         // No valid token, redirect to login
         Toast.error(
-          "Session expired. Please restart the password reset process."
+          "सत्र समाप्त हो गया। कृपया पासवर्ड रीसेट प्रक्रिया फिर से शुरू करें।"
         );
         router.push("/signin");
       }
@@ -52,12 +52,12 @@ const NewPassword = () => {
     mutate(data, {
       onSuccess: () => {
         Toast.success(
-          "Password updated successfully! You can now login with your new password."
+          "पासवर्ड सफलतापूर्वक अपडेट हो गया! अब आप नए पासवर्ड से लॉगिन कर सकते हैं।"
         );
         router.push("/signin");
       },
       onError: (err) => {
-        Toast.error(err.message || "Failed to update password");
+        Toast.error(err.message || "पासवर्ड अपडेट करने में विफल");
       },
     });
   };
@@ -68,9 +68,9 @@ const NewPassword = () => {
         <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
           <Lock className="w-8 h-8 text-white" />
         </div>
-        <h1 className="text-3xl font-bold mb-2">Reset Your Password</h1>
+        <h1 className="text-3xl font-bold mb-2">अपना पासवर्ड रीसेट करें</h1>
         <p className="text-muted-foreground">
-          Enter your new password to complete the reset process
+          पासवर्ड रीसेट प्रक्रिया पूरी करने के लिए नया पासवर्ड दर्ज करें
         </p>
       </div>
       <Form {...form}>
@@ -79,17 +79,17 @@ const NewPassword = () => {
           className="space-y-6"
         >
           <FormInput
-            label="Password"
+            label="पासवर्ड"
             name="password"
             type="password"
-            placeholder="Enter your password"
+            placeholder="अपना पासवर्ड दर्ज करें"
             control={form.control}
           />
           <FormInput
-            label="Confirm Password"
+            label="पासवर्ड की पुष्टि करें"
             name="confirmPassword"
             type="password"
-            placeholder="Enter confirm password"
+            placeholder="पासवर्ड की पुष्टि दर्ज करें"
             control={form.control}
           />
           <Button
@@ -98,7 +98,7 @@ const NewPassword = () => {
             size="lg"
             className="w-full gradient-primary text-white border-0 shadow-medium hover:shadow-strong transition-smooth group"
           >
-            {isPending ? "Updating..." : "Reset Password"}
+            {isPending ? "अपडेट हो रहा है..." : "पासवर्ड रीसेट करें"}
             {!isPending && (
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-smooth" />
             )}
@@ -112,7 +112,7 @@ const NewPassword = () => {
             href="/signin"
             className="text-primary hover:underline font-medium"
           >
-            Back to Login
+            वापस लॉगिन पर जाएं
           </Link>
         </p>
       </div>

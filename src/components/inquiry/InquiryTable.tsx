@@ -37,28 +37,27 @@ const columns: ColumnDef<Inquiry>[] = [
   },
   {
     accessorKey: "firstName",
-    header: "First Name",
+    header: "प्रथम नाम",
   },
-
   {
     accessorKey: "phone",
-    header: "Phone Number",
+    header: "फोन नंबर",
     cell: ({ row }) => row.getValue("phone") || "-",
   },
   {
     accessorKey: "message",
-    header: "Message",
+    header: "संदेश",
     cell: ({ row }) => row.getValue("message") || "-",
   },
   {
     accessorKey: "createdAt",
-    header: "Creation Date",
+    header: "सृजन तिथि",
     cell: ({ row }) =>
       row.getValue("createdAt") ? formatDate(row.getValue("createdAt")) : "-",
   },
   {
     accessorKey: "actions",
-    header: "Actions",
+    header: "कार्रवाइयाँ",
     cell: ({ row }) => (
       <Link href={`tel:${row.original?.phone}`}>
         <Phone className="w-3 h-3 text-primary" />
@@ -96,15 +95,18 @@ const InquiryTable: React.FC<Props> = ({ initialSearch, initialPage }) => {
     <>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Inquiries</h1>
-          <p className="text-muted-foreground">Manage your inquiry catalog</p>
+          <h1 className="text-2xl font-bold text-foreground">इनक्वायरीज़</h1>
+          <p className="text-muted-foreground">
+            अपनी इनक्वायरी सूची प्रबंधित करें
+          </p>
         </div>
       </div>
+
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search inquiry..."
+            placeholder="इनक्वायरी खोजें..."
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
             className="pl-9 h-10"
@@ -126,9 +128,10 @@ const InquiryTable: React.FC<Props> = ({ initialSearch, initialPage }) => {
           </Select>
         </div>
       </div>
+
       <LoadingError
         isLoading={isLoading}
-        errorTitle="Error loading Users"
+        errorTitle="यूज़र्स लोड करने में त्रुटि"
         onRetry={refetch}
         skeleton={<CustomTableSkeleton columns={columns.length} />}
       >
@@ -146,8 +149,8 @@ const InquiryTable: React.FC<Props> = ({ initialSearch, initialPage }) => {
           <div className="text-center py-12">
             <div className="text-muted-foreground">
               {search
-                ? "No Inquiries found matching your search."
-                : "No Inquiries available."}
+                ? "आपकी खोज से मेल खाने वाली कोई इनक्वायरी नहीं मिली।"
+                : "कोई इनक्वायरी उपलब्ध नहीं है।"}
             </div>
           </div>
         )}

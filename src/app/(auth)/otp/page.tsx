@@ -61,16 +61,16 @@ const OTPVerification = () => {
       onSuccess: () => {
         if (otpType === "signup") {
           Toast.success(
-            "Account verified successfully! You are now logged in."
+            "खाता सफलतापूर्वक सत्यापित हो गया! आप अब लॉगिन हो गए हैं।"
           );
           router.push("/");
         } else if (otpType === "forgot-password") {
-          Toast.success("OTP verified! You can now reset your password.");
+          Toast.success("OTP सत्यापित! अब आप नया पासवर्ड सेट कर सकते हैं।");
           router.push("/new-password");
         }
       },
       onError: (err) => {
-        Toast.error(err.message || "OTP verification failed");
+        Toast.error(err.message || "OTP सत्यापन असफल रहा");
       },
     });
   };
@@ -78,10 +78,10 @@ const OTPVerification = () => {
   const handleResend = () => {
     resendOtp(null, {
       onSuccess: () => {
-        Toast.success("OTP has been resent to your email");
+        Toast.success("OTP आपके ईमेल पर पुनः भेजा गया है");
       },
       onError: (err) => {
-        Toast.error(err.message || "Failed to resend OTP");
+        Toast.error(err.message || "OTP पुनः भेजने में विफल");
       },
     });
   };
@@ -94,13 +94,13 @@ const OTPVerification = () => {
         </div>
         <h1 className="text-3xl font-bold mb-2">
           {otpType === "signup"
-            ? "Verify Your Account"
-            : "Verify Your Identity"}
+            ? "अपना खाता सत्यापित करें"
+            : "अपनी पहचान सत्यापित करें"}
         </h1>
         <p className="text-muted-foreground">
           {otpType === "signup"
-            ? "We've sent a verification code to your email"
-            : "We've sent a password reset code to your email"}
+            ? "हमने आपके ईमेल पर सत्यापन कोड भेजा है"
+            : "हमने आपके ईमेल पर पासवर्ड रीसेट कोड भेजा है"}
         </p>
       </div>
 
@@ -108,7 +108,7 @@ const OTPVerification = () => {
         <form onSubmit={form.handleSubmit(handleVerify)} className="space-y-6">
           <div>
             <label className="text-sm font-medium mb-4 block text-center">
-              Enter 4-digit verification code
+              4-अंकों का सत्यापन कोड दर्ज करें
             </label>
             <div className="flex justify-center">
               <InputOTP
@@ -143,12 +143,12 @@ const OTPVerification = () => {
             {isVerifying ? (
               <>
                 <RefreshCw className="w-5 h-5 mr-2 animate-spin" />
-                Verifying...
+                सत्यापित किया जा रहा है...
               </>
             ) : otpType === "signup" ? (
-              "Verify Account"
+              "खाता सत्यापित करें"
             ) : (
-              "Verify & Continue"
+              "सत्यापित करें और आगे बढ़ें"
             )}
           </Button>
 
@@ -166,7 +166,7 @@ const OTPVerification = () => {
                   isResending ? "animate-spin" : ""
                 }`}
               />
-              Resend Code
+              कोड पुनः भेजें
             </Button>
           </div>
 
@@ -178,8 +178,8 @@ const OTPVerification = () => {
             >
               <ArrowLeft className="w-4 h-4 mr-1" />
               {otpType === "signup"
-                ? "Back to Sign Up"
-                : "Back to Forgot Password"}
+                ? "साइन अप पर वापस जाएं"
+                : "पासवर्ड भूल गए पर वापस जाएं"}
             </Link>
           </div>
         </form>

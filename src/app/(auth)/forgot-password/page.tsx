@@ -33,7 +33,7 @@ const ForgotPassword = () => {
   const handleForgotPassword = (data: ForgotPasswordFormData) => {
     mutate(data, {
       onSuccess: () => {
-        Toast.success("Otp sent to your mail");
+        Toast.success("ओटीपी आपके ईमेल पर भेज दिया गया है");
         router.replace("/otp");
       },
       onError: (err) => {
@@ -48,9 +48,9 @@ const ForgotPassword = () => {
         <div className="w-20 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-2">
           <Mail className="w-full" />
         </div>
-        <h1 className="text-3xl font-bold mb-2">Welcome Back</h1>
+        <h1 className="text-3xl font-bold mb-2">फिर से स्वागत है</h1>
         <p className="text-muted-foreground">
-          Sign in to your account to continue learning
+          सीखना जारी रखने के लिए अपने खाते में लॉगिन करें
         </p>
       </div>
       <Form {...form}>
@@ -59,10 +59,10 @@ const ForgotPassword = () => {
           className="space-y-6"
         >
           <FormInput
-            label="Email"
+            label="ईमेल"
             name="identifier"
             type="email"
-            placeholder="Enter your email"
+            placeholder="अपना ईमेल दर्ज करें"
             control={form.control}
           />
 
@@ -72,7 +72,7 @@ const ForgotPassword = () => {
             size="lg"
             className="w-full gradient-primary text-white border-0 shadow-medium hover:shadow-strong transition-smooth group"
           >
-            Send OTP
+            ओटीपी भेजें
             <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-smooth" />
           </Button>
         </form>
@@ -80,12 +80,12 @@ const ForgotPassword = () => {
       <div className="mt-6">
         <Separator className="my-4" />
         <p className="text-center text-sm text-muted-foreground">
-          Don't have an account?{" "}
+          क्या आपका खाता नहीं है?{" "}
           <Link
             href="/signup"
             className="text-primary hover:underline font-medium"
           >
-            Sign up for free
+            मुफ्त में साइन अप करें
           </Link>
         </p>
       </div>

@@ -1,13 +1,7 @@
 "use client";
 
 import { useDownloadReceipt, useUserTransactions } from "@/hooks/usePayment";
-import {
-  Calendar,
-  FileText,
-  Filter,
-  Receipt,
-  RefreshCw,
-} from "lucide-react";
+import { Calendar, FileText, Filter, Receipt, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import LoadingError from "../common/LoadingError";
 import { Button } from "../ui/button";
@@ -30,7 +24,9 @@ import TransactionCard from "./TransactionCard";
 
 const TransactionHistory = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState<"all" | "success" | "failed" | "pending">("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "success" | "failed" | "pending"
+  >("all");
   const [pageSize] = useState(10);
 
   const { data, isLoading, error, refetch } = useUserTransactions({
@@ -51,19 +47,23 @@ const TransactionHistory = () => {
 
   const handleStatusFilter = (status: string) => {
     setStatusFilter(status as "all" | "success" | "failed" | "pending");
-    setCurrentPage(1); // Reset to first page when filtering
+    setCurrentPage(1);
   };
 
-
   const getSuccessfulTransactionsCount = () => {
-    return data?.data?.transactions?.filter(t => t.status === "success").length || 0;
+    return (
+      data?.data?.transactions?.filter((t) => t.status === "success").length ||
+      0
+    );
   };
 
   const getTotalSpent = () => {
-    const successfulTransactions = data?.data?.transactions?.filter(t => t.status === "success") || [];
-    return successfulTransactions.reduce((total, transaction) => {
-      return total + transaction.amount;
-    }, 0);
+    const successfulTransactions =
+      data?.data?.transactions?.filter((t) => t.status === "success") || [];
+    return successfulTransactions.reduce(
+      (total, transaction) => total + transaction.amount,
+      0
+    );
   };
 
   const getDisplayCurrency = () => {
@@ -76,11 +76,11 @@ const TransactionHistory = () => {
       <LoadingError
         isLoading={false}
         error={error.message}
-        errorTitle="Failed to load transactions"
+        errorTitle="लेनदेन लोड करने में विफल"
         onRetry={refetch}
-        skeleton={<div>Loading...</div>}
+        skeleton={<div>लोड हो रहा है...</div>}
       >
-        <div>Error loading transactions</div>
+        <div>लेनदेन लोड करने में त्रुटि</div>
       </LoadingError>
     );
   }
@@ -90,9 +90,9 @@ const TransactionHistory = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Transaction History</h1>
+          <h1 className="text-2xl font-bold">लेनदेन इतिहास</h1>
           <p className="text-muted-foreground">
-            View and manage your course purchases
+            अपने कोर्स खरीद और भुगतान देखें और प्रबंधित करें
           </p>
         </div>
         <Button
@@ -101,8 +101,10 @@ const TransactionHistory = () => {
           onClick={() => refetch()}
           disabled={isLoading}
         >
-          <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
-          Refresh
+          <RefreshCw
+            className={`w-4 h-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
+          />
+          रिफ्रेश
         </Button>
       </div>
 
@@ -125,8 +127,10 @@ const TransactionHistory = () => {
               <div className="flex items-center space-x-2">
                 <FileText className="w-5 h-5 text-blue-600" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Total Transactions</p>
-                  <p className="text-2xl font-bold">{data?.data?.pagination?.totalCount || 0}</p>
+                  <p className="text-sm text-muted-foreground">कुल लेनदेन</p>
+                  <p className="text-2xl font-bold">
+                    {data?.data?.pagination?.totalCount || 0}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -137,8 +141,10 @@ const TransactionHistory = () => {
               <div className="flex items-center space-x-2">
                 <Receipt className="w-5 h-5 text-green-600" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Successful Purchases</p>
-                  <p className="text-2xl font-bold">{getSuccessfulTransactionsCount()}</p>
+                  <p className="text-sm text-muted-foreground">सफल खरीद</p>
+                  <p className="text-2xl font-bold">
+                    {getSuccessfulTransactionsCount()}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -149,9 +155,10 @@ const TransactionHistory = () => {
               <div className="flex items-center space-x-2">
                 <Calendar className="w-5 h-5 text-purple-600" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Total Spent</p>
+                  <p className="text-sm text-muted-foreground">कुल खर्च</p>
                   <p className="text-2xl font-bold">
-                    {getDisplayCurrency()}{getTotalSpent().toFixed(2)}
+                    {getDisplayCurrency()}
+                    {getTotalSpent().toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -165,9 +172,9 @@ const TransactionHistory = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-lg">All Transactions</CardTitle>
+              <CardTitle className="text-lg">सभी लेनदेन</CardTitle>
               <CardDescription>
-                Filter and view your transaction history
+                लेनदेन इतिहास को फ़िल्टर और देखें
               </CardDescription>
             </div>
             <div className="flex items-center space-x-2">
@@ -177,16 +184,16 @@ const TransactionHistory = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="success">Success</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="failed">Failed</SelectItem>
+                  <SelectItem value="all">सभी स्थिति</SelectItem>
+                  <SelectItem value="success">सफल</SelectItem>
+                  <SelectItem value="pending">प्रक्रिया में</SelectItem>
+                  <SelectItem value="failed">विफल</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
         </CardHeader>
-        
+
         <CardContent className="p-0">
           {isLoading ? (
             <div className="space-y-4 p-6">
@@ -205,14 +212,17 @@ const TransactionHistory = () => {
           ) : data?.data?.transactions?.length === 0 ? (
             <div className="text-center py-12">
               <Receipt className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">No transactions found</h3>
+              <h3 className="text-lg font-medium mb-2">कोई लेनदेन नहीं मिला</h3>
               <p className="text-muted-foreground mb-4">
-                {statusFilter === "all" 
-                  ? "You haven't made any course purchases yet." 
-                  : `No ${statusFilter} transactions found.`}
+                {statusFilter === "all"
+                  ? "आपने अभी तक कोई कोर्स खरीद नहीं की है।"
+                  : `कोई ${statusFilter} लेनदेन नहीं मिला।`}
               </p>
-              <Button variant="outline" onClick={() => window.location.href = "/courses"}>
-                Browse Courses
+              <Button
+                variant="outline"
+                onClick={() => (window.location.href = "/courses")}
+              >
+                कोर्स देखें
               </Button>
             </div>
           ) : (
@@ -239,15 +249,21 @@ const TransactionHistory = () => {
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={!data.data.pagination.hasPreviousPage}
           >
-            Previous
+            पिछला
           </Button>
-          
+
           <div className="flex items-center space-x-1">
-            {Array.from({ length: data.data.pagination.totalPages }, (_, i) => i + 1)
+            {Array.from(
+              { length: data.data.pagination.totalPages },
+              (_, i) => i + 1
+            )
               .filter((page) => {
                 const current = data.data.pagination.currentPage;
-                return page === 1 || page === data.data.pagination.totalPages || 
-                       (page >= current - 1 && page <= current + 1);
+                return (
+                  page === 1 ||
+                  page === data.data.pagination.totalPages ||
+                  (page >= current - 1 && page <= current + 1)
+                );
               })
               .map((page, index, array) => (
                 <div key={page} className="flex items-center">
@@ -271,7 +287,7 @@ const TransactionHistory = () => {
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={!data.data.pagination.hasNextPage}
           >
-            Next
+            अगला
           </Button>
         </div>
       )}

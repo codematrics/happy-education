@@ -11,11 +11,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
           <div className="mt-8 text-center">
             <p className="text-sm text-muted-foreground mb-4">
-              Join thousands of learners already improving their skills
+              हजारों सीखने वालों में शामिल हों जो पहले ही अपने कौशल सुधार रहे
+              हैं
             </p>
             <div className="flex justify-center space-x-8 text-xs text-muted-foreground">
-              <div>✓ Lifetime Access</div>
-              <div>✓ Expert Instructors</div>
+              <div>✓ आजीवन पहुँच</div>
+              <div>✓ विशेषज्ञ प्रशिक्षक</div>
             </div>
           </div>
         </div>

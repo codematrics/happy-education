@@ -37,7 +37,7 @@ const Login = () => {
   const handleLogin = (data: LoginAdminFormData) => {
     mutate(data, {
       onSuccess: () => {
-        Toast.success("You are Logged In Successfully");
+        Toast.success("आप सफलतापूर्वक लॉगिन हो गए हैं");
         router.replace("/admin");
       },
       onError: (err) => {
@@ -53,10 +53,8 @@ const Login = () => {
           <div className="mx-auto w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-4">
             <Eye className="h-8 w-8 text-primary-foreground" />
           </div>
-          <CardTitle className="text-2xl font-bold">Admin Portal</CardTitle>
-          <CardDescription>
-            Third Eye Activation Course Administration
-          </CardDescription>
+          <CardTitle className="text-2xl font-bold">एडमिन पोर्टल</CardTitle>
+          <CardDescription>थर्ड आई एक्टिवेशन कोर्स प्रशासन</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -65,13 +63,13 @@ const Login = () => {
               className="space-y-6"
             >
               <div className="space-y-2">
-                <label htmlFor="username">Username</label>
+                <label htmlFor="username">उपयोगकर्ता नाम</label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <FormInput
                     control={form.control}
                     name="userName"
-                    placeholder="Enter your username"
+                    placeholder="अपना उपयोगकर्ता नाम दर्ज करें"
                     className="pl-10"
                     type="text"
                   />
@@ -79,21 +77,21 @@ const Login = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">पासवर्ड</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <FormInput
                     control={form.control}
                     name="password"
                     type="password"
-                    placeholder="Enter your password"
+                    placeholder="अपना पासवर्ड दर्ज करें"
                     className="pl-10 pr-10"
                   />
                 </div>
               </div>
 
               <Button type="submit" disabled={isPending} className="w-full">
-                {isPending ? "Signing in..." : "Sign In"}
+                {isPending ? "साइन इन हो रहा है..." : "साइन इन करें"}
               </Button>
             </form>
           </Form>

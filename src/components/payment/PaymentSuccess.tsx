@@ -57,12 +57,12 @@ const PaymentSuccess = ({
             <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
           </div>
           <CardTitle className="text-2xl text-green-700 dark:text-green-400">
-            Payment Successful!
+            भुगतान सफल!
           </CardTitle>
           <CardDescription>
             {isNewUser
-              ? "Your account has been created and course access granted"
-              : "Your course purchase was completed successfully"}
+              ? "आपका अकाउंट बनाया गया है और कोर्स का एक्सेस मिल गया है"
+              : "आपकी कोर्स खरीदारी सफलतापूर्वक पूरी हो गई"}
           </CardDescription>
         </CardHeader>
 
@@ -70,7 +70,7 @@ const PaymentSuccess = ({
           {/* Course Info */}
           {courseName && (
             <div className="bg-muted/50 rounded-lg p-4 text-center">
-              <h3 className="font-semibold mb-2">Course Purchased</h3>
+              <h3 className="font-semibold mb-2">खरीदा गया कोर्स</h3>
               <p className="text-sm text-muted-foreground">{courseName}</p>
             </div>
           )}
@@ -79,10 +79,10 @@ const PaymentSuccess = ({
           {isNewUser && userEmail && (
             <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg">
               <h4 className="font-semibold text-blue-700 dark:text-blue-300 mb-2">
-                Account Created
+                अकाउंट बनाया गया
               </h4>
               <p className="text-sm text-blue-600 dark:text-blue-400">
-                We've created an account for you and sent login credentials to{" "}
+                हमने आपके लिए एक अकाउंट बनाया है और लॉगिन विवरण भेजे हैं:{" "}
                 <span className="font-semibold">{userEmail}</span>
               </p>
             </div>
@@ -97,7 +97,7 @@ const PaymentSuccess = ({
                 size="lg"
               >
                 <Play className="w-4 h-4 mr-2" />
-                Start Learning Now
+                अभी सीखना शुरू करें
               </Button>
             )}
 
@@ -105,14 +105,14 @@ const PaymentSuccess = ({
               {courseId && (
                 <Button variant="outline" onClick={handleViewCourse}>
                   <Eye className="w-4 h-4 mr-2" />
-                  View Course
+                  कोर्स देखें
                 </Button>
               )}
 
               {transactionId && (
                 <Button variant="outline" onClick={handleDownloadReceipt}>
                   <Download className="w-4 h-4 mr-2" />
-                  Receipt
+                  रसीद डाउनलोड करें
                 </Button>
               )}
             </div>
@@ -125,7 +125,7 @@ const PaymentSuccess = ({
               onClick={() => router.push("/my-courses")}
               className="text-sm"
             >
-              View All My Courses
+              मेरे सभी कोर्स देखें
             </Button>
             <br />
             <Button
@@ -133,7 +133,7 @@ const PaymentSuccess = ({
               onClick={() => router.push("/profile")}
               className="text-sm"
             >
-              Go to Profile
+              प्रोफाइल पर जाएं
             </Button>
           </div>
         </CardContent>

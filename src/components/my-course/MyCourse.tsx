@@ -16,7 +16,6 @@ const MyCourses = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [exploreSearchQuery, setExploreSearchQuery] = useState("");
 
-  // Fetch my purchased courses
   const {
     data: myCoursesData,
     isLoading: myCoursesLoading,
@@ -28,7 +27,6 @@ const MyCourses = () => {
     search: searchQuery,
   });
 
-  // Fetch available courses for explore tab
   const {
     data: exploreCoursesData,
     isLoading: exploreCoursesLoading,
@@ -43,7 +41,6 @@ const MyCourses = () => {
   const myCourses = myCoursesData?.data?.items || [];
   const exploreCourses = exploreCoursesData?.data?.items || [];
 
-  // Get progress data from API response
   const getProgressForCourse = (course: {
     progress?: {
       progressPercentage: number;
@@ -85,13 +82,11 @@ const MyCourses = () => {
       <div className="min-h-dvh py-12">
         <div className="container mx-auto px-4">
           <div className="text-center py-16">
-            <h2 className="text-2xl font-semibold mb-2">
-              Something went wrong
-            </h2>
+            <h2 className="text-2xl font-semibold mb-2">कुछ गलत हो गया</h2>
             <p className="text-muted-foreground mb-6">
-              Failed to load courses. Please try again later.
+              कोर्स लोड करने में विफल। कृपया बाद में पुनः प्रयास करें।
             </p>
-            <Button onClick={() => refetch()}>Try Again</Button>
+            <Button onClick={() => refetch()}>पुनः प्रयास करें</Button>
           </div>
         </div>
       </div>
@@ -103,9 +98,9 @@ const MyCourses = () => {
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="mb-12">
-          <h1 className="text-4xl font-bold mb-4">My Learning Dashboard</h1>
+          <h1 className="text-4xl font-bold mb-4">मेरा लर्निंग डैशबोर्ड</h1>
           <p className="text-xl text-muted-foreground">
-            Track your progress and continue your learning journey
+            अपनी प्रगति ट्रैक करें और सीखने की यात्रा जारी रखें
           </p>
         </div>
 
@@ -119,7 +114,7 @@ const MyCourses = () => {
               <div>
                 <div className="text-2xl font-bold">{myCourses.length}</div>
                 <div className="text-sm text-muted-foreground">
-                  Enrolled Courses
+                  नामांकित कोर्स
                 </div>
               </div>
             </div>
@@ -132,31 +127,29 @@ const MyCourses = () => {
               </div>
               <div>
                 <div className="text-2xl font-bold">{totalProgress}%</div>
-                <div className="text-sm text-muted-foreground">
-                  Average Progress
-                </div>
+                <div className="text-sm text-muted-foreground">औसत प्रगति</div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Course Tabs */}
+        {/* Tabs */}
         <Tabs
           value={activeTab}
           onValueChange={setActiveTab}
           className="space-y-8"
         >
           <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="purchased">My Courses</TabsTrigger>
-            <TabsTrigger value="available">Explore More</TabsTrigger>
+            <TabsTrigger value="purchased">मेरे कोर्स</TabsTrigger>
+            <TabsTrigger value="available">नए कोर्स देखें</TabsTrigger>
           </TabsList>
 
+          {/* Purchased Courses Tab */}
           <TabsContent value="purchased" className="space-y-8">
-            {/* Search for My Courses */}
             <div className="relative max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
-                placeholder="Search my courses..."
+                placeholder="मेरे कोर्स खोजें..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -167,16 +160,15 @@ const MyCourses = () => {
               <div className="text-center py-16">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
                 <p className="text-muted-foreground mt-4">
-                  Loading your courses...
+                  आपके कोर्स लोड हो रहे हैं...
                 </p>
               </div>
             ) : myCourses.length > 0 ? (
               <>
                 <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold">Continue Learning</h2>
+                  <h2 className="text-2xl font-bold">सीखना जारी रखें</h2>
                   <p className="text-muted-foreground">
-                    {myCourses.length} course{myCourses.length !== 1 ? "s" : ""}{" "}
-                    in progress
+                    {myCourses.length} कोर्स प्रगति में
                   </p>
                 </div>
 
@@ -200,28 +192,29 @@ const MyCourses = () => {
                 <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
                   <BookOpen className="w-12 h-12 text-primary" />
                 </div>
-                <h3 className="text-2xl font-semibold mb-2">No courses yet</h3>
+                <h3 className="text-2xl font-semibold mb-2">कोई कोर्स नहीं</h3>
                 <p className="text-muted-foreground mb-6">
-                  Start your learning journey by enrolling in your first course.
+                  अपना पहला कोर्स दर्ज करके सीखने की यात्रा शुरू करें।
                 </p>
                 <Button
                   onClick={() => setActiveTab("available")}
                   className="bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
-                  Browse Courses
+                  कोर्स देखें
                 </Button>
               </div>
             )}
           </TabsContent>
 
+          {/* Available Courses Tab */}
           <TabsContent value="available" className="space-y-8">
             <div className="flex items-center justify-between flex-wrap gap-4">
-              <h2 className="text-2xl font-bold">Explore New Courses</h2>
+              <h2 className="text-2xl font-bold">नए कोर्स एक्सप्लोर करें</h2>
               <div className="flex items-center gap-4">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                   <Input
-                    placeholder="Search courses..."
+                    placeholder="कोर्स खोजें..."
                     value={exploreSearchQuery}
                     onChange={(e) => setExploreSearchQuery(e.target.value)}
                     className="pl-10 w-64"
@@ -231,7 +224,7 @@ const MyCourses = () => {
                   variant="outline"
                   onClick={() => router.push("/courses")}
                 >
-                  View All Courses
+                  सभी कोर्स देखें
                 </Button>
               </div>
             </div>
@@ -239,7 +232,9 @@ const MyCourses = () => {
             {exploreCoursesLoading ? (
               <div className="text-center py-16">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-                <p className="text-muted-foreground mt-4">Loading courses...</p>
+                <p className="text-muted-foreground mt-4">
+                  कोर्स लोड हो रहे हैं...
+                </p>
               </div>
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">

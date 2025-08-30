@@ -23,7 +23,7 @@ const DeleteConfirmDialog = ({
   onClose,
   onConfirm,
   title,
-  description = "Are you sure you want to delete? This action cannot be undone and will permanently remove this and all associated data.",
+  description = "क्या आप वाकई इसे हटाना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती और इससे संबंधित सभी डेटा स्थायी रूप से हटा दिए जाएंगे।",
 }: DeleteConfirmDialogProps) => {
   const [deleting, setDeleting] = useState<boolean>(false);
   const handleConfirm = async () => {
@@ -40,13 +40,13 @@ const DeleteConfirmDialog = ({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={deleting}>रद्द करें</AlertDialogCancel>
           <AlertDialogAction
             disabled={deleting}
             onClick={handleConfirm}
             className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
           >
-            {deleting ? "Deleting..." : "Delete"}
+            {deleting ? "हटाया जा रहा है..." : "हटाएँ"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

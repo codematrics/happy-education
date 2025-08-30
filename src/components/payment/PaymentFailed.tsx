@@ -40,7 +40,6 @@ const PaymentFailed = ({
     if (onRetry) {
       onRetry();
     } else {
-      // Fallback to course page to retry
       handleBackToCourse();
     }
   };
@@ -53,10 +52,10 @@ const PaymentFailed = ({
             <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
           </div>
           <CardTitle className="text-2xl text-red-700 dark:text-red-400">
-            Payment Failed
+            भुगतान असफल
           </CardTitle>
           <CardDescription>
-            We couldn't process your payment. Please try again.
+            आपका भुगतान संसाधित नहीं हो सका। कृपया पुनः प्रयास करें।
           </CardDescription>
         </CardHeader>
 
@@ -65,7 +64,7 @@ const PaymentFailed = ({
           {error && (
             <div className="bg-red-50 dark:bg-red-950/20 p-4 rounded-lg">
               <h4 className="font-semibold text-red-700 dark:text-red-300 mb-2">
-                Error Details
+                त्रुटि विवरण
               </h4>
               <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
             </div>
@@ -75,13 +74,13 @@ const PaymentFailed = ({
           <div className="bg-muted/50 rounded-lg p-4">
             {courseName && (
               <div className="mb-3">
-                <h4 className="font-semibold mb-1">Course</h4>
+                <h4 className="font-semibold mb-1">कोर्स</h4>
                 <p className="text-sm text-muted-foreground">{courseName}</p>
               </div>
             )}
             {orderId && (
               <div>
-                <h4 className="font-semibold mb-1">Order ID</h4>
+                <h4 className="font-semibold mb-1">ऑर्डर आईडी</h4>
                 <p className="text-sm text-muted-foreground font-mono">
                   {orderId}
                 </p>
@@ -92,13 +91,13 @@ const PaymentFailed = ({
           {/* Common Issues */}
           <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg">
             <h4 className="font-semibold text-blue-700 dark:text-blue-300 mb-2">
-              Common Issues
+              आम कारण
             </h4>
             <ul className="text-sm text-blue-600 dark:text-blue-400 space-y-1">
-              <li>• Insufficient balance in account</li>
-              <li>• Card expired or blocked</li>
-              <li>• Network connectivity issues</li>
-              <li>• Payment method not supported</li>
+              <li>• खाते में अपर्याप्त शेष राशि</li>
+              <li>• कार्ड समाप्त या अवरुद्ध</li>
+              <li>• नेटवर्क कनेक्टिविटी समस्याएँ</li>
+              <li>• भुगतान विधि समर्थित नहीं</li>
             </ul>
           </div>
 
@@ -110,7 +109,7 @@ const PaymentFailed = ({
               size="lg"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
-              Try Again
+              पुनः प्रयास करें
             </Button>
 
             <Button
@@ -119,21 +118,21 @@ const PaymentFailed = ({
               className="w-full"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Course
+              कोर्स पर लौटें
             </Button>
           </div>
 
           {/* Support Info */}
           <div className="text-center pt-4 border-t">
             <p className="text-sm text-muted-foreground mb-2">
-              Still having trouble?
+              अभी भी समस्या है?
             </p>
             <Button
               variant="link"
               onClick={() => router.push("/contact")}
               className="text-sm"
             >
-              Contact Support
+              सपोर्ट से संपर्क करें
             </Button>
           </div>
         </CardContent>

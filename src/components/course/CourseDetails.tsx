@@ -38,7 +38,6 @@ const CourseDetails = ({ courseId }: { courseId: string }) => {
 
   useEffect(() => {
     if (!descRef.current) return;
-
     const el = descRef.current;
     const lineHeight = parseInt(getComputedStyle(el).lineHeight || "20", 10);
     const maxHeight = lineHeight * 3;
@@ -49,16 +48,11 @@ const CourseDetails = ({ courseId }: { courseId: string }) => {
 
   useEffect(() => {
     if (!enrollBtnRef.current) return;
-
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        setShowFixedEnroll(!entry.isIntersecting);
-      },
+      ([entry]) => setShowFixedEnroll(!entry.isIntersecting),
       { root: null, threshold: 0 }
     );
-
     observer.observe(enrollBtnRef.current);
-
     return () => observer.disconnect();
   }, [enrollBtnRef.current]);
 
@@ -66,7 +60,7 @@ const CourseDetails = ({ courseId }: { courseId: string }) => {
     <LoadingError
       skeleton={<CourseDetailsSkeleton />}
       isLoading={isLoading}
-      errorTitle="Failed To Load Course Details"
+      errorTitle="कोर्स विवरण लोड करने में विफल"
       error={error?.message}
       onRetry={refetch}
     >
@@ -95,26 +89,15 @@ const CourseDetails = ({ courseId }: { courseId: string }) => {
                       className="mt-2 p-0 text-primary"
                       onClick={() => setExpanded(!expanded)}
                     >
-                      {expanded ? "Show less" : "Show more"}
+                      {expanded ? "कम दिखाएँ" : "और दिखाएँ"}
                     </Button>
                   )}
                 </div>
 
                 <div className="flex flex-wrap items-center gap-6 text-muted-foreground">
-                  {/* <div className="flex items-center space-x-2">
-                  <Clock className="w-5 h-5" />
-                  <span>{data?.data.duration}</span>
-                <div className="flex items-center space-x-2">
-                  <Users className="w-5 h-5" />
-                  <span>{data?.data.students.toLocaleString()} students</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Star className="w-5 h-5 fill-warning text-warning" />
-                  <span>{data?.data.rating} rating</span>
-                </div> */}
                   <div className="flex items-center space-x-2 capitalize">
                     <Calendar className="w-5 h-5" />
-                    <span>{data?.data?.accessType} Access</span>
+                    <span>{data?.data?.accessType} एक्सेस</span>
                   </div>
                 </div>
 
@@ -127,11 +110,6 @@ const CourseDetails = ({ courseId }: { courseId: string }) => {
                     )}
                     <span>{data?.data.price}</span>
                   </div>
-                  {/* {data?.data.originalPrice && ( */}
-                  {/* <span className="text-xl text-muted-foreground line-through"> */}
-                  {/* ${data?.data.originalPrice} */}
-                  {/* </span> */}
-                  {/* )} */}
                 </div>
               </div>
 
@@ -170,7 +148,7 @@ const CourseDetails = ({ courseId }: { courseId: string }) => {
 
                     {!data?.data?.isPurchased && (
                       <div className="text-center text-sm text-muted-foreground">
-                        30-day money-back guarantee
+                        30-दिन की मनी-बैक गारंटी
                       </div>
                     )}
                   </div>
@@ -191,9 +169,7 @@ const CourseDetails = ({ courseId }: { courseId: string }) => {
                 } space-y-12`}
               >
                 <div>
-                  <h2 className="text-3xl font-bold mb-6">
-                    Course Description
-                  </h2>
+                  <h2 className="text-3xl font-bold mb-6">कोर्स विवरण</h2>
                   <div className="prose prose-lg max-w-none">
                     <p className="text-muted-foreground leading-relaxed">
                       {data?.data.description}
@@ -201,7 +177,7 @@ const CourseDetails = ({ courseId }: { courseId: string }) => {
                   </div>
                 </div>
                 <div>
-                  <h2 className="text-3xl font-bold mb-6">What You'll Learn</h2>
+                  <h2 className="text-3xl font-bold mb-6">आप क्या सीखेंगे</h2>
                   <div className="grid md:grid-cols-2 gap-4">
                     {data?.data.benefits.map((benefit, index) => (
                       <div key={index} className="flex items-start space-x-3">
@@ -213,7 +189,7 @@ const CourseDetails = ({ courseId }: { courseId: string }) => {
                 </div>
                 <div>
                   <h2 className="text-3xl font-bold mb-6">
-                    Meet Your Instructor
+                    अपने प्रशिक्षक से मिलें
                   </h2>
                   <div className="bg-card rounded-2xl p-6 shadow-soft">
                     <div className="flex items-start space-x-4">
@@ -225,18 +201,18 @@ const CourseDetails = ({ courseId }: { courseId: string }) => {
                           Pankaj Patel
                         </h3>
                         <p className="text-muted-foreground mb-4">
-                          Senior Software Engineer with 10+ years of experience
-                          at top tech companies. Passionate about teaching and
-                          helping students achieve their career goals.
+                          10+ वर्षों का अनुभव रखने वाले वरिष्ठ सॉफ्टवेयर
+                          इंजीनियर। शिक्षण के प्रति उत्साही और छात्रों को करियर
+                          लक्ष्य हासिल करने में मदद करने वाले।
                         </p>
                         <div className="flex items-center space-x-6 text-sm text-muted-foreground">
                           <div className="flex items-center space-x-1">
                             <Users className="w-4 h-4" />
-                            <span>50,000+ students</span>
+                            <span>50,000+ छात्र</span>
                           </div>
                           <div className="flex items-center space-x-1">
                             <Star className="w-4 h-4 fill-warning text-warning" />
-                            <span>4.8 instructor rating</span>
+                            <span>4.8 प्रशिक्षक रेटिंग</span>
                           </div>
                         </div>
                       </div>
@@ -250,7 +226,7 @@ const CourseDetails = ({ courseId }: { courseId: string }) => {
                   <div className="space-y-6">
                     <div className="bg-card rounded-2xl p-6 shadow-soft">
                       <h3 className="text-xl font-semibold mb-4">
-                        Related Courses
+                        संबंधित कोर्स
                       </h3>
                       <div className="space-y-4">
                         {data?.data?.relatedCourse?.map(
@@ -292,9 +268,9 @@ const CourseDetails = ({ courseId }: { courseId: string }) => {
             </div>
 
             {data?.data?.testimonials &&
-              data?.data?.testimonials.length > 0 && (
+              data?.data?.testimonials?.length > 0 && (
                 <div>
-                  <h2 className="text-3xl font-bold mb-6">Student Reviews</h2>
+                  <h2 className="text-3xl font-bold mb-6">छात्र समीक्षा</h2>
                   <div className="mb-12 relative px-5">
                     <CustomCarousel
                       data={data?.data?.testimonials || []}
@@ -310,9 +286,9 @@ const CourseDetails = ({ courseId }: { courseId: string }) => {
             <CoursePageEvents />
 
             {data?.data?.relatedCourse &&
-              data?.data?.relatedCourse.length > 0 && (
+              data?.data?.relatedCourse?.length > 0 && (
                 <div>
-                  <h2 className="text-3xl font-bold mb-6">Related Courses</h2>
+                  <h2 className="text-3xl font-bold mb-6">संबंधित कोर्स</h2>
                   <div className="mb-12 relative px-5">
                     <CustomCarousel
                       data={data?.data?.relatedCourse || []}

@@ -35,13 +35,13 @@ const ProfileTransactions = () => {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Receipt className="w-5 h-5" />
-            <span>Recent Transactions</span>
+            <span>हाल की लेन-देन</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center py-6">
             <p className="text-sm text-muted-foreground">
-              Failed to load transactions
+              लेन-देन लोड करने में विफल
             </p>
             <Button
               variant="outline"
@@ -49,7 +49,7 @@ const ProfileTransactions = () => {
               onClick={() => refetch()}
               className="mt-2"
             >
-              Retry
+              पुनः प्रयास करें
             </Button>
           </div>
         </CardContent>
@@ -64,17 +64,15 @@ const ProfileTransactions = () => {
           <div>
             <CardTitle className="flex items-center space-x-2">
               <Receipt className="w-5 h-5" />
-              <span>Recent Transactions</span>
+              <span>हाल की लेन-देन</span>
             </CardTitle>
-            <CardDescription>
-              Your latest course purchases and payments
-            </CardDescription>
+            <CardDescription>आपके नवीनतम कोर्स खरीद और भुगतान</CardDescription>
           </div>
           {!isLoading &&
             data?.data?.transactions &&
             data.data.transactions.length > 0 && (
               <Button variant="ghost" size="sm" onClick={handleViewAll}>
-                View All
+                सभी देखें
                 <ArrowRight className="w-4 h-4 ml-1" />
               </Button>
             )}
@@ -99,12 +97,12 @@ const ProfileTransactions = () => {
         ) : data?.data?.transactions?.length === 0 ? (
           <div className="text-center py-8">
             <ShoppingBag className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="font-medium mb-2">No transactions yet</h3>
+            <h3 className="font-medium mb-2">कोई लेन-देन नहीं</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Start your learning journey by purchasing a course
+              कोर्स खरीदकर अपनी सीखने की यात्रा शुरू करें
             </p>
             <Button variant="outline" onClick={() => router.push("/courses")}>
-              Browse Courses
+              कोर्स देखें
             </Button>
           </div>
         ) : (
@@ -120,7 +118,7 @@ const ProfileTransactions = () => {
             {data?.data?.transactions && data.data.transactions.length > 5 && (
               <div className="p-4 text-center">
                 <Button variant="ghost" size="sm" onClick={handleViewAll}>
-                  View {data.data.pagination.totalCount - 5} more transactions
+                  और {data.data.pagination.totalCount - 5} लेन-देन देखें
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
               </div>

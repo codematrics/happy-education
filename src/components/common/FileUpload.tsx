@@ -88,11 +88,11 @@ const useCloudinaryUpload = () => {
         };
       } catch (error) {
         if (error instanceof Error && error.name === "AbortError") {
-          setError("Upload cancelled");
+          setError("अपलोड रद्द किया गया");
           return null;
         }
         const errorMessage =
-          error instanceof Error ? error.message : "Upload failed";
+          error instanceof Error ? error.message : "अपलोड विफल रहा";
         setError(errorMessage);
         throw error;
       } finally {
@@ -144,7 +144,7 @@ const deleteFromCloudinary = async (publicId: string) => {
       method: "DELETE",
     });
   } catch (err) {
-    console.error("Failed to delete from Cloudinary:", err);
+    console.error("Cloudinary से हटाने में विफल:", err);
   }
 };
 
@@ -174,10 +174,10 @@ export function FormFileUpload<T extends FieldValues>({
             try {
               const result = await uploadFile(file, folder);
               if (result) {
-                field.onChange(result); // ✅ directly store result
+                field.onChange(result);
               }
             } catch (error) {
-              console.error("Upload failed:", error);
+              console.error("अपलोड विफल:", error);
             }
           }
         };
@@ -207,7 +207,6 @@ export function FormFileUpload<T extends FieldValues>({
             <FormLabel className="font-normal">{label}</FormLabel>
             <FormControl>
               <div className="space-y-3">
-                {/* Upload Area */}
                 <div
                   className={cn(
                     "border-2 border-dashed rounded-xl p-6 text-center transition-all duration-300 cursor-pointer group relative overflow-hidden",
@@ -252,7 +251,7 @@ export function FormFileUpload<T extends FieldValues>({
                     <div className="relative z-10 flex items-center justify-center space-x-3">
                       <div className="relative">{getIcon()}</div>
                       <p className="font-medium text-foreground">
-                        Uploaded file
+                        फ़ाइल अपलोड हो गई
                       </p>
                     </div>
                   ) : (
@@ -267,25 +266,24 @@ export function FormFileUpload<T extends FieldValues>({
                       </div>
                       <div className="space-y-1">
                         <p className="font-medium text-foreground">
-                          Drop files here or click to upload
+                          फ़ाइलें यहाँ ड्रॉप करें या क्लिक करके अपलोड करें
                         </p>
                         <p className="text-xs text-muted-foreground flex items-center justify-center space-x-1">
                           <Zap className="h-3 w-3" />
-                          <span>Direct to Cloudinary</span>
+                          <span>सीधे Cloudinary पर</span>
                         </p>
                       </div>
                     </div>
                   )}
                 </div>
 
-                {/* Upload Progress */}
                 {isUploading && (
                   <div className="space-y-3 p-4 bg-muted/30 rounded-lg border">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <Loader2 className="h-4 w-4 animate-spin text-primary" />
                         <span className="text-sm font-medium">
-                          Uploading to Cloudinary...
+                          Cloudinary पर अपलोड हो रहा है...
                         </span>
                       </div>
                       <Button
@@ -295,20 +293,19 @@ export function FormFileUpload<T extends FieldValues>({
                         onClick={cancelUpload}
                         className="h-7 px-2 text-xs"
                       >
-                        Cancel
+                        रद्द करें
                       </Button>
                     </div>
                     <Progress value={progress} className="h-2" />
                   </div>
                 )}
 
-                {/* Success Preview */}
                 {field.value?.url && !isUploading && !error && (
                   <div className="mt-3 relative">
                     {type === "image" ? (
                       <CustomImage
                         src={field.value.url}
-                        alt="Preview"
+                        alt="पूर्वावलोकन"
                         className="w-full h-32 object-cover rounded-lg border shadow-sm"
                       />
                     ) : type === "video" ? (
@@ -329,13 +326,12 @@ export function FormFileUpload<T extends FieldValues>({
                   </div>
                 )}
 
-                {/* Error */}
                 {error && (
                   <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
                     <div className="flex items-center space-x-2">
                       <AlertCircle className="h-4 w-4 text-red-600" />
                       <span className="text-sm font-medium text-red-800">
-                        Upload failed
+                        अपलोड विफल रहा
                       </span>
                     </div>
                     <p className="text-xs text-red-600 mt-1">{error}</p>
@@ -346,7 +342,7 @@ export function FormFileUpload<T extends FieldValues>({
                       onClick={reset}
                       className="h-6 px-2 text-xs text-red-600 hover:text-red-800 mt-2"
                     >
-                      Try Again
+                      पुनः प्रयास करें
                     </Button>
                   </div>
                 )}
