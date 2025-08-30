@@ -7,12 +7,14 @@ export function verifyJwt(token: string): JwtPayload | null {
   try {
     return jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
   } catch (error) {
-    console.error("JWT verification failed:", error);
+    console.error("❌ JWT verification failed:", error);
     return null;
   }
 }
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  console.log("📝 Middleware triggered on:", pathname);
 
   const response = NextResponse.next();
   const secret = new TextEncoder().encode(process.env.JWT_SECRET);
@@ -26,15 +28,25 @@ export async function middleware(request: NextRequest) {
     ? await verifyJWTJose(adminToken)
     : false;
 
+  console.log(
+    "🔑 Admin token present:",
+    !!adminTokenRaw,
+    "| Valid:",
+    hasValidAdminToken
+  );
+
   if (adminTokenRaw && !hasValidAdminToken) {
+    console.log("🗑️ Deleting invalid admin_token cookie");
     response.cookies.delete("admin_token");
   }
 
   if (isAdminLogin && hasValidAdminToken) {
+    console.log("✅ Already logged in → Redirecting to /admin");
     return NextResponse.redirect(new URL("/admin", request.url));
   }
 
   if (isAdminRoute && !hasValidAdminToken) {
+    console.log("⛔ Unauthorized admin access → Redirecting to /admin/login");
     return NextResponse.redirect(new URL("/admin/login", request.url));
   }
 
@@ -52,22 +64,40 @@ export async function middleware(request: NextRequest) {
     ? await verifyJWTJose(forgotPassToken)
     : false;
 
+  console.log(
+    "📌 OTP token present:",
+    !!userOtpToken,
+    "| Valid:",
+    hasValidOtpToken
+  );
+  console.log(
+    "📌 Forgot password token present:",
+    !!forgotPassToken,
+    "| Valid:",
+    hasValidForgotPassToken
+  );
+
   if (userOtpToken && !hasValidOtpToken) {
+    console.log("🗑️ Deleting invalid user_otp_token cookie");
     response.cookies.delete("user_otp_token");
   }
 
   if (forgotPassToken && !hasValidForgotPassToken) {
+    console.log("🗑️ Deleting invalid user_forgot_pass_token cookie");
     response.cookies.delete("user_forgot_pass_token");
   }
 
   if (isOtpPage && !hasValidOtpToken && !hasValidForgotPassToken) {
+    console.log("⛔ OTP page access denied → Redirecting to /signin");
     return NextResponse.redirect(new URL("/signin", request.url));
   }
 
   if (isNewPasswordPage && !hasValidForgotPassToken) {
+    console.log("⛔ New password page access denied → Redirecting to /signin");
     return NextResponse.redirect(new URL("/signin", request.url));
   }
 
+  console.log("✅ Access granted for:", pathname);
   return response;
 }
 
