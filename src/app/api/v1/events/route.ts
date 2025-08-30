@@ -25,7 +25,6 @@ const postController = async (
     const json = await req.json();
 
     validateSchema(eventValidations, json);
-    console.log(json);
     const finalResults = {
       ...json,
     };

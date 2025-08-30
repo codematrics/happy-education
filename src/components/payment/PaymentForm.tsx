@@ -196,17 +196,6 @@ const PaymentForm = ({
         <span>Secure payment powered by Razorpay</span>
       </div>
 
-      {/* Payment Method Info */}
-      <div className="bg-muted/50 rounded-lg p-4 text-sm">
-        <p className="font-medium mb-2">Accepted Payment Methods:</p>
-        <div className="grid grid-cols-2 gap-2 text-xs">
-          <div>• Credit/Debit Cards</div>
-          <div>• Net Banking</div>
-          <div>• UPI</div>
-          <div>• Digital Wallets</div>
-        </div>
-      </div>
-
       {/* Action Buttons */}
       <div className="flex space-x-3">
         <Button

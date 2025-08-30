@@ -52,6 +52,7 @@ const CustomImage: React.FC<Props> = ({ src, alt, className }) => {
             setIsLoading(false);
             setHasError(true);
           }}
+          loading="lazy"
         />
       </motion.div>
     </div>

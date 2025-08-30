@@ -1,16 +1,14 @@
 "use client";
 
-import { useAuthCheck } from "@/hooks/useAuth";
+import { useModal } from "@/context/CheckOutContext";
 import { useCreateCheckout } from "@/hooks/usePayment";
+import { getCookie } from "@/lib/cookie";
 import { CourseAccessType, CourseCurrency } from "@/types/constants";
 import { Course } from "@/types/types";
-import { Loader2, Play, ShoppingCart } from "lucide-react";
+import { Play, ShoppingCart } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { forwardRef, useState } from "react";
+import { forwardRef } from "react";
 import { Button } from "../ui/button";
-import CheckoutModal from "./CheckoutModal";
-import PaymentForm from "./PaymentForm";
-import FullPageLoader from "../skeleton/FullPageLoader";
 
 interface BuyButtonProps {
   course: Course;
@@ -20,7 +18,7 @@ interface BuyButtonProps {
   showPrice?: boolean;
   fullWidth?: boolean;
   disabled?: boolean;
-  oneClickPayment?: boolean; // Enable one-click payment for logged-in users
+  oneClickPayment?: boolean;
 }
 
 const BuyButton = forwardRef<HTMLButtonElement, BuyButtonProps>(
@@ -37,15 +35,9 @@ const BuyButton = forwardRef<HTMLButtonElement, BuyButtonProps>(
     },
     ref
   ) => {
-    const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-    const [isPaymentOpen, setIsPaymentOpen] = useState(false);
-    const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
-    const [checkoutData, setCheckoutData] = useState<any>(null);
-    const router = useRouter();
-    const { data: authData, isLoading: authLoading } = useAuthCheck();
-    const isLoggedIn = authData?.data?.isLoggedIn ?? false;
-
     const createCheckout = useCreateCheckout();
+    const { openModal, setShowPaymentLoading, closeModal } = useModal();
+    const router = useRouter();
 
     const handleBuyClick = async () => {
       if (course.accessType === "free") {
@@ -58,6 +50,11 @@ const BuyButton = forwardRef<HTMLButtonElement, BuyButtonProps>(
         return;
       }
 
+      setShowPaymentLoading(true);
+      const isLoggedIn = (await getCookie("user_token"))?.value;
+      const userData = JSON.parse(
+        (await getCookie("user_data"))?.value || "{}"
+      );
       // If user is logged in and one-click payment is enabled, go directly to payment
       if (isLoggedIn && oneClickPayment) {
         try {
@@ -65,15 +62,43 @@ const BuyButton = forwardRef<HTMLButtonElement, BuyButtonProps>(
             courseId: course._id,
           });
 
-          setCheckoutData(response.data);
-          setIsPaymentOpen(true);
+          openModal("payment", {
+            checkoutData: response.data,
+            userEmail: userData?.email ?? null,
+            onClose: () => {
+              setShowPaymentLoading(false);
+              closeModal();
+            },
+            onSuccess: () => router.push(`/videos/${course._id}`),
+            onStart: () => setShowPaymentLoading(true),
+            onComplete: () => setShowPaymentLoading(false),
+          });
         } catch (error) {
           console.error("Checkout failed:", error);
-          setIsCheckoutOpen(true); // fallback to modal
+          openModal("checkout", {
+            course,
+            isLoggedIn,
+            onClose: () => {
+              setShowPaymentLoading(false);
+              closeModal();
+            },
+            userEmail: userData?.email ?? null,
+            onStart: () => setShowPaymentLoading(true),
+            onComplete: () => setShowPaymentLoading(false),
+          });
         }
       } else {
-        // Show checkout modal for guest users or when one-click is disabled
-        setIsCheckoutOpen(true);
+        openModal("checkout", {
+          course,
+          isLoggedIn,
+          userEmail: userData?.email ?? null,
+          onClose: () => {
+            setShowPaymentLoading(false);
+            closeModal();
+          },
+          onStart: () => setShowPaymentLoading(true),
+          onComplete: () => setShowPaymentLoading(false),
+        });
       }
     };
 
@@ -137,23 +162,14 @@ const BuyButton = forwardRef<HTMLButtonElement, BuyButtonProps>(
 
     return (
       <>
-        <FullPageLoader
-          show={isPaymentProcessing}
-          message="Processing Payment..."
-        />
         <Button
           ref={ref}
           size={size}
           variant={getButtonVariant()}
           className={getButtonClassName()}
           onClick={handleBuyClick}
-          disabled={disabled || createCheckout.isPending || authLoading}
         >
-          {createCheckout.isPending || authLoading ? (
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-          ) : (
-            <ShoppingCart className="w-4 h-4 mr-2" />
-          )}
+          <ShoppingCart className="w-4 h-4 mr-2" />
           {showPrice ? (
             <>
               Enroll Now - {getCurrencySymbol()}
@@ -163,52 +179,6 @@ const BuyButton = forwardRef<HTMLButtonElement, BuyButtonProps>(
             "Enroll Now"
           )}
         </Button>
-
-        {/* Checkout Modal */}
-        <CheckoutModal
-          isOpen={isCheckoutOpen}
-          onClose={() => setIsCheckoutOpen(false)}
-          course={course}
-          isLoggedIn={isLoggedIn}
-          onComplete={() => setIsPaymentProcessing(false)}
-          onStart={() => setIsPaymentProcessing(true)}
-        />
-
-        {isPaymentOpen && checkoutData && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Complete Payment</h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setIsPaymentOpen(false);
-                    setCheckoutData(null);
-                  }}
-                  className="h-8 w-8 p-0"
-                >
-                  ×
-                </Button>
-              </div>
-              <PaymentForm
-                checkoutData={checkoutData}
-                userEmail="" // you can pass user email if authData has it
-                onSuccess={() => {
-                  setIsPaymentOpen(false);
-                  setCheckoutData(null);
-                }}
-                onBack={() => {
-                  setIsPaymentOpen(false);
-                  setCheckoutData(null);
-                }}
-                onStart={() => setIsPaymentProcessing(true)}
-                onComplete={() => setIsPaymentProcessing(false)}
-                onClose={() => setIsPaymentOpen(false)}
-              />
-            </div>
-          </div>
-        )}
       </>
     );
   }

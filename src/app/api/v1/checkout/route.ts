@@ -1,13 +1,14 @@
 import { hashValue } from "@/lib/bcrypt";
 import connect from "@/lib/db";
-import emailSender from "@/lib/emailSender";
 import { generateSecurePassword } from "@/lib/passwordGenerator";
 import { authMiddleware } from "@/middlewares/authMiddleware";
 import { Course } from "@/models/Course";
 import { Transaction } from "@/models/Transaction";
 import { IUser, User } from "@/models/User";
+import { sendMail } from "@/services/email";
 import { CourseCurrency, Roles } from "@/types/constants";
 import { Admin } from "@/types/types";
+import { emailTemplate } from "@/utils/email";
 import { response } from "@/utils/response";
 import { Types } from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
@@ -93,15 +94,26 @@ const postController = async (
         });
 
         isNewUser = true;
-
-        emailSender
-          .sendNewUserPassword(userEmail, generatedPassword, course.name)
-          .then(() => {
-            console.log("Email Sent successfully");
-          })
-          .catch((error: any) => {
-            console.error("Failed to send welcome email:", error);
-          });
+        sendMail(
+          emailTemplate.sendNewPass(userEmail, generatedPassword, course.name),
+          `
+    Welcome to Happy Education!
+    
+    Your account has been created successfully after your course purchase.
+    
+    Course: ${course.name}
+    Email: ${userEmail}
+    Password: ${generatedPassword}
+    
+    IMPORTANT: Please change your password after your first login for security.
+    
+    Login at: ${process.env.FRONTEND_URL || "https://yourdomain.com"}/signin
+    
+    Thank you for choosing Happy Education!
+  `,
+          "Welcome! Your account has been created",
+          userEmail
+        );
       }
     }
 

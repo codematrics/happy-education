@@ -1,7 +1,7 @@
 import connect from "@/lib/db";
 import { Event } from "@/models/Events";
 import { sendMail } from "@/services/email";
-import { eventRegistrationEmailTemplate } from "@/utils/eventEmail";
+import { emailTemplate } from "@/utils/email";
 import { response } from "@/utils/response";
 import crypto from "crypto";
 import { NextRequest } from "next/server";
@@ -53,14 +53,14 @@ export async function POST(req: NextRequest) {
     // Send event registration email with join link
     try {
       await sendMail(
-        eventRegistrationEmailTemplate({
+        emailTemplate.eventRegistrationEmailTemplate(
           userName,
-          eventName: event.name,
-          eventDate: event.day.toISOString().split('T')[0],
-          joinLink: event.joinLink,
-          eventDescription: event.description || "",
-          benefits: event.benefits || [],
-        }),
+          event.name,
+          event.day.toISOString().split("T")[0],
+          event.joinLink,
+          event.description || "",
+          event.benefits || []
+        ),
         `Registration Confirmed: ${event.name}`,
         "Event Registration Confirmation",
         email
@@ -94,9 +94,6 @@ export async function POST(req: NextRequest) {
     );
   } catch (error: any) {
     console.error("Payment verification error:", error);
-    return response.error(
-      error.message || "Payment verification failed",
-      500
-    );
+    return response.error(error.message || "Payment verification failed", 500);
   }
 }

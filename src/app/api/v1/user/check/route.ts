@@ -1,3 +1,5 @@
+import { decodeJWT } from "@/lib/jwt";
+import { User } from "@/models/User";
 import { getUserAuthCookie } from "@/utils/cookie";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
@@ -5,15 +7,25 @@ import { NextResponse } from "next/server";
 export const POST = async () => {
   try {
     const isLoggedIn = await getUserAuthCookie();
+    const userToken = (await cookies()).get("user_token")?.value;
+    const adminToken = (await cookies()).get("admin_token")?.value;
     const role =
-      (await cookies()).get("user_token")?.value &&
-      (await cookies()).get("admin_token")?.value
+      userToken && adminToken
         ? "both"
-        : (await cookies()).get("user_token")?.value
+        : userToken
         ? "user"
-        : (await cookies()).get("admin_token")?.value
+        : adminToken
         ? "admin"
         : null;
+
+    if ((role === "user" || role === "both") && userToken) {
+      const decoded = await decodeJWT(userToken);
+      const user = await User.findById(decoded._id);
+      if (user) {
+        const { password, ...rest } = user;
+        await (await cookies()).set("user_data", JSON.stringify(rest));
+      }
+    }
 
     if (!isLoggedIn) {
       return NextResponse.json(

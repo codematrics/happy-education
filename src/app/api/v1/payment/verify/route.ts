@@ -127,6 +127,10 @@ const postController = async (req: NextRequest): Promise<NextResponse> => {
       httpOnly: process.env.NODE_ENV === "production",
     });
 
+    (await cookies()).set("user_data", JSON.stringify(user), {
+      httpOnly: process.env.NODE_ENV === "production",
+    });
+
     return response.success(
       {
         transactionId: transaction._id,

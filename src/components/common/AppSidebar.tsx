@@ -14,6 +14,7 @@ import {
 import { deleteCookie } from "@/lib/cookie";
 import { sidebarItems } from "@/utils/data";
 import { LogOut } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export function AppSidebar() {
@@ -38,10 +39,10 @@ export function AppSidebar() {
               {sidebarItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                    <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

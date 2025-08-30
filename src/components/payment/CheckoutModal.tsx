@@ -4,7 +4,7 @@ import { useCreateCheckout } from "@/hooks/usePayment";
 import { CourseCurrency } from "@/types/constants";
 import { Course } from "@/types/types";
 import { DollarSign, IndianRupee, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import CustomImage from "../common/CustomImage";
 import { Button } from "../ui/button";
 import {
@@ -26,6 +26,7 @@ interface CheckoutModalProps {
   isLoggedIn: boolean;
   onComplete: () => void;
   onStart: () => void;
+  userEmail: string;
 }
 
 const CheckoutModal = ({
@@ -35,75 +36,23 @@ const CheckoutModal = ({
   isLoggedIn,
   onComplete,
   onStart,
+  userEmail,
 }: CheckoutModalProps) => {
-  const [userEmail, setUserEmail] = useState("");
+  const [email, setUserEmail] = useState("");
   const [step, setStep] = useState<"details" | "payment">("details");
   const [checkoutData, setCheckoutData] = useState<any>(null);
 
   const createCheckout = useCreateCheckout();
 
-  useEffect(() => {
-    // Check if user is logged in and extract email
-    const checkAuthStatus = async () => {
-      try {
-        const cookies = document.cookie.split(";");
-        const userTokenCookie = cookies.find((cookie) =>
-          cookie.trim().startsWith("user_token=")
-        );
-
-        if (userTokenCookie) {
-          const tokenValue = userTokenCookie.split("=")[1];
-          let parsedToken;
-
-          try {
-            // Try to parse as JSON first
-            parsedToken = JSON.parse(decodeURIComponent(tokenValue));
-          } catch {
-            // If that fails, use the token directly
-            parsedToken = decodeURIComponent(tokenValue);
-          }
-
-          // Make a request to decode the token and get user info
-          try {
-            const response = await fetch("/api/v1/user/profile", {
-              credentials: "include",
-            });
-
-            if (response.ok) {
-              const userData = await response.json();
-              if (userData.status && userData.data) {
-                setUserEmail(userData.data.email || "");
-                return;
-              }
-            }
-          } catch (error) {
-            console.log("Failed to get user profile:", error);
-          }
-        } else {
-          setUserEmail("");
-        }
-      } catch (error) {
-        console.log("Auth check failed:", error);
-        setUserEmail("");
-      }
-    };
-
-    if (isOpen) {
-      checkAuthStatus();
-      setStep("details");
-      setCheckoutData(null);
-    }
-  }, [isOpen]);
-
   const handleContinueToPayment = async () => {
-    if (!isLoggedIn && !userEmail.trim()) {
+    if (!isLoggedIn && !email?.trim()) {
       return;
     }
 
     try {
       const response = await createCheckout.mutateAsync({
         courseId: course._id,
-        userEmail: !isLoggedIn ? userEmail : undefined,
+        userEmail: !isLoggedIn ? email : undefined,
       });
 
       setCheckoutData(response.data);
@@ -187,7 +136,7 @@ const CheckoutModal = ({
                     id="email"
                     type="email"
                     placeholder={isLoggedIn ? "Loading..." : "Enter your email"}
-                    value={userEmail}
+                    value={email}
                     onChange={(e) => setUserEmail(e.target.value)}
                     disabled={isLoggedIn}
                     className="mt-1"
@@ -232,7 +181,7 @@ const CheckoutModal = ({
               <Button
                 onClick={handleContinueToPayment}
                 disabled={
-                  createCheckout.isPending || (!isLoggedIn && !userEmail.trim())
+                  createCheckout.isPending || (!isLoggedIn && !email.trim())
                 }
                 className="w-full gradient-primary text-white"
                 size="lg"
@@ -248,7 +197,7 @@ const CheckoutModal = ({
           {step === "payment" && checkoutData && (
             <PaymentForm
               checkoutData={checkoutData}
-              userEmail={userEmail}
+              userEmail={email || userEmail}
               onSuccess={() => {
                 onClose();
                 setStep("details");

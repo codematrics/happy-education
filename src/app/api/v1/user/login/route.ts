@@ -37,6 +37,13 @@ const postController = async (req: NextRequest) => {
       httpOnly: process.env.NODE_ENV === "production",
     });
 
+    const { password: nePas, ...rest } = user;
+    await (
+      await cookies()
+    ).set("user_data", JSON.stringify(rest), {
+      httpOnly: process.env.NODE_ENV === "production",
+    });
+
     return response.success(null, "You are logged in successfully", 200);
   } catch (error) {
     console.error("Login error:", error);
