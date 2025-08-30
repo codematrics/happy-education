@@ -1,4 +1,5 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
+import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { verifyJWTJose } from "./lib/jose";
@@ -15,9 +16,6 @@ export function verifyJwt(token: string): JwtPayload | null {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   console.log("📝 Middleware triggered on:", pathname);
-
-  const response = NextResponse.next();
-  const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
   const isAdminLogin = pathname === "/admin/login";
   const isAdminRoute = pathname.startsWith("/admin") && !isAdminLogin;
@@ -37,7 +35,7 @@ export async function middleware(request: NextRequest) {
 
   if (adminTokenRaw && !hasValidAdminToken) {
     console.log("🗑️ Deleting invalid admin_token cookie");
-    response.cookies.delete("admin_token");
+    (await cookies()).delete("admin_token");
   }
 
   if (isAdminLogin && hasValidAdminToken) {
@@ -79,12 +77,12 @@ export async function middleware(request: NextRequest) {
 
   if (userOtpToken && !hasValidOtpToken) {
     console.log("🗑️ Deleting invalid user_otp_token cookie");
-    response.cookies.delete("user_otp_token");
+    (await cookies()).delete("user_otp_token");
   }
 
   if (forgotPassToken && !hasValidForgotPassToken) {
     console.log("🗑️ Deleting invalid user_forgot_pass_token cookie");
-    response.cookies.delete("user_forgot_pass_token");
+    (await cookies()).delete("user_forgot_pass_token");
   }
 
   if (isOtpPage && !hasValidOtpToken && !hasValidForgotPassToken) {
@@ -98,7 +96,7 @@ export async function middleware(request: NextRequest) {
   }
 
   console.log("✅ Access granted for:", pathname);
-  return response;
+  return NextResponse.next();
 }
 
 export const config = {
