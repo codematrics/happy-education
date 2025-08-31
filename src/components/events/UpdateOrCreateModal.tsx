@@ -131,7 +131,7 @@ const UpdateOrCreateEvent: React.FC<ModalProps> = ({ eventId }) => {
               <FormInput
                 name="joinLink"
                 control={form.control}
-                label="जॉइन लिंक (Zoom/Google Meet) *"
+                label="जॉइन लिंक (Zoom/Google Meet)"
                 placeholder="Zoom या Google Meet लिंक दर्ज करें"
                 type="url"
               />

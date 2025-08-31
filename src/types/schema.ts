@@ -230,7 +230,8 @@ export const eventValidations = z.object({
       (val) => val.includes("zoom.us/") || val.includes("meet.google.com/"),
       { message: "Join link must be a valid Zoom or Google Meet URL" }
     )
-    .optional(),
+    .optional()
+    .or(z.literal("")), // allows empty string
 });
 
 export type EventFormData = z.infer<typeof eventValidations>;
