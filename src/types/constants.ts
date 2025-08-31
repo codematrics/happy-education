@@ -10,6 +10,12 @@ export enum CourseCurrency {
   rupee = "rupee",
 }
 
+export enum EventRegistrationStatus {
+  pending = "pending",
+  paid = "paid",
+  failed = "failed",
+}
+
 export enum CourseAccessType {
   free = "free",
   lifetime = "lifetime",

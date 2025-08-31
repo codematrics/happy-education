@@ -1,9 +1,16 @@
 "use client";
 
+import "@/components/tiptap-node/blockquote-node/blockquote-node.scss";
+import "@/components/tiptap-node/code-block-node/code-block-node.scss";
+import "@/components/tiptap-node/heading-node/heading-node.scss";
+import "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node.scss";
+import "@/components/tiptap-node/image-node/image-node.scss";
+import "@/components/tiptap-node/list-node/list-node.scss";
+import "@/components/tiptap-node/paragraph-node/paragraph-node.scss";
+import "@/components/tiptap-templates/simple/simple-editor.scss";
 import { useEvents } from "@/hooks/useEvents";
 import { Event } from "@/types/types";
-import { formatDate } from "@/utils/date";
-import { Calendar, ExternalLink, Repeat } from "lucide-react";
+import { Calendar, ExternalLink } from "lucide-react";
 import React, { useState } from "react";
 import CustomCarousel from "../common/CustomCarousel";
 import CustomImage from "../common/CustomImage";
@@ -50,44 +57,13 @@ const EventCard: React.FC<{ event: Event }> = ({ event }) => {
             <h3 className="font-semibold text-lg line-clamp-2 mb-2">
               {event.name}
             </h3>
-            {event.description && (
-              <p className="text-sm text-muted-foreground line-clamp-2">
-                {event.description}
-              </p>
+            {event.content && (
+              <div
+                dangerouslySetInnerHTML={{ __html: event.content }}
+                className="text-sm text-muted-foreground line-clamp-2"
+              ></div>
             )}
           </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span>{formatDate(event.day)}</span>
-              {event.repeating && (
-                <Badge variant="outline" className="text-xs">
-                  <Repeat className="h-3 w-3 mr-1" />
-                  दोहराया जाने वाला
-                </Badge>
-              )}
-            </div>
-          </div>
-
-          {event.benefits && event.benefits.length > 0 && (
-            <div>
-              <div className="flex flex-wrap gap-1">
-                {event.benefits.slice(0, 2).map((benefit, index) => (
-                  <Badge key={index} variant="secondary" className="text-xs">
-                    {benefit.length > 15
-                      ? `${benefit.substring(0, 15)}...`
-                      : benefit}
-                  </Badge>
-                ))}
-                {event.benefits.length > 2 && (
-                  <Badge variant="secondary" className="text-xs">
-                    +{event.benefits.length - 2} और
-                  </Badge>
-                )}
-              </div>
-            </div>
-          )}
 
           <Button
             onClick={() => setShowPayment(true)}

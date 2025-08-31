@@ -7,13 +7,9 @@ export interface IEvent extends Document {
     publicId: string;
     url: string;
   };
-  description: string;
-  benefits: string[];
+  content: string;
   currency: CourseCurrency;
   amount: number;
-  day: Date;
-  repeating: boolean;
-  repeatEvery?: number;
   joinLink: string;
 }
 
@@ -28,12 +24,8 @@ const EventSchema: Schema = new Schema(
       publicId: { type: String, required: true },
       url: { type: String, required: true },
     },
-    description: {
+    content: {
       type: String,
-    },
-    benefits: {
-      type: [String],
-      default: [],
     },
     amount: {
       type: Number,
@@ -45,21 +37,8 @@ const EventSchema: Schema = new Schema(
       enum: CourseCurrency,
       required: true,
     },
-    day: {
-      type: Date,
-      required: true,
-    },
-    repeating: {
-      type: Boolean,
-      default: false,
-    },
-    repeatEvery: {
-      type: Number,
-      default: null,
-    },
     joinLink: {
       type: String,
-      required: true,
     },
   },
   {

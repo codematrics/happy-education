@@ -1,16 +1,14 @@
 "use client";
 
 import { useDeleteEvent, useEvents } from "@/hooks/useEvents";
-import { EventFormData } from "@/types/schema";
-import { Event } from "@/types/types";
 import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import DeleteConfirmDialog from "../common/DeleteConfirmation";
 import LoadingError from "../common/LoadingError";
 import CourseCardSkeleton from "../skeleton/CourseCard";
 import { Button } from "../ui/button";
 import EventCard from "./EventCard";
-import UpdateModal from "./UpdateOrCreateModal";
 
 interface DeleteConfirmDialogProps {
   isOpen: boolean;
@@ -18,57 +16,17 @@ interface DeleteConfirmDialogProps {
   eventId: string;
 }
 
-interface UpdateModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  data: EventFormData | null;
-  eventId: string | null;
-}
-
 const EventsList: React.FC = () => {
-  const [updateModal, setUpdateModal] = useState<UpdateModalProps>({
-    isOpen: false,
-    onClose: () => setUpdateModal((prev) => ({ ...prev, isOpen: false })),
-    data: null,
-    eventId: null,
-  });
   const [deleteConfirm, setDeleteConfirm] = useState<DeleteConfirmDialogProps>({
     isOpen: false,
     eventId: "",
     onDelete: () => {},
   });
 
+  const router = useRouter();
+
   const { mutateAsync: deleteEvent } = useDeleteEvent();
   const { data, isLoading, refetch } = useEvents();
-
-  const handleCreateEvent = () =>
-    setUpdateModal((prev) => ({
-      ...prev,
-      isOpen: true,
-      data: null,
-      eventId: null,
-    }));
-
-  const handleEditEvent = (event: Event) => {
-    const formData: EventFormData = {
-      name: event.name,
-      image: event.image || "",
-      description: event.description || "",
-      benefits: event.benefits || [],
-      amount: event.amount,
-      currency: event.currency,
-      day: event.day,
-      repeating: event.repeating,
-      repeatEvery: event.repeatEvery,
-      joinLink: event.joinLink,
-    };
-    setUpdateModal({
-      isOpen: true,
-      onClose: () => setUpdateModal((prev) => ({ ...prev, isOpen: false })),
-      data: formData,
-      eventId: event._id,
-    });
-  };
 
   const handleDeleteEvent = (eventId: string) => {
     setDeleteConfirm({
@@ -95,7 +53,7 @@ const EventsList: React.FC = () => {
           </p>
         </div>
         <Button
-          onClick={handleCreateEvent}
+          onClick={() => router.push("/admin/events/new")}
           className="bg-primary hover:bg-primary/90 text-primary-foreground"
         >
           <Plus className="h-4 w-4 mr-2" />
@@ -111,12 +69,11 @@ const EventsList: React.FC = () => {
         skeleton={<CourseCardSkeleton />}
       >
         {(data?.data?.length ?? 0) > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6">
             {data?.data?.map((event) => (
               <EventCard
                 key={event._id}
                 event={event}
-                onEdit={handleEditEvent}
                 onDelete={handleDeleteEvent}
                 showMoreMenu
               />
@@ -131,12 +88,6 @@ const EventsList: React.FC = () => {
         )}
       </LoadingError>
 
-      <UpdateModal
-        isOpen={updateModal.isOpen}
-        onClose={updateModal.onClose}
-        data={updateModal.data}
-        eventId={updateModal.eventId}
-      />
       <DeleteConfirmDialog
         isOpen={deleteConfirm.isOpen}
         onClose={() =>

@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 const API_BASE = "/api/v1/events";
 
-const getEventById = async (id: string): Promise<Event> => {
+const getEventById = async (id?: string | null): Promise<Event> => {
   const response = await fetch(`${API_BASE}/${id}`);
   if (!response.ok) {
     throw new Error("Failed to fetch event");
@@ -75,7 +75,7 @@ export const useEvents = () => {
   });
 };
 
-export const useEvent = (id: string) => {
+export const useEvent = (id?: string | null) => {
   return useQuery({
     queryKey: ["events", id],
     queryFn: () => getEventById(id),

@@ -17,9 +17,7 @@ declare global {
 }
 
 const paymentSchema = z.object({
-  firstName: z.string().min(1, "पहला नाम आवश्यक है"),
-  lastName: z.string().min(1, "अंतिम नाम आवश्यक है"),
-  email: z.string().email("वैध ईमेल आवश्यक है"),
+  email: z.string().email("वैध ईमेल आवश्यक है").optional(),
   phone: z.string().regex(/^[0-9]{10}$/, "10-अंकों का वैध फ़ोन नंबर आवश्यक है"),
 });
 
@@ -48,8 +46,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   const form = useForm<PaymentFormData>({
     resolver: zodResolver(paymentSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
       email: "",
       phone: "",
     },
@@ -128,7 +124,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         description: `${event.name} के लिए पंजीकरण`,
         order_id: orderData.data.id,
         prefill: {
-          name: `${formData.firstName} ${formData.lastName}`,
           email: formData.email,
           contact: formData.phone,
         },
@@ -237,7 +232,12 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
   if (showResult && resultData) {
     return (
-      <Modal isOpen={true} onClose={handleResultClose}>
+      <Modal
+        isOpen={true}
+        confirmText={resultData.success ? "ठीक है!" : "पुनः प्रयास करें"}
+        onConfirm={handleResultClose}
+        onClose={handleResultClose}
+      >
         <div className="p-6 text-center">
           <div
             className={`text-6xl mb-4 ${
@@ -250,16 +250,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
           <p className="text-muted-foreground mb-6 leading-relaxed">
             {resultData.message}
           </p>
-          <button
-            onClick={handleResultClose}
-            className={`w-full px-4 py-2 rounded-lg font-medium ${
-              resultData.success
-                ? "bg-green-500 hover:bg-green-600 text-white"
-                : "bg-primary hover:bg-primary/90 text-primary-foreground"
-            }`}
-          >
-            {resultData.success ? "ठीक है!" : "पुनः प्रयास करें"}
-          </button>
         </div>
       </Modal>
     );
@@ -271,7 +261,10 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       onClose={handleClose}
       title="इवेंट पंजीकरण"
       confirmText={`भुगतान ${formatPrice(event.amount, event.currency)}`}
-      onConfirm={form.handleSubmit(handlePayment)}
+      onConfirm={form.handleSubmit((data) => {
+        handleClose(); // ✅ hide modal immediately
+        handlePayment(data); // then start payment flow
+      })}
     >
       <div className="p-6">
         <div className="bg-muted/50 rounded-lg p-4 mb-6">
@@ -289,20 +282,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
             onSubmit={form.handleSubmit(handlePayment)}
             className="space-y-4"
           >
-            <div className="grid grid-cols-2 gap-3">
-              <FormInput
-                name="firstName"
-                control={form.control}
-                label="पहला नाम *"
-                placeholder="अपना पहला नाम दर्ज करें"
-              />
-              <FormInput
-                name="lastName"
-                control={form.control}
-                label="अंतिम नाम *"
-                placeholder="अपना अंतिम नाम दर्ज करें"
-              />
-            </div>
             <FormInput
               name="email"
               control={form.control}

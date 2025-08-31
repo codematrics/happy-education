@@ -1,9 +1,17 @@
 "use client";
 
+import "@/components/tiptap-node/blockquote-node/blockquote-node.scss";
+import "@/components/tiptap-node/code-block-node/code-block-node.scss";
+import "@/components/tiptap-node/heading-node/heading-node.scss";
+import "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node.scss";
+import "@/components/tiptap-node/image-node/image-node.scss";
+import "@/components/tiptap-node/list-node/list-node.scss";
+import "@/components/tiptap-node/paragraph-node/paragraph-node.scss";
+import "@/components/tiptap-templates/simple/simple-editor.scss";
+
 import { useEvents } from "@/hooks/useEvents";
 import { Event } from "@/types/types";
-import { formatDate } from "@/utils/date";
-import { Calendar, ExternalLink, Repeat } from "lucide-react";
+import { Calendar, ExternalLink } from "lucide-react";
 import React, { useState } from "react";
 import CustomImage from "../common/CustomImage";
 import { Badge } from "../ui/badge";
@@ -59,44 +67,13 @@ const EventCard: React.FC<{ event: Event }> = ({ event }) => {
                   {event.name}
                 </h2>
 
-                {event.description && (
-                  <p className="text-lg text-muted-foreground leading-relaxed">
-                    {event.description}
-                  </p>
+                {event.content && (
+                  <div
+                    dangerouslySetInnerHTML={{ __html: event.content }}
+                    className="text-sm text-muted-foreground line-clamp-2"
+                  ></div>
                 )}
               </div>
-
-              {/* Event Meta Info */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 text-lg">
-                  <Calendar className="h-5 w-5 text-primary" />
-                  <span className="font-medium">{formatDate(event.day)}</span>
-                  {event.repeating && (
-                    <Badge variant="outline" className="text-sm">
-                      <Repeat className="h-3 w-3 mr-1" />
-                      हर {event.repeatEvery} दिन
-                      {event.repeatEvery !== 1 ? "ों" : ""}
-                    </Badge>
-                  )}
-                </div>
-              </div>
-
-              {/* Benefits */}
-              {event.benefits && event.benefits.length > 0 && (
-                <div className="space-y-3">
-                  <h3 className="text-xl font-semibold text-foreground">
-                    आपको क्या मिलेगा:
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {event.benefits.map((benefit, index) => (
-                      <div key={index} className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0" />
-                        <span className="text-foreground">{benefit}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               {/* Join Button */}
               <div className="pt-4">

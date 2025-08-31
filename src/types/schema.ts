@@ -220,20 +220,17 @@ export const inquirySchema = z.object({
 export const eventValidations = z.object({
   name: z.string().min(3, "Name must be at least 3 characters"),
   image: requiredImage,
-  description: z.string().min(1).optional(),
-  benefits: z.array(z.string()).optional(),
+  content: z.string().min(1).optional(),
   amount: z.number().min(0, "Amount must be positive"),
-  day: z.date(),
   currency: z.nativeEnum(CourseCurrency),
-  repeating: z.boolean().optional(),
-  repeatEvery: z.number().min(1, "Repeat interval must be >= 1").optional(),
   joinLink: z
     .string()
     .url("Invalid URL")
     .refine(
       (val) => val.includes("zoom.us/") || val.includes("meet.google.com/"),
       { message: "Join link must be a valid Zoom or Google Meet URL" }
-    ),
+    )
+    .optional(),
 });
 
 export type EventFormData = z.infer<typeof eventValidations>;

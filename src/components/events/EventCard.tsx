@@ -1,17 +1,20 @@
+"use client";
+
+import "@/components/tiptap-node/blockquote-node/blockquote-node.scss";
+import "@/components/tiptap-node/code-block-node/code-block-node.scss";
+import "@/components/tiptap-node/heading-node/heading-node.scss";
+import "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node.scss";
+import "@/components/tiptap-node/image-node/image-node.scss";
+import "@/components/tiptap-node/list-node/list-node.scss";
+import "@/components/tiptap-node/paragraph-node/paragraph-node.scss";
+import "@/components/tiptap-templates/simple/simple-editor.scss";
+
 import { DropdownProps, Event } from "@/types/types";
-import { formatDate } from "@/utils/date";
-import {
-  Calendar,
-  Edit,
-  ExternalLink,
-  MoreHorizontal,
-  Repeat,
-  Trash2,
-} from "lucide-react";
+import { Edit, ExternalLink, MoreHorizontal, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React from "react";
 import CustomDropdown from "../common/CustomDropdown";
 import CustomImage from "../common/CustomImage";
-import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader } from "../ui/card";
 
@@ -28,16 +31,22 @@ const EventCard: React.FC<Props> = ({
   onDelete,
   onEdit,
 }) => {
+  const router = useRouter();
   const eventDropdownData: DropdownProps = {
     label: <MoreHorizontal className="h-4 w-4" />,
     options: [
       {
-        label: "Edit",
-        action: () => onEdit && onEdit(event),
+        label: "Link",
+        action: () => router.push(`/event/${event._id}`),
         icon: Edit,
       },
       {
-        label: "Delete",
+        label: "संपादित करें",
+        action: () => router.push(`/admin/events/${event._id}`),
+        icon: Edit,
+      },
+      {
+        label: "हटाएँ",
         action: () => onDelete && onDelete(event._id),
         icon: Trash2,
         itemClassName: "text-destructive hover:text-destructive",
@@ -62,10 +71,11 @@ const EventCard: React.FC<Props> = ({
             <h3 className="font-semibold text-lg truncate mb-1">
               {event.name}
             </h3>
-            {event.description && (
-              <p className="text-sm text-muted-foreground line-clamp-2">
-                {event.description}
-              </p>
+            {event.content && (
+              <div
+                dangerouslySetInnerHTML={{ __html: event.content }}
+                className="text-sm text-muted-foreground line-clamp-2"
+              ></div>
             )}
           </div>
           {showMoreMenu && (
@@ -87,48 +97,19 @@ const EventCard: React.FC<Props> = ({
         {/* Event Details */}
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-sm">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span>{formatDate(event.day)}</span>
-            {event.repeating && (
-              <Badge variant="outline" className="text-xs">
-                <Repeat className="h-3 w-3 mr-1" />
-                Every {event.repeatEvery} day
-                {event.repeatEvery !== 1 ? "s" : ""}
-              </Badge>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2 text-sm">
             <span className="font-medium">
               {formatPrice(event.amount, event.currency)}
             </span>
           </div>
         </div>
 
-        {/* Benefits */}
-        {event.benefits && event.benefits.length > 0 && (
-          <div className="space-y-1">
-            <h4 className="text-sm font-medium">Benefits:</h4>
-            <div className="flex flex-wrap gap-1">
-              {event.benefits.slice(0, 3).map((benefit, index) => (
-                <Badge key={index} variant="secondary" className="text-xs">
-                  {benefit}
-                </Badge>
-              ))}
-              {event.benefits.length > 3 && (
-                <Badge variant="secondary" className="text-xs">
-                  +{event.benefits.length - 3} more
-                </Badge>
-              )}
-            </div>
-          </div>
-        )}
-
         {/* Join Button */}
-        <Button onClick={handleJoinEvent} className="w-full" size="sm">
-          <ExternalLink className="h-4 w-4 mr-2" />
-          Join Event
-        </Button>
+        {event.joinLink && (
+          <Button onClick={handleJoinEvent} className="w-full" size="sm">
+            <ExternalLink className="h-4 w-4 mr-2" />
+            इवेंट में शामिल हों
+          </Button>
+        )}
       </CardContent>
     </Card>
   );

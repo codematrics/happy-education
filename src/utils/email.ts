@@ -278,24 +278,10 @@ export const emailTemplate = {
     </body>
     </html>
   `,
-  eventRegistrationEmailTemplate: (
-    userName: string,
+  EventRegistrationStatusEmailTemplate: (
     eventName: string,
-    eventDate: string,
-    joinLink: string,
-    eventDescription?: string,
-    benefits?: string[]
+    content: string
   ) => {
-    const benefitsList =
-      benefits && benefits.length > 0
-        ? benefits
-            .map(
-              (benefit) =>
-                `<li style="margin-bottom: 8px; color: #4a5568;">${benefit}</li>`
-            )
-            .join("")
-        : "";
-
     return `
     <!DOCTYPE html>
     <html lang="en">
@@ -454,45 +440,15 @@ export const emailTemplate = {
         </div>
         
         <div class="content">
-          <p>Dear <strong>${userName}</strong>,</p>
           
           <p>Thank you for registering! Your payment has been successfully processed and you're now registered for our upcoming event.</p>
           
           <div class="event-details">
             <div class="event-name">${eventName}</div>
-            <div class="event-date">📅 Event Date: ${new Date(
-              eventDate
-            ).toLocaleDateString("en-US", {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}</div>
-            ${
-              eventDescription
-                ? `<div class="event-description">${eventDescription}</div>`
-                : ""
-            }
+           
+            ${content ? `<div class="event-description">${content}</div>` : ""}
           </div>
 
-          ${
-            benefitsList
-              ? `
-            <div class="benefits">
-              <h3>What you'll get:</h3>
-              <ul>
-                ${benefitsList}
-              </ul>
-            </div>
-          `
-              : ""
-          }
-
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${joinLink}" class="join-button">
-              🚀 Join Event Now
-            </a>
-          </div>
 
           <div class="warning">
             <strong>Important:</strong>

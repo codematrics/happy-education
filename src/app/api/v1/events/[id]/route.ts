@@ -32,7 +32,7 @@ async function putController(
     await connect();
     const json = await req.json();
     validateSchema(eventValidations.partial(), json);
-
+    console.log(json);
     const updated = await Event.findByIdAndUpdate(id, json, {
       new: true,
     });

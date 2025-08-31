@@ -1,6 +1,8 @@
 import connect from "@/lib/db";
+import { EventRegistration } from "@/models/EventRegistrations";
 import { Event } from "@/models/Events";
 import { sendMail } from "@/services/email";
+import { EventRegistrationStatus } from "@/types/constants";
 import { emailTemplate } from "@/utils/email";
 import { response } from "@/utils/response";
 import crypto from "crypto";
@@ -46,34 +48,56 @@ export async function POST(req: NextRequest) {
       return response.error("Event not found", 404);
     }
 
-    // Prepare email data
-    const { firstName, lastName, email } = userDetails;
+    // Prepare user data
+    const { firstName, lastName, email, phone } = userDetails;
     const userName = `${firstName} ${lastName}`;
+
+    // Create/Update event registration
+    const registration = await EventRegistration.findOneAndUpdate(
+      {
+        eventId: event._id,
+        email: email,
+        orderId: razorpay_order_id,
+      },
+      {
+        eventId: event._id,
+        eventName: event.name,
+        firstName,
+        lastName,
+        phoneNumber: phone,
+        email,
+        paymentStatus: EventRegistrationStatus.paid,
+        orderId: razorpay_order_id,
+        paymentId: razorpay_payment_id,
+        amount: event.amount,
+        currency: event.currency || "rupee",
+        registrationDate: new Date(),
+        joinLinkSent: true,
+      },
+      {
+        upsert: true,
+        new: true,
+      }
+    );
 
     // Send event registration email with join link
     try {
       await sendMail(
-        emailTemplate.eventRegistrationEmailTemplate(
-          userName,
-          event.name,
-          event.day.toISOString().split("T")[0],
-          event.joinLink,
-          event.description || "",
-          event.benefits || []
-        ),
+        emailTemplate.otp(`Your join link: ${event.joinLink}`),
         `Registration Confirmed: ${event.name}`,
         "Event Registration Confirmation",
         email
       );
     } catch (emailError) {
       console.error("Email sending failed:", emailError);
-      // Don't fail the payment verification if email fails
-      // but log the error for manual follow-up
+      // Mark join link as not sent if email fails
+      await EventRegistration.findByIdAndUpdate(registration._id, {
+        joinLinkSent: false,
+      });
     }
 
-    // You can also store the registration in a database if needed
-    // For now, we'll just log the successful registration
     console.log("Event registration successful:", {
+      registrationId: registration._id,
       eventId: event._id,
       eventName: event.name,
       userEmail: email,

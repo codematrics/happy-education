@@ -111,3 +111,29 @@ export const getInquiry = (
 export const getEvents = (): Promise<ResponseInterface<Event[]>> => {
   return fetcher(`/api/v1/events`);
 };
+
+export const getEventRegistrations = (
+  page: number = 1,
+  limit: number = 10,
+  eventId?: string,
+  fromDate?: string,
+  toDate?: string,
+  paymentStatus?: string
+): Promise<
+  ResponseInterface<{
+    items: any[];
+    pagination: any;
+  }>
+> => {
+  const params = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString(),
+  });
+
+  if (eventId) params.append("eventId", eventId);
+  if (fromDate) params.append("fromDate", fromDate);
+  if (toDate) params.append("toDate", toDate);
+  if (paymentStatus) params.append("paymentStatus", paymentStatus);
+
+  return fetcher(`/api/v1/event-registrations?${params.toString()}`);
+};

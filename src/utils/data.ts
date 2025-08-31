@@ -5,6 +5,7 @@ import {
   BookCopy,
   BookOpen,
   Calendar,
+  CalendarCheck,
   Home,
   User,
   UserRoundSearch,
@@ -30,6 +31,11 @@ export const sidebarItems = [
     title: "Events",
     url: "/admin/events",
     icon: Calendar,
+  },
+  {
+    title: "Event Registrations",
+    url: "/admin/event-registrations",
+    icon: CalendarCheck,
   },
   {
     title: "Testimonials",
