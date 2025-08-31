@@ -44,10 +44,10 @@ const Contact = () => {
                   <div>
                     <h3 className="font-semibold mb-1">हमें ईमेल करें</h3>
                     <p className="text-muted-foreground">
-                      info@eduplatform.com
+                      happyeducation9379@gmail.com
                     </p>
                     <p className="text-muted-foreground">
-                      support@eduplatform.com
+                      happyeducation9379@gmail.com
                     </p>
                   </div>
                 </div>
@@ -58,7 +58,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold mb-1">हमें कॉल करें</h3>
-                    <p className="text-muted-foreground">+1 (555) 123-4567</p>
+                    <p className="text-muted-foreground">+91 9327454267</p>
                     <p className="text-muted-foreground">
                       सोमवार-रविवार 9AM-10PM EST
                     </p>
@@ -75,8 +75,8 @@ const Contact = () => {
             <h2 className="text-2xl font-bold mb-6 text-center">हमसे मिलें</h2>
             <div className="mb-6 text-center">
               <p className="text-muted-foreground mb-2">
-                हमारे कार्यालय पर आएँ: 123 Education Street, Learning City, LC
-                12345
+                हमारे कार्यालय पर आएँ: Royal Arcade, 307, New Shahibaug, Nana
+                Chiloda, Gujarat 382330
               </p>
               <p className="text-sm text-muted-foreground">
                 सोमवार से शुक्रवार, सुबह 9:00 बजे - शाम 6:00 बजे EST

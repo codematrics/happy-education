@@ -100,12 +100,12 @@ const AppFooter = () => {
               <div className="flex items-center space-x-3">
                 <Mail className="w-5 h-5 text-primary" />
                 <span className="text-muted-foreground">
-                  info@eduplatform.com
+                  happyeducation9379@gmail.com
                 </span>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="w-5 h-5 text-primary" />
-                <span className="text-muted-foreground">+1 (555) 123-4567</span>
+                <span className="text-muted-foreground">+91 9327454267</span>
               </div>
               <div className="flex flex-col space-y-2">
                 <div className="flex items-start space-x-3">

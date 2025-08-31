@@ -35,7 +35,7 @@ export function generateReceiptHTML(
   const company = companyInfo || {
     name: "Happy Education",
     address: "123 Education Street, Learning City, LC 12345",
-    phone: "+1 (555) 123-4567",
+    phone: "+91 9327454267",
     email: "support@happyeducation.com",
     website: "www.happyeducation.com",
   };
