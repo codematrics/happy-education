@@ -70,7 +70,7 @@ const EventPage = ({ eventId }: { eventId: string }) => {
         </div>
         {testimonials?.data.items && testimonials?.data.items.length > 0 && (
           <>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-6">
               {testimonials.data.items.map((testimonial) => (
                 <TestimonialCard
                   key={testimonial._id}
