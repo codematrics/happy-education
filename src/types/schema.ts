@@ -195,7 +195,7 @@ export const userCreateValidations = z
 export const testimonialCreateSchema = z.object({
   thumbnail: optionalImage,
   video: requiredVideo,
-  courseId: z.array(z.string()).min(1, "At least one course is required."),
+  courseId: z.array(z.string()).optional(),
   selectedCourse: z.any(),
 });
 
