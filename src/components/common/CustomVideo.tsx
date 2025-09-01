@@ -107,7 +107,7 @@ const CustomVideo: React.FC<Props> = ({
     >
       <video
         ref={videoRef}
-        className="w-full h-full rounded-2xl select-none object-cover"
+        className="w-full h-full rounded-2xl select-none object-contain"
         poster={thumbnail}
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
