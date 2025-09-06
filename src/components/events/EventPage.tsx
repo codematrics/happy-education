@@ -16,7 +16,6 @@ import { DollarSign, IndianRupee } from "lucide-react";
 import { useState } from "react";
 import CustomImage from "../common/CustomImage";
 import LoadingError from "../common/LoadingError";
-import CourseSliderSkeleton from "../skeleton/StaticPageCourseSkeleton";
 import TestimonialCard from "../testimonal/TestimonialCard";
 import { Button } from "../ui/button";
 import PaymentModal from "./PaymentModal";
@@ -30,7 +29,7 @@ const EventPage = ({ eventId }: { eventId: string }) => {
 
   return (
     <LoadingError
-      skeleton={<CourseSliderSkeleton />}
+      skeleton={<></>}
       error={error?.message}
       errorTitle="Error While Fetching Event"
       isLoading={isLoading}
