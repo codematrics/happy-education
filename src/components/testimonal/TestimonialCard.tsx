@@ -12,6 +12,9 @@ interface Props {
   onEdit?: (testimonial: Testimonial) => void;
   onDelete?: (testimonialId: string) => void;
   showMoreMenu?: boolean;
+  isPlaying?: boolean;
+  onPlay?: () => void;
+  onPause?: () => void;
 }
 
 const TestimonialCard: React.FC<Props> = ({
@@ -19,17 +22,20 @@ const TestimonialCard: React.FC<Props> = ({
   showMoreMenu = false,
   onDelete,
   onEdit,
+  isPlaying,
+  onPlay,
+  onPause,
 }) => {
   const testimonialDropdownData: DropdownProps = {
     label: <MoreHorizontal className="h-4 w-4" />,
     options: [
       {
-        label: "संपादित करें", // Edit
+        label: "संपादित करें",
         action: () => onEdit && onEdit(testimonial),
         icon: Edit,
       },
       {
-        label: "हटाएँ", // Delete
+        label: "हटाएँ",
         action: () => onDelete && onDelete(testimonial._id),
         icon: Trash2,
         itemClassName: "text-destructive hover:text-destructive",
@@ -39,10 +45,7 @@ const TestimonialCard: React.FC<Props> = ({
   };
 
   return (
-    <Card
-      key={testimonial._id}
-      className="group hover:shadow-lg transition-all duration-200 border-none shadow-none bg-card p-0 space-0 gap-0 w-full"
-    >
+    <Card className="group hover:shadow-lg transition-all duration-200 border-none shadow-none bg-card p-0 w-full">
       <CardHeader className="p-0">
         <div className="relative overflow-hidden rounded-t-lg">
           {testimonial.video?.url ? (
@@ -50,7 +53,10 @@ const TestimonialCard: React.FC<Props> = ({
               duration={testimonial.video.duration}
               src={testimonial.video.url}
               thumbnail={testimonial?.thumbnail?.url}
-              className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-200"
+              className="w-full h-70 md:h-48 object-cover group-hover:scale-105 transition-transform duration-200"
+              isPlaying={isPlaying}
+              onPlay={onPlay}
+              onPause={onPause}
             />
           ) : (
             <div className="w-full h-48 bg-muted flex items-center justify-center">
@@ -75,7 +81,7 @@ const TestimonialCard: React.FC<Props> = ({
                   variant="secondary"
                   className="text-xs break-words max-w-full whitespace-normal"
                 >
-                  {course.name || "अज्ञात"} {/* Unknown */}
+                  {course.name || "अज्ञात"}
                 </Badge>
               ))
             ) : (
@@ -83,8 +89,7 @@ const TestimonialCard: React.FC<Props> = ({
                 variant="secondary"
                 className="text-xs break-words max-w-full whitespace-normal"
               >
-                {(testimonial.courseId as Course)?.name || "अज्ञात"}{" "}
-                {/* Unknown */}
+                {(testimonial.courseId as Course)?.name || "अज्ञात"}
               </Badge>
             )}
           </div>

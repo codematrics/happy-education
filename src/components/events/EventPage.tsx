@@ -18,18 +18,18 @@ import CustomImage from "../common/CustomImage";
 import LoadingError from "../common/LoadingError";
 import TestimonialCard from "../testimonal/TestimonialCard";
 import { Button } from "../ui/button";
+import { EventPageSkeleton } from "./EventSkeleton";
 import PaymentModal from "./PaymentModal";
+
 const EventPage = ({ eventId }: { eventId: string }) => {
   const [showModal, setShowModal] = useState(false);
+  const [currentPlayingId, setCurrentPlayingId] = useState<string | null>(null); // <-- currently playing video
   const { data, isLoading, error } = useEvent(eventId);
-  const { data: testimonials } = useTestimonials({
-    page: 1,
-    limit: 10,
-  });
+  const { data: testimonials } = useTestimonials({ page: 1, limit: 10 });
 
   return (
     <LoadingError
-      skeleton={<></>}
+      skeleton={<EventPageSkeleton />}
       error={error?.message}
       errorTitle="Error While Fetching Event"
       isLoading={isLoading}
@@ -46,10 +46,12 @@ const EventPage = ({ eventId }: { eventId: string }) => {
               {data?.name}
             </h1>
           </div>
+
           <div
             className="tiptap ProseMirror simple-editor simple-editor-content !w-full !max-w-full !m-0"
             dangerouslySetInnerHTML={{ __html: data?.content || "" }}
           ></div>
+
           <div className="fixed bottom-0 left-0 w-full bg-card shadow-strong border-t border-border z-50">
             <div className="container mx-auto px-4 py-3 flex justify-end items-center">
               <Button
@@ -68,19 +70,23 @@ const EventPage = ({ eventId }: { eventId: string }) => {
               </Button>
             </div>
           </div>
+
+          {/* Testimonials */}
           {testimonials?.data.items && testimonials?.data.items.length > 0 && (
-            <>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-6">
-                {testimonials.data.items.map((testimonial) => (
-                  <TestimonialCard
-                    key={testimonial._id}
-                    testimonial={testimonial}
-                  />
-                ))}
-              </div>
-            </>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-6">
+              {testimonials.data.items.map((testimonial) => (
+                <TestimonialCard
+                  key={testimonial._id}
+                  testimonial={testimonial}
+                  isPlaying={currentPlayingId === testimonial._id} // <-- only current plays
+                  onPlay={() => setCurrentPlayingId(testimonial._id)} // notify playing
+                  onPause={() => setCurrentPlayingId(null)} // notify pause
+                />
+              ))}
+            </div>
           )}
         </div>
+
         {data && (
           <PaymentModal
             isOpen={showModal}
