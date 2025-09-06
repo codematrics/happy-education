@@ -12,6 +12,7 @@ import "@/components/tiptap-templates/simple/simple-editor.scss";
 import { useEvents } from "@/hooks/useEvents";
 import { Event } from "@/types/types";
 import { Calendar, ExternalLink } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import CustomImage from "../common/CustomImage";
 import { Badge } from "../ui/badge";
@@ -28,6 +29,7 @@ import PaymentModal from "./PaymentModal";
 
 const EventCard: React.FC<{ event: Event }> = ({ event }) => {
   const [showPayment, setShowPayment] = useState(false);
+  const router = useRouter();
 
   const formatPrice = (price: number, currency: "dollar" | "rupee") => {
     const symbol = currency === "dollar" ? "$" : "₹";
@@ -78,12 +80,12 @@ const EventCard: React.FC<{ event: Event }> = ({ event }) => {
               {/* Join Button */}
               <div className="pt-4">
                 <Button
-                  onClick={() => setShowPayment(true)}
+                  onClick={() => router.push(`/event/${event._id}`)}
                   size="lg"
                   className="w-full lg:w-auto text-lg px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300"
                 >
                   <ExternalLink className="h-5 w-5 mr-2" />
-                  इवेंट से जुड़ें - {formatPrice(event.amount, event.currency)}
+                  इवेंट
                 </Button>
               </div>
             </div>
