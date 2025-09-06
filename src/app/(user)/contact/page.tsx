@@ -1,5 +1,4 @@
 import InquiryForm from "@/components/inquiry/InquiryForm";
-import { Mail, Phone } from "lucide-react";
 
 const Contact = () => {
   return (
@@ -14,7 +13,7 @@ const Contact = () => {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12">
+        <div className="grid lg:grid-cols-1 max-w-lg mx-auto gap-12">
           {/* Contact Form */}
           <div className="">
             <div className="bg-card rounded-2xl p-8 shadow-soft border">
@@ -28,37 +27,6 @@ const Contact = () => {
                   शर्तों से सहमत होते हैं। हम आपकी जानकारी किसी तीसरे पक्ष के
                   साथ साझा नहीं करेंगे।
                 </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Contact Information */}
-          <div className="space-y-8 px-8">
-            <div>
-              <h2 className="text-2xl font-bold mb-6">संपर्क जानकारी</h2>
-              <div className="space-y-6 grid lg:grid-cols-1">
-                <div className="flex items-start space-x-4 rounded-2xl p-4 shadow-soft border">
-                  <div className="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Mail className="w-6 h-6 text-black" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-1">हमें ईमेल करें</h3>
-                    <p className="text-muted-foreground">
-                      happyeducation9379@gmail.com
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4 rounded-2xl p-4 shadow-soft border">
-                  <div className="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Phone className="w-6 h-6 text-black" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-1">हमें कॉल करें</h3>
-                    <p className="text-muted-foreground">+91 9327454267</p>
-                    <p className="text-muted-foreground">+91 7567801007</p>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
