@@ -1,21 +1,27 @@
 .tiptap.ProseMirror {
-  --tt-collaboration-carets-label: var(--tt-gray-light-900);
-  --link-text-color: var(--tt-brand-color-500);
-  --thread-text: var(--tt-gray-light-900);
-  --placeholder-color: var(--tt-gray-light-a-400);
-  --thread-bg-color: var(--tt-color-yellow-inc-2);
+  /* Collaboration carets label */
+  --tt-collaboration-carets-label: var(--foreground);
 
-  // ai
-  --tiptap-ai-insertion-color: var(--tt-brand-color-600);
+  /* Links */
+  --link-text-color: var(--primary);
+
+  /* Threaded comments / discussions */
+  --thread-text: var(--foreground);
+  --thread-bg-color: var(--accent);
+
+  /* Placeholder */
+  --placeholder-color: var(--muted-foreground);
+
+  /* AI insertions */
+  --tiptap-ai-insertion-color: var(--secondary);
 
   .dark & {
-    --tt-collaboration-carets-label: var(--tt-gray-dark-100);
-    --link-text-color: var(--tt-brand-color-400);
-    --thread-text: var(--tt-gray-dark-900);
-    --placeholder-color: var(--tt-gray-dark-a-400);
-    --thread-bg-color: var(--tt-color-yellow-dec-2);
-
-    --tiptap-ai-insertion-color: var(--tt-brand-color-400);
+    --tt-collaboration-carets-label: var(--foreground);
+    --link-text-color: var(--primary);
+    --thread-text: var(--foreground);
+    --thread-bg-color: var(--accent);
+    --placeholder-color: var(--muted-foreground);
+    --tiptap-ai-insertion-color: var(--secondary);
   }
 }
 
@@ -164,9 +170,7 @@
 .tiptap.ProseMirror {
   // Base styles for inline threads
   .tiptap-thread.tiptap-thread--unresolved.tiptap-thread--inline {
-    transition:
-      color 0.2s ease-in-out,
-      background-color 0.2s ease-in-out;
+    transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
     color: var(--thread-text);
     border-bottom: 2px dashed var(--tt-color-yellow-base);
     font-weight: 600;

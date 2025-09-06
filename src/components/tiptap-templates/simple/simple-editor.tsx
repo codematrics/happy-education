@@ -5,12 +5,14 @@ import * as React from "react";
 import { useController, useFormContext } from "react-hook-form";
 
 // --- Tiptap Core Extensions ---
+import { Color } from "@tiptap/extension-color";
 import { Highlight } from "@tiptap/extension-highlight";
 import { Image } from "@tiptap/extension-image";
 import { TaskItem, TaskList } from "@tiptap/extension-list";
 import { Subscript } from "@tiptap/extension-subscript";
 import { Superscript } from "@tiptap/extension-superscript";
 import { TextAlign } from "@tiptap/extension-text-align";
+import { TextStyle } from "@tiptap/extension-text-style";
 import { Typography } from "@tiptap/extension-typography";
 import { Selection } from "@tiptap/extensions";
 import { StarterKit } from "@tiptap/starter-kit";
@@ -70,6 +72,7 @@ import { handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils";
 
 // --- Styles ---
 import "@/components/tiptap-templates/simple/simple-editor.scss";
+import { TextColorPickerButton } from "@/components/tiptap-ui/text-style-button/text-style-button";
 
 const MainToolbarContent = ({
   onHighlighterClick,
@@ -99,6 +102,7 @@ const MainToolbarContent = ({
         />
         <BlockquoteButton />
         <CodeBlockButton />
+        <TextColorPickerButton />
       </ToolbarGroup>
 
       <ToolbarSeparator />
@@ -217,6 +221,8 @@ export function SimpleEditor({ name }: SimpleEditorProps) {
         },
       }),
       HorizontalRule,
+      TextStyle, // Required for Color extension
+      Color,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       TaskList,
       TaskItem.configure({ nested: true }),

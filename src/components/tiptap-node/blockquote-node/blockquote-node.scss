@@ -1,8 +1,10 @@
 .tiptap.ProseMirror {
-  --blockquote-bg-color: var(--tt-gray-light-900);
+  /* Light mode */
+  --blockquote-bg-color: var(--muted);
 
   .dark & {
-    --blockquote-bg-color: var(--tt-gray-dark-900);
+    /* Dark mode */
+    --blockquote-bg-color: var(--muted);
   }
 }
 
