@@ -13,7 +13,7 @@ import { useAuthCheck } from "@/hooks/useAuth";
 import { BookOpen, LogOut, Menu, Shield, User, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 
@@ -48,10 +48,17 @@ const AppNavbar = () => {
     { href: "/profile", label: "प्रोफ़ाइल", icon: User },
   ];
 
+  const pathName = usePathname();
+  const eventPage = pathName.includes("/event/");
+
   const adminLinks = [{ href: "/admin", label: "एडमिन", icon: Shield }];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border shadow-soft">
+    <header
+      className={`${
+        eventPage ? "bg-[#0eff094a]" : "bg-background/80"
+      } fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-border shadow-soft`}
+    >
       <div className="container mx-auto px-4 py-4 relative flex items-center justify-between">
         {/* Logo */}
         <Link

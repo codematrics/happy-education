@@ -12,11 +12,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  
   return (
     <>
       <AppNavbar />
-      <main className="pt-[72px]">{children}</main>
+      <main className="pt-[69px]">{children}</main>
       <AppFooter />
     </>
   );

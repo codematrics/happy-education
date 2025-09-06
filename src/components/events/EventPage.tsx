@@ -34,59 +34,61 @@ const EventPage = ({ eventId }: { eventId: string }) => {
       errorTitle="Error While Fetching Event"
       isLoading={isLoading}
     >
-      <div className="max-w-5xl mx-auto p-4">
-        <div>
-          <CustomImage
-            src={data?.image?.url || ""}
-            alt={data?.name || ""}
-            className="w-full object-cover"
-          />
-          <h1 className="text-4xl lg:text-5xl font-bold leading-tight my-3">
-            {data?.name}
-          </h1>
-        </div>
-        <div
-          className="tiptap ProseMirror simple-editor simple-editor-content !w-full !max-w-full !m-0"
-          dangerouslySetInnerHTML={{ __html: data?.content || "" }}
-        ></div>
-        <div className="fixed bottom-0 left-0 w-full bg-card shadow-strong border-t border-border z-50">
-          <div className="container mx-auto px-4 py-3 flex justify-end items-center">
-            <Button
-              size="lg"
-              className="w-full md:w-auto"
-              onClick={() => setShowModal(true)}
-            >
-              <span className="flex items-center">
-                {data?.currency === CourseCurrency.dollar ? (
-                  <DollarSign className="m-0" />
-                ) : (
-                  <IndianRupee className="m-0" />
-                )}
-                {data?.amount} पेमेंट करके अभी वर्कशॉप जॉइन करें
-              </span>
-            </Button>
+      <div className="bg-[#0eff094a]">
+        <div className="max-w-5xl mx-auto p-4">
+          <div>
+            <CustomImage
+              src={data?.image?.url || ""}
+              alt={data?.name || ""}
+              className="w-full object-cover"
+            />
+            <h1 className="text-4xl lg:text-5xl font-bold leading-tight my-3">
+              {data?.name}
+            </h1>
           </div>
-        </div>
-        {testimonials?.data.items && testimonials?.data.items.length > 0 && (
-          <>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-6">
-              {testimonials.data.items.map((testimonial) => (
-                <TestimonialCard
-                  key={testimonial._id}
-                  testimonial={testimonial}
-                />
-              ))}
+          <div
+            className="tiptap ProseMirror simple-editor simple-editor-content !w-full !max-w-full !m-0"
+            dangerouslySetInnerHTML={{ __html: data?.content || "" }}
+          ></div>
+          <div className="fixed bottom-0 left-0 w-full bg-card shadow-strong border-t border-border z-50">
+            <div className="container mx-auto px-4 py-3 flex justify-end items-center">
+              <Button
+                size="lg"
+                className="w-full md:w-auto bg-[#e8331e]"
+                onClick={() => setShowModal(true)}
+              >
+                <span className="flex items-center text-lg font-medium">
+                  {data?.currency === CourseCurrency.dollar ? (
+                    <DollarSign className="m-0" />
+                  ) : (
+                    <IndianRupee className="m-0" />
+                  )}
+                  {data?.amount} पेमेंट करके अभी वर्कशॉप जॉइन करें
+                </span>
+              </Button>
             </div>
-          </>
+          </div>
+          {testimonials?.data.items && testimonials?.data.items.length > 0 && (
+            <>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-6">
+                {testimonials.data.items.map((testimonial) => (
+                  <TestimonialCard
+                    key={testimonial._id}
+                    testimonial={testimonial}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+        {data && (
+          <PaymentModal
+            isOpen={showModal}
+            onClose={() => setShowModal(false)}
+            event={data}
+          />
         )}
       </div>
-      {data && (
-        <PaymentModal
-          isOpen={showModal}
-          onClose={() => setShowModal(false)}
-          event={data}
-        />
-      )}
     </LoadingError>
   );
 };
